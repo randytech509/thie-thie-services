@@ -162,7 +162,7 @@ export function Sidebar(props: SidebarProps) {
             className="w-full flex items-center gap-2 px-3 py-2.5 text-left"
           >
             <div className="relative">
-              <Coins className="w-4 h-4 text-[#ffc107]" />
+              <Coins className="w-4 h-4 text-[#c084fc]" />
               <Sparkles className="w-2 h-2 text-[var(--tt-accent)] absolute -top-1 -right-1" />
             </div>
             <div className="flex-1 min-w-0">
@@ -185,7 +185,7 @@ export function Sidebar(props: SidebarProps) {
                     onClick={() => setLoyaltyTab(tab)}
                     className={`py-1.5 text-[9px] font-bold rounded-md transition-all ${
                       loyaltyTab === tab
-                        ? 'bg-[var(--tt-accent)] text-[#201200] shadow-sm'
+                        ? 'bg-[var(--tt-accent)] text-[#2a0a3d] shadow-sm'
                         : 'text-[var(--tt-text-muted)] hover:text-[var(--tt-text)]'
                     }`}
                   >
@@ -229,7 +229,7 @@ export function Sidebar(props: SidebarProps) {
                           disabled={!affordable}
                           onClick={() => redeemReward(reward)}
                           className={`px-2 py-1 text-[8.5px] font-black rounded-md shrink-0 ${
-                            affordable ? 'bg-[var(--tt-accent)] text-[#201200]' : 'bg-[var(--tt-surface-3)] text-[var(--tt-text-faint)]'
+                            affordable ? 'bg-[var(--tt-accent)] text-[#2a0a3d]' : 'bg-[var(--tt-surface-3)] text-[var(--tt-text-faint)]'
                           }`}
                         >
                           {lang === 'FR' ? 'Échanger' : 'Chanje'}
@@ -277,7 +277,7 @@ export function Sidebar(props: SidebarProps) {
             </span>
             <button
               onClick={() => navigateToPage('profile')}
-              className="text-[11px] font-bold bg-[var(--tt-accent)] text-[#201200] rounded-lg py-1.5"
+              className="text-[11px] font-bold bg-[var(--tt-accent)] text-[#2a0a3d] rounded-lg py-1.5"
             >
               + {lang === 'FR' ? 'Ajouter des fonds' : 'Ajoute lajan'}
             </button>
@@ -303,7 +303,7 @@ export function Sidebar(props: SidebarProps) {
                 <LogOut className="w-4 h-4" />
               </button>
             ) : (
-              <button onClick={onLogin} className="px-2.5 py-1.5 bg-[var(--tt-accent)] text-[#201200] rounded-lg text-[11px] font-extrabold">
+              <button onClick={onLogin} className="px-2.5 py-1.5 bg-[var(--tt-accent)] text-[#2a0a3d] rounded-lg text-[11px] font-extrabold">
                 {lang === 'FR' ? 'Connexion' : 'Koneksyon'}
               </button>
             )}

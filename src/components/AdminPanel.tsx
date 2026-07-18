@@ -113,19 +113,19 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
   // Écran de step-up : un passkey est enregistré mais pas encore vérifié cette session.
   // (Le serveur applique de toute façon requireStepUp sur les actions sensibles.)
   if (hasPasskey === null) {
-    return <div className="min-h-screen bg-[#0a0e27] text-white flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-[#ff9800]" /></div>;
+    return <div className="min-h-screen bg-[#0a0510] text-white flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-[#a855f7]" /></div>;
   }
   if (hasPasskey && !stepUpOk) {
     return (
-      <div className="min-h-screen bg-[#0a0e27] text-white flex items-center justify-center p-4">
-        <div className="bg-[#11162e] border border-white/10 rounded-3xl w-full max-w-sm p-8 text-center flex flex-col items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#ff9800]/15 flex items-center justify-center"><Fingerprint className="w-7 h-7 text-[#ff9800]" /></div>
+      <div className="min-h-screen bg-[#0a0510] text-white flex items-center justify-center p-4">
+        <div className="bg-[#150b28] border border-white/10 rounded-3xl w-full max-w-sm p-8 text-center flex flex-col items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-[#a855f7]/15 flex items-center justify-center"><Fingerprint className="w-7 h-7 text-[#a855f7]" /></div>
           <div>
             <h1 className="text-xl font-black">Back-office protégé</h1>
             <p className="text-sm text-white/50 mt-1">Vérifie ton identité avec ton passkey pour continuer.</p>
           </div>
           {pkMsg && <p className="text-xs font-bold text-red-400">{pkMsg}</p>}
-          <button onClick={doVerifyPasskey} disabled={pkBusy} className="w-full bg-[#ff9800] hover:bg-[#ffa726] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">
+          <button onClick={doVerifyPasskey} disabled={pkBusy} className="w-full bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">
             {pkBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Fingerprint className="w-4 h-4" />} Déverrouiller
           </button>
           <button onClick={() => navigateToPage('home')} className="text-xs text-white/40 hover:text-white">Retour au site</button>
@@ -135,22 +135,22 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0e27] text-white flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#0a0510] text-white flex flex-col lg:flex-row">
       {/* Nav onglets */}
-      <aside className="lg:w-60 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.06] bg-[#11162e] lg:h-screen lg:sticky lg:top-0 p-3">
+      <aside className="lg:w-60 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.06] bg-[#150b28] lg:h-screen lg:sticky lg:top-0 p-3">
         <button onClick={() => navigateToPage('home')} className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white mb-3 px-2 py-1">
           <ChevronLeft className="w-4 h-4" /> Retour au site
         </button>
-        <h1 className="text-sm font-black px-2 mb-2 text-[#ff9800] uppercase tracking-wider">Back-office</h1>
+        <h1 className="text-sm font-black px-2 mb-2 text-[#a855f7] uppercase tracking-wider">Back-office</h1>
         <nav className="flex lg:flex-col gap-1 overflow-x-auto">
           {TABS.map((t) => {
             const Icon = t.icon;
             const badge = t.id === 'orders' ? ordersToFulfill.length : t.id === 'deposits' ? depositsPending.length : t.id === 'kyc' ? kycPending.length : 0;
             return (
               <button key={t.id} onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-colors ${tab === t.id ? 'bg-[#ff9800] text-black' : 'text-white/70 hover:bg-white/[0.05]'}`}>
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-colors ${tab === t.id ? 'bg-[#a855f7] text-black' : 'text-white/70 hover:bg-white/[0.05]'}`}>
                 <Icon className="w-4 h-4" /> {t.label}
-                {badge > 0 && <span className={`ml-auto text-[10px] rounded-full px-1.5 ${tab === t.id ? 'bg-black/20' : 'bg-[#ff9800] text-black'}`}>{badge}</span>}
+                {badge > 0 && <span className={`ml-auto text-[10px] rounded-full px-1.5 ${tab === t.id ? 'bg-black/20' : 'bg-[#a855f7] text-black'}`}>{badge}</span>}
               </button>
             );
           })}
@@ -158,19 +158,19 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
       </aside>
 
       <main className="flex-1 min-w-0 p-4 lg:p-8">
-        {toast && <div className="fixed top-6 right-6 z-50 bg-[#1a2332] border border-[#ff9800] rounded-xl px-4 py-3 text-sm font-bold shadow-2xl">{toast}</div>}
+        {toast && <div className="fixed top-6 right-6 z-50 bg-[#1c1030] border border-[#a855f7] rounded-xl px-4 py-3 text-sm font-bold shadow-2xl">{toast}</div>}
 
         {tab === 'dashboard' && (
           <div>
             <h2 className="text-2xl font-black mb-6">Tableau de bord</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Commandes à livrer', value: ordersToFulfill.length, c: '#ff9800' },
-                { label: 'Dépôts en attente', value: depositsPending.length, c: '#3b82f6' },
+                { label: 'Commandes à livrer', value: ordersToFulfill.length, c: '#a855f7' },
+                { label: 'Dépôts en attente', value: depositsPending.length, c: '#8b5cf6' },
                 { label: 'KYC en attente', value: kycPending.length, c: '#a78bfa' },
                 { label: 'Total commandes', value: orders.length, c: '#10b981' },
               ].map((s) => (
-                <div key={s.label} className="bg-[#11162e] border border-white/[0.06] rounded-2xl p-5">
+                <div key={s.label} className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5">
                   <p className="text-3xl font-black tabular-nums" style={{ color: s.c }}>{s.value}</p>
                   <p className="text-xs text-white/50 font-bold mt-1">{s.label}</p>
                 </div>
@@ -185,7 +185,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
             <div className="flex flex-col gap-3">
               {orders.length === 0 && <p className="text-white/40 text-sm">Aucune commande.</p>}
               {orders.map((o) => (
-                <div key={o.id} className="bg-[#11162e] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div key={o.id} className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-bold text-sm truncate">{o.productName || 'Produit'}{o.optionLabel ? ` — ${o.optionLabel}` : ''}</p>
                     <p className="text-[11px] text-white/40 font-mono">{o.orderId || o.id} · {htg(o.priceCents)}{o.playerId ? ` · Player ${o.playerId}` : ''}</p>
@@ -193,7 +193,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                   {o.fulfilledAt || o.deliveryCode ? (
                     <span className="text-[10px] font-black text-emerald-400 shrink-0 flex items-center gap-1"><Check className="w-3 h-3" />Livré{o.emailSent === false ? ' (e-mail KO)' : ''}</span>
                   ) : (
-                    <button onClick={() => { setFx(o); setFxCode(''); setFxInstr(''); }} className="shrink-0 bg-[#ff9800] hover:bg-[#ffa726] text-black text-[11px] font-black uppercase rounded-lg px-3 py-1.5">Livrer</button>
+                    <button onClick={() => { setFx(o); setFxCode(''); setFxInstr(''); }} className="shrink-0 bg-[#a855f7] hover:bg-[#b56ff5] text-black text-[11px] font-black uppercase rounded-lg px-3 py-1.5">Livrer</button>
                   )}
                 </div>
               ))}
@@ -207,7 +207,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
             <div className="flex flex-col gap-3">
               {depositsPending.length === 0 && <p className="text-white/40 text-sm">Aucun dépôt en attente.</p>}
               {depositsPending.map((d) => (
-                <div key={d.id} className="bg-[#11162e] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div key={d.id} className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-bold text-sm">{d.amountCents ? htg(d.amountCents) : (d.amount || '—')} · {d.paymentMethod || d.provider || '—'}</p>
                     <p className="text-[11px] text-white/40 font-mono truncate">{d.id}{d.txId ? ` · Tx ${d.txId}` : ''}</p>
@@ -228,7 +228,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
             <div className="flex flex-col gap-3">
               {kycPending.length === 0 && <p className="text-white/40 text-sm">Aucune demande KYC en attente.</p>}
               {kycPending.map((k) => (
-                <div key={k.id} className="bg-[#11162e] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div key={k.id} className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-bold text-sm truncate">{k.fullName || k.name || 'Sans nom'}</p>
                     <p className="text-[11px] text-white/40 font-mono truncate">{k.id}</p>
@@ -249,9 +249,9 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         {tab === 'security' && (
           <div className="max-w-lg">
             <h2 className="text-2xl font-black mb-4">Sécurité</h2>
-            <div className="bg-[#11162e] border border-white/[0.06] rounded-2xl p-5">
+            <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-[#ff9800]/15 flex items-center justify-center"><Fingerprint className="w-5 h-5 text-[#ff9800]" /></div>
+                <div className="w-10 h-10 rounded-xl bg-[#a855f7]/15 flex items-center justify-center"><Fingerprint className="w-5 h-5 text-[#a855f7]" /></div>
                 <div>
                   <h3 className="font-black text-sm">Passkey (WebAuthn)</h3>
                   <p className="text-[11px] text-white/50">{hasPasskey ? 'Actif — le back-office exige une vérification biométrique.' : 'Aucun passkey. Le back-office n\'est pas encore protégé par step-up.'}</p>
@@ -259,8 +259,8 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                 {hasPasskey && <span className="ml-auto text-[10px] font-black text-emerald-400 flex items-center gap-1"><Check className="w-3 h-3" />Actif</span>}
               </div>
               <p className="text-[11px] text-white/40 mb-3">Un passkey (empreinte / Face ID, stocké par Google Password Manager, Apple ou 1Password) protège l'accès au back-office et les actions sensibles (livraison, dépôts, KYC, paramètres). Tu peux en enregistrer plusieurs (téléphone + ordinateur).</p>
-              {pkMsg && <p className="text-xs font-bold text-[#ff9800] mb-2">{pkMsg}</p>}
-              <button onClick={doEnrollPasskey} disabled={pkBusy} className="bg-[#ff9800] hover:bg-[#ffa726] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">
+              {pkMsg && <p className="text-xs font-bold text-[#a855f7] mb-2">{pkMsg}</p>}
+              <button onClick={doEnrollPasskey} disabled={pkBusy} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">
                 {pkBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}{hasPasskey ? 'Ajouter un autre passkey' : 'Enregistrer un passkey'}
               </button>
             </div>
@@ -271,17 +271,17 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
       {/* Modal livraison */}
       {fx && (
         <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50 backdrop-blur-md">
-          <div className="bg-[#11162e] border border-white/10 rounded-3xl w-full max-w-md p-6 flex flex-col gap-4">
+          <div className="bg-[#150b28] border border-white/10 rounded-3xl w-full max-w-md p-6 flex flex-col gap-4">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-lg font-black flex items-center gap-2"><Mail className="w-4 h-4 text-[#ff9800]" />Livrer la commande</h3>
+                <h3 className="text-lg font-black flex items-center gap-2"><Mail className="w-4 h-4 text-[#a855f7]" />Livrer la commande</h3>
                 <p className="text-xs text-white/50 mt-0.5">{fx.productName}{fx.optionLabel ? ` — ${fx.optionLabel}` : ''}</p>
               </div>
               <button onClick={() => setFx(null)} className="p-2 rounded-full bg-black/40 hover:bg-white/10" aria-label="Fermer"><X className="w-4 h-4" /></button>
             </div>
-            <input value={fxCode} onChange={(e) => setFxCode(e.target.value)} placeholder="Code / PIN" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 font-mono text-sm focus:border-[#ff9800] outline-none" />
-            <textarea value={fxInstr} onChange={(e) => setFxInstr(e.target.value)} rows={3} placeholder="Instructions d'application (optionnel)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#ff9800] outline-none resize-none" />
-            <button onClick={doFulfill} disabled={busy === 'fulfill' || !fxCode.trim()} className="bg-[#ff9800] hover:bg-[#ffa726] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3">{busy === 'fulfill' ? 'Envoi…' : 'Envoyer le code'}</button>
+            <input value={fxCode} onChange={(e) => setFxCode(e.target.value)} placeholder="Code / PIN" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 font-mono text-sm focus:border-[#a855f7] outline-none" />
+            <textarea value={fxInstr} onChange={(e) => setFxInstr(e.target.value)} rows={3} placeholder="Instructions d'application (optionnel)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none resize-none" />
+            <button onClick={doFulfill} disabled={busy === 'fulfill' || !fxCode.trim()} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3">{busy === 'fulfill' ? 'Envoi…' : 'Envoyer le code'}</button>
           </div>
         </div>
       )}
@@ -311,16 +311,16 @@ function AdminSettings({ flash }: { flash: (m: string) => void }) {
     <div className="max-w-lg flex flex-col gap-8">
       <div>
         <h2 className="text-2xl font-black mb-4">Paramètres</h2>
-        <div className="bg-[#11162e] border border-white/[0.06] rounded-2xl p-5">
+        <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5">
           <h3 className="font-black text-sm mb-1">Taux de change (HTG pour 1 USD)</h3>
           <p className="text-[11px] text-white/40 mb-3">Utilisé pour convertir les prix. Doit rester cohérent avec le catalogue.</p>
           <div className="flex gap-2">
-            <input value={rate} onChange={(e) => setRate(e.target.value)} type="number" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm w-32 focus:border-[#ff9800] outline-none" />
-            <button onClick={saveFx} disabled={busy} className="bg-[#ff9800] hover:bg-[#ffa726] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4">Enregistrer</button>
+            <input value={rate} onChange={(e) => setRate(e.target.value)} type="number" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm w-32 focus:border-[#a855f7] outline-none" />
+            <button onClick={saveFx} disabled={busy} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4">Enregistrer</button>
           </div>
         </div>
       </div>
-      <div className="bg-[#11162e] border border-white/[0.06] rounded-2xl p-5">
+      <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5">
         <h3 className="font-black text-sm mb-3">Coordonnées de dépôt (affichées aux clients)</h3>
         <div className="grid grid-cols-2 gap-2">
           {[
@@ -329,10 +329,10 @@ function AdminSettings({ flash }: { flash: (m: string) => void }) {
             ['binancePayId', 'Binance Pay ID'], ['paypalEmail', 'PayPal — e-mail'],
           ].map(([k, label]) => (
             <input key={k} placeholder={label} value={(dep as any)[k]} onChange={(e) => setDep({ ...dep, [k]: e.target.value })}
-              className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#ff9800] outline-none" />
+              className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
           ))}
         </div>
-        <button onClick={saveDep} disabled={busy} className="mt-3 bg-[#ff9800] hover:bg-[#ffa726] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5">Enregistrer les coordonnées</button>
+        <button onClick={saveDep} disabled={busy} className="mt-3 bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5">Enregistrer les coordonnées</button>
         <p className="text-[10px] text-white/30 mt-2">Laisse un champ vide pour ne pas l'écraser n'est pas supporté — remplis tous les champs.</p>
       </div>
     </div>
@@ -403,10 +403,10 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
     <div className="max-w-5xl grid lg:grid-cols-2 gap-8">
       {/* Composer push */}
       <div>
-        <h2 className="text-2xl font-black mb-4 flex items-center gap-2"><Bell className="w-5 h-5 text-[#ff9800]" />Envoyer un push</h2>
-        <div className="bg-[#11162e] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre" maxLength={60} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#ff9800] outline-none" />
-          <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message" rows={2} maxLength={160} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm resize-none focus:border-[#ff9800] outline-none" />
+        <h2 className="text-2xl font-black mb-4 flex items-center gap-2"><Bell className="w-5 h-5 text-[#a855f7]" />Envoyer un push</h2>
+        <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre" maxLength={60} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message" rows={2} maxLength={160} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm resize-none focus:border-[#a855f7] outline-none" />
           {/* Image d'aperçu : upload direct (Storage public) OU coller une URL */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -416,11 +416,11 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
               </label>
               {imageUrl && <button onClick={() => setImageUrl('')} className="text-white/40 hover:text-red-400 text-xs font-bold">retirer</button>}
             </div>
-            <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="…ou colle une URL d'image (optionnel)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#ff9800] outline-none" />
+            <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="…ou colle une URL d'image (optionnel)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
             {imageUrl && <img src={imageUrl} alt="aperçu" className="rounded-lg max-h-28 w-auto object-cover border border-white/10" />}
           </div>
-          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Lien au clic (ex. page promo)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#ff9800] outline-none" />
-          <button onClick={send} disabled={sending} className="bg-[#ff9800] hover:bg-[#ffa726] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}Envoyer à tous</button>
+          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Lien au clic (ex. page promo)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+          <button onClick={send} disabled={sending} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}Envoyer à tous</button>
           <p className="text-[10px] text-white/30">Le push affiche titre + message + image ; le HTML riche va sur une page promo (ci-contre) vers laquelle pointe le lien.</p>
         </div>
       </div>
@@ -431,19 +431,19 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
           <h2 className="text-2xl font-black">Pages promo</h2>
           <button onClick={newPromo} className="text-xs font-black bg-white/[0.06] hover:bg-white/10 rounded-lg px-3 py-1.5">+ Nouvelle</button>
         </div>
-        <div className="bg-[#11162e] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
-          <input value={pTitle} onChange={(e) => setPTitle(e.target.value)} placeholder="Titre de la page" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#ff9800] outline-none" />
-          <textarea value={pHtml} onChange={(e) => setPHtml(e.target.value)} placeholder="<h1>Ma promo</h1><p>Contenu HTML…</p>" rows={7} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono resize-y focus:border-[#ff9800] outline-none" />
+        <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
+          <input value={pTitle} onChange={(e) => setPTitle(e.target.value)} placeholder="Titre de la page" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
+          <textarea value={pHtml} onChange={(e) => setPHtml(e.target.value)} placeholder="<h1>Ma promo</h1><p>Contenu HTML…</p>" rows={7} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono resize-y focus:border-[#a855f7] outline-none" />
           <label className="flex items-center gap-2 text-xs font-bold"><input type="checkbox" checked={pPub} onChange={(e) => setPPub(e.target.checked)} /> Publiée (visible publiquement)</label>
-          <button onClick={save} disabled={pBusy} className="bg-[#ff9800] hover:bg-[#ffa726] disabled:opacity-40 text-black font-black text-sm rounded-xl py-2.5">{pBusy ? 'Enregistrement…' : (pId ? 'Mettre à jour' : 'Créer la page')}</button>
+          <button onClick={save} disabled={pBusy} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl py-2.5">{pBusy ? 'Enregistrement…' : (pId ? 'Mettre à jour' : 'Créer la page')}</button>
         </div>
         {promos.length > 0 && (
           <div className="mt-3 flex flex-col gap-2">
             {promos.map((p) => (
-              <div key={p.id} className="bg-[#11162e] border border-white/[0.06] rounded-xl p-3 flex items-center justify-between gap-2">
+              <div key={p.id} className="bg-[#150b28] border border-white/[0.06] rounded-xl p-3 flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <p className="text-sm font-bold truncate">{p.title} {p.published ? <span className="text-[9px] text-emerald-400">● publiée</span> : <span className="text-[9px] text-white/30">brouillon</span>}</p>
-                  <a href={promoLink(p.id)} target="_blank" rel="noreferrer" className="text-[10px] text-[#ff9800] hover:underline flex items-center gap-1"><ExternalLink className="w-2.5 h-2.5" />{promoLink(p.id)}</a>
+                  <a href={promoLink(p.id)} target="_blank" rel="noreferrer" className="text-[10px] text-[#a855f7] hover:underline flex items-center gap-1"><ExternalLink className="w-2.5 h-2.5" />{promoLink(p.id)}</a>
                 </div>
                 <div className="flex gap-1 shrink-0">
                   <button onClick={() => editPromo(p)} className="text-[10px] font-black bg-white/[0.06] hover:bg-white/10 rounded-lg px-2 py-1.5">Éditer</button>

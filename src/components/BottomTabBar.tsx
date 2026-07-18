@@ -41,7 +41,7 @@ export function BottomTabBar({ lang, currentPage, navigateToPage, wishlistCount 
             <span className="relative">
               <Icon className="w-[18px] h-[18px]" />
               {!!tab.count && (
-                <span className="absolute -top-1.5 -right-2 min-w-[14px] h-[14px] px-0.5 rounded-full bg-[var(--tt-accent)] text-[8px] font-black text-[#201200] flex items-center justify-center">
+                <span className="absolute -top-1.5 -right-2 min-w-[14px] h-[14px] px-0.5 rounded-full bg-[var(--tt-accent)] text-[8px] font-black text-[#2a0a3d] flex items-center justify-center">
                   {tab.count}
                 </span>
               )}

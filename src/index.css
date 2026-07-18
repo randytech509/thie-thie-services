@@ -7,17 +7,17 @@
    donc tout composant construit sur ces tokens gère clair/sombre gratuitement.
    ========================================== */
 :root {
-  --tt-bg: #0a0e16;
-  --tt-surface: #131a27;
-  --tt-surface-2: #1b2434;
-  --tt-surface-3: #232e42;
+  --tt-bg: #0a0510;
+  --tt-surface: #171029;
+  --tt-surface-2: #1f1338;
+  --tt-surface-3: #2a1a48;
   --tt-border: rgba(255, 255, 255, 0.08);
   --tt-text: #f5f7fa;
   --tt-text-muted: #93a1b8;
   --tt-text-faint: #667088;
-  --tt-accent: #ff9800;
-  --tt-accent-ink: #ffd9a0;
-  --tt-accent-soft: rgba(255, 152, 0, 0.14);
+  --tt-accent: #a855f7;
+  --tt-accent-ink: #e9d5ff;
+  --tt-accent-soft: rgba(168, 85, 247, 0.14);
   --tt-good: #34d399;
   --tt-good-soft: rgba(52, 211, 153, 0.14);
   --tt-danger: #f87171;
@@ -34,9 +34,9 @@ body.light {
   --tt-text: #10131a;
   --tt-text-muted: #5b6478;
   --tt-text-faint: #8891a3;
-  --tt-accent: #ff9500;
-  --tt-accent-ink: #7a3d00;
-  --tt-accent-soft: #fff1de;
+  --tt-accent: #9333ea;
+  --tt-accent-ink: #4a1d75;
+  --tt-accent-soft: #f3e8ff;
   --tt-good: #16a34a;
   --tt-good-soft: #e8f8ee;
   --tt-danger: #dc2626;
@@ -94,15 +94,15 @@ body.light .tt-skeleton::after {
 
 body.light {
   background-color: #f1f5f9 !important;
-  color: #0f172a !important;
+  color: #0c0714 !important;
 }
 
 /* Base backgrounds */
-body.light .bg-\[\#0d1117\] {
+body.light .bg-\[\#0c0714\] {
   background-color: #f8fafc !important;
 }
 
-body.light .bg-\[\#1a2332\] {
+body.light .bg-\[\#1c1030\] {
   background-color: #ffffff !important;
 }
 
@@ -111,25 +111,25 @@ body.light .bg-\[\#0c1017\] {
 }
 
 /* Semi-transparent backgrounds */
-body.light .bg-\[\#1a2332\]\/50 {
+body.light .bg-\[\#1c1030\]\/50 {
   background-color: rgba(255, 255, 255, 0.7) !important;
 }
 
-body.light .bg-\[\#1a2332\]\/80 {
+body.light .bg-\[\#1c1030\]\/80 {
   background-color: rgba(255, 255, 255, 0.85) !important;
 }
 
-body.light .bg-\[\#0d1117\]\/95 {
+body.light .bg-\[\#0c0714\]\/95 {
   background-color: rgba(248, 250, 252, 0.95) !important;
 }
 
-body.light .bg-\[\#0d1117\]\/80 {
+body.light .bg-\[\#0c0714\]\/80 {
   background-color: rgba(248, 250, 252, 0.8) !important;
 }
 
 /* Texts and titles */
 body.light .text-white {
-  color: #0f172a !important;
+  color: #0c0714 !important;
 }
 
 body.light .text-white\/90 {
@@ -169,8 +169,8 @@ body.light .text-\[\#c9d1d9\] {
 }
 
 /* Keep dark text on orange and vibrant CTA buttons */
-body.light .text-\[\#0d1117\] {
-  color: #0d1117 !important;
+body.light .text-\[\#0c0714\] {
+  color: #0c0714 !important;
 }
 
 body.light .text-black {
@@ -204,20 +204,20 @@ body.light .bg-slate-950 {
 }
 
 /* Gradients mapping to light theme backgrounds */
-body.light .from-\[\#0d1117\] {
+body.light .from-\[\#0c0714\] {
   --tw-gradient-from: #f1f5f9 !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(241, 245, 249, 0)) !important;
 }
 
-body.light .via-\[\#0d1117\]\/90 {
+body.light .via-\[\#0c0714\]\/90 {
   --tw-gradient-stops: var(--tw-gradient-from), rgba(241, 245, 249, 0.9) 50%, var(--tw-gradient-to, rgba(241, 245, 249, 0)) !important;
 }
 
-body.light .to-\[\#0d1117\] {
+body.light .to-\[\#0c0714\] {
   --tw-gradient-to: #f1f5f9 !important;
 }
 
-body.light .from-\[\#1a2332\] {
+body.light .from-\[\#1c1030\] {
   --tw-gradient-from: #ffffff !important;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(255, 255, 255, 0)) !important;
 }
@@ -232,7 +232,7 @@ body.light .hover\:bg-white\/\[0\.02\]:hover {
 }
 
 body.light .hover\:text-white:hover {
-  color: #0f172a !important;
+  color: #0c0714 !important;
 }
 
 /* Dropdown/popover custom shadows to feel floaty in light mode */
@@ -263,22 +263,22 @@ body.light .bg-\[\#111827\]\/95 {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
 }
 
-body.light .bg-\[\#1a2332\]\/90 {
+body.light .bg-\[\#1c1030\]\/90 {
   background-color: rgba(255, 255, 255, 0.9) !important;
 }
 
-body.light .bg-\[\#1a2332\]\/85 {
+body.light .bg-\[\#1c1030\]\/85 {
   background-color: rgba(255, 255, 255, 0.85) !important;
 }
 
 body.light .bg-black\/40 {
   background-color: rgba(15, 23, 42, 0.08) !important;
-  color: #0f172a !important;
+  color: #0c0714 !important;
 }
 
 /* Fix specific texts on light backgrounds */
-body.light .hover\:text-[#ff9800]:hover {
-  color: #f57c00 !important;
+body.light .hover\:text-[#a855f7]:hover {
+  color: #7e22ce !important;
 }
 
 body.light .text-[#c9d1d9] {

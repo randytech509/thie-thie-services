@@ -136,14 +136,14 @@ export interface Product {
 
 // 14 Premium Categories
 const CATEGORIES = [
-  { slug: 'free-fire', name: 'Free Fire', count: 11, icon: Gamepad2, gradient: 'from-[#ff9800] to-[#ffc107]' },
-  { slug: 'pubg', name: 'PUBG UC', count: 6, icon: ShieldCheck, gradient: 'from-[#3b82f6] to-[#7c3aed]' },
-  { slug: 'robux', name: 'Roblox', count: 5, icon: Coins, gradient: 'from-[#7c3aed] to-[#ff9800]' },
+  { slug: 'free-fire', name: 'Free Fire', count: 11, icon: Gamepad2, gradient: 'from-[#a855f7] to-[#c084fc]' },
+  { slug: 'pubg', name: 'PUBG UC', count: 6, icon: ShieldCheck, gradient: 'from-[#8b5cf6] to-[#7c3aed]' },
+  { slug: 'robux', name: 'Roblox', count: 5, icon: Coins, gradient: 'from-[#7c3aed] to-[#a855f7]' },
   { slug: 'netflix', name: 'Netflix', count: 4, icon: Tv, gradient: 'from-[#ef4444] to-[#7c3aed]' },
-  { slug: 'meru', name: 'Meru Services', count: 4, icon: Smartphone, gradient: 'from-[#10b981] to-[#3b82f6]' },
-  { slug: 'google-play', name: 'Google Play', count: 4, icon: Gift, gradient: 'from-[#ffc107] to-[#10b981]' },
-  { slug: 'apple', name: 'Apple Gift Card', count: 4, icon: ShieldCheck, gradient: 'from-[#a855f7] to-[#3b82f6]' },
-  { slug: 'playstation', name: 'PlayStation', count: 4, icon: Gamepad2, gradient: 'from-[#3b82f6] to-[#1e3a8a]' },
+  { slug: 'meru', name: 'Meru Services', count: 4, icon: Smartphone, gradient: 'from-[#10b981] to-[#8b5cf6]' },
+  { slug: 'google-play', name: 'Google Play', count: 4, icon: Gift, gradient: 'from-[#c084fc] to-[#10b981]' },
+  { slug: 'apple', name: 'Apple Gift Card', count: 4, icon: ShieldCheck, gradient: 'from-[#a855f7] to-[#8b5cf6]' },
+  { slug: 'playstation', name: 'PlayStation', count: 4, icon: Gamepad2, gradient: 'from-[#8b5cf6] to-[#3b1a6e]' },
   { slug: 'xbox', name: 'Xbox Live', count: 3, icon: Gamepad2, gradient: 'from-[#10b981] to-[#064e3b]' },
   { slug: 'steam', name: 'Steam Wallet', count: 3, icon: Coins, gradient: 'from-[#4b5563] to-[#111827]' },
   { slug: 'valorant', name: 'Valorant Points', count: 4, icon: ShieldCheck, gradient: 'from-[#f43f5e] to-[#991b1b]' },
@@ -632,7 +632,7 @@ const HERO_SLIDES = [
     subtitleIcon: Flame,
     desc: 'Recevez vos diamants directement sur votre compte Free Fire de manière sécurisée en Haïti.',
     descHT: 'Rechaje dyamant ou yo dirèkteman sou kont Free Fire ou byen rapid epi san pwoblèm an Ayiti.',
-    gradient: 'from-[#1e3a8a] to-[#7c3aed]',
+    gradient: 'from-[#3b1a6e] to-[#7c3aed]',
     cta: 'Commander',
     image: freeFire3DHero,
     slug: 'free-fire'
@@ -644,7 +644,7 @@ const HERO_SLIDES = [
     subtitleIcon: Trophy,
     desc: 'Unknown Cash pas cher avec livraison éclair par e-mail sur votre identifiant de jeu PUBG.',
     descHT: 'Achite Unknown Cash ak pi bon pri sou mache a epi livrezon rapid pa imèl.',
-    gradient: 'from-[#0d1b2a] to-[#1b263b]',
+    gradient: 'from-[#0d1b2a] to-[#241640]',
     cta: 'Commander',
     image: pubgOvergrownHelmet,
     slug: 'pubg'
@@ -668,7 +668,7 @@ const HERO_SLIDES = [
     subtitleIcon: MapPin,
     desc: 'Faites le plein de jetons de crédit Meru pour débloquer de nouveaux services instantanés.',
     descHT: 'Pran gwo pakèt kredi Meru pou debloke tout sèvis lokal yo fasil an Ayiti.',
-    gradient: 'from-[#10b981] to-[#1e3a8a]',
+    gradient: 'from-[#10b981] to-[#3b1a6e]',
     cta: 'Commander',
     image: meruOgImage,
     slug: 'meru'
@@ -684,8 +684,8 @@ const HIGHLIGHTED_CATEGORIES = [
     image: freeFireCategoryBanner,
     badgeFR: 'Meilleure Vente',
     badgeHT: 'Pi gwo lavant',
-    color: '#ff9800',
-    gradient: 'from-[#ff9800]/20 to-transparent'
+    color: '#a855f7',
+    gradient: 'from-[#a855f7]/20 to-transparent'
   },
   {
     slug: 'pubg',
@@ -695,8 +695,8 @@ const HIGHLIGHTED_CATEGORIES = [
     image: pubgOvergrownHelmet,
     badgeFR: 'Populaire',
     badgeHT: 'Popilè',
-    color: '#3b82f6',
-    gradient: 'from-[#3b82f6]/20 to-transparent'
+    color: '#8b5cf6',
+    gradient: 'from-[#8b5cf6]/20 to-transparent'
   },
   {
     slug: 'robux',
@@ -741,8 +741,8 @@ const HIGHLIGHTED_CATEGORIES = [
     badgeFR: 'Console',
     badgeHT: 'Konsòl',
     badgeIcon: Gamepad2,
-    color: '#3b82f6',
-    gradient: 'from-[#3b82f6]/20 to-transparent'
+    color: '#8b5cf6',
+    gradient: 'from-[#8b5cf6]/20 to-transparent'
   },
   {
     slug: 'steam',
@@ -782,12 +782,12 @@ const HIGHLIGHTED_CATEGORIES = [
 
 const PARTNERS = [
   { name: 'GARENA', icon: Flame, color: '#ef4444' },
-  { name: 'PUBG MOBILE', icon: Target, color: '#3b82f6' },
+  { name: 'PUBG MOBILE', icon: Target, color: '#8b5cf6' },
   { name: 'NETFLIX', icon: Tv, color: '#ef4444' },
   { name: 'GOOGLE', icon: Diamond, color: '#10b981' },
   { name: 'APPLE', icon: Apple, color: '#e5e7eb' },
   { name: 'STEAM', icon: Cog, color: '#a855f7' },
-  { name: 'PLAYSTATION', icon: Gamepad2, color: '#3b82f6' },
+  { name: 'PLAYSTATION', icon: Gamepad2, color: '#8b5cf6' },
   { name: 'XBOX', icon: Joystick, color: '#22c55e' }
 ];
 
@@ -868,7 +868,7 @@ function ProductImageWithSkeleton({
     <div className={`relative overflow-hidden w-full h-full bg-[#1e293b]/50 ${className}`}>
       {/* Skeleton overlay */}
       {!loaded && (
-        <div className="absolute inset-0 z-10 bg-[#0f172a] flex flex-col items-center justify-center">
+        <div className="absolute inset-0 z-10 bg-[#0c0714] flex flex-col items-center justify-center">
           {/* Shimmer sweep */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full animate-shimmer" />
           
@@ -895,7 +895,7 @@ function ProductImageWithSkeleton({
       />
 
       {error && (
-        <div className="absolute inset-0 z-10 bg-[#0f172a] flex flex-col items-center justify-center p-4 text-center">
+        <div className="absolute inset-0 z-10 bg-[#0c0714] flex flex-col items-center justify-center p-4 text-center">
           <Info className="w-5 h-5 text-white/30 mb-1" />
           <span className="text-[9px] text-white/40 uppercase tracking-wider">Image indisponible</span>
         </div>
@@ -953,8 +953,8 @@ function TiltCard({ children, className = '', onClick }: TiltCardProps) {
         mass: 0.2,
       }}
       whileHover={{
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 152, 0, 0.15)',
-        borderColor: 'rgba(255, 152, 0, 0.4)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(168, 85, 247, 0.15)',
+        borderColor: 'rgba(168, 85, 247, 0.4)',
       }}
       style={{
         transformStyle: 'preserve-3d',
@@ -1052,7 +1052,7 @@ export default function App() {
   const getLoyaltyLevel = (points: number) => {
     if (points < 250) return { nameFR: 'Joueur Bronze', nameHT: 'Jwè Bronze', color: 'text-amber-600', bg: 'bg-amber-500/10 border-amber-500/20' };
     if (points < 1000) return { nameFR: 'Gamer d\'Argent', nameHT: 'Jwè Argant', color: 'text-slate-400', bg: 'bg-slate-400/10 border-slate-400/20' };
-    if (points < 2500) return { nameFR: 'Champion d\'Or', nameHT: 'Chanpyon Lò', color: 'text-[#ffc107]', bg: 'bg-[#ffc107]/10 border-[#ffc107]/20' };
+    if (points < 2500) return { nameFR: 'Champion d\'Or', nameHT: 'Chanpyon Lò', color: 'text-[#c084fc]', bg: 'bg-[#c084fc]/10 border-[#c084fc]/20' };
     return { nameFR: 'Légende Thie Thie', nameHT: 'Lejann Thie Thie', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' };
   };
 
@@ -2430,18 +2430,18 @@ export default function App() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen bg-[#070a13] flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-[#070310] flex flex-col items-center justify-center p-6 text-center">
         <div className="relative flex items-center justify-center w-28 h-28 mb-4">
           <ThieThieLogo variant="icon" size={110} animated={true} />
         </div>
-        <h2 className="text-xl font-extrabold text-white mt-6 tracking-wider bg-gradient-to-r from-white via-white to-[#ff9800] bg-clip-text text-transparent uppercase font-sans">
+        <h2 className="text-xl font-extrabold text-white mt-6 tracking-wider bg-gradient-to-r from-white via-white to-[#a855f7] bg-clip-text text-transparent uppercase font-sans">
           THIE THIE SERVICES
         </h2>
         <p className="text-[10px] text-white/50 mt-2 font-mono uppercase tracking-widest">
           SÉCURISATION DU PROFIL...
         </p>
         <div className="flex items-center gap-2 mt-6 px-4 py-2 bg-white/[0.02] border border-white/[0.05] rounded-full">
-          <Loader2 className="w-4 h-4 text-[#ff9800] animate-spin" />
+          <Loader2 className="w-4 h-4 text-[#a855f7] animate-spin" />
           <span className="text-xs font-semibold text-white/60">Veuillez patienter</span>
         </div>
       </div>
@@ -2464,12 +2464,12 @@ export default function App() {
 
   if (!user && isAuthPage) {
     return (
-      <div className="min-h-screen bg-[#070a13] text-white flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
+      <div className="min-h-screen bg-[#070310] text-white flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
         {/* Ambient background glows */}
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#ff9800]/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#a855f7]/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#7c3aed]/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <div className="w-full max-w-md bg-[#1a2332]/85 backdrop-blur-xl border border-white/[0.08] rounded-3xl shadow-2xl p-6 md:p-8 relative z-10">
+        <div className="w-full max-w-md bg-[#1c1030]/85 backdrop-blur-xl border border-white/[0.08] rounded-3xl shadow-2xl p-6 md:p-8 relative z-10">
           
           {/* WELCOME SCREEN */}
           {currentPage === 'welcome' && (
@@ -2479,10 +2479,10 @@ export default function App() {
                 <ThieThieLogo variant="icon" size={96} />
               </div>
 
-              <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-none bg-gradient-to-r from-white via-white to-[#ff9800] bg-clip-text text-transparent uppercase">
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-none bg-gradient-to-r from-white via-white to-[#a855f7] bg-clip-text text-transparent uppercase">
                 Thie Thie Services
               </h1>
-              <span className="block text-xs font-bold tracking-widest text-[#ff9800] mt-1.5 uppercase font-mono">
+              <span className="block text-xs font-bold tracking-widest text-[#a855f7] mt-1.5 uppercase font-mono">
                 Gaming Recharge & Points
               </span>
 
@@ -2498,7 +2498,7 @@ export default function App() {
                 <button
                   id="welcome-signin-btn"
                   onClick={() => { setCurrentPage('login-screen'); setLoginError(null); }}
-                  className="w-full bg-[#ff9800] hover:bg-[#ffc107] text-black font-extrabold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 shadow-lg shadow-[#ff9800]/10 hover:shadow-[#ff9800]/20 hover:-translate-y-0.5 transition-all cursor-pointer"
+                  className="w-full bg-[#a855f7] hover:bg-[#c084fc] text-black font-extrabold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer"
                 >
                   <Lock className="w-4 h-4" />
                   <span>{lang === 'FR' ? 'Se Connecter' : 'Konekte'}</span>
@@ -2509,7 +2509,7 @@ export default function App() {
                   onClick={() => { setCurrentPage('register-screen'); setRegisterError(null); }}
                   className="w-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/20 text-white font-extrabold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 hover:-translate-y-0.5 transition-all cursor-pointer"
                 >
-                  <UserCheck className="w-4 h-4 text-[#ff9800]" />
+                  <UserCheck className="w-4 h-4 text-[#a855f7]" />
                   <span>{lang === 'FR' ? 'Créer un Compte' : 'Kreye yon Kont'}</span>
                 </button>
 
@@ -2556,9 +2556,9 @@ export default function App() {
                 <button
                   id="welcome-guest-btn"
                   onClick={() => setCurrentPage('home')}
-                  className="w-full mt-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border border-amber-500/30 hover:border-amber-500/50 text-[#ff9800] font-black text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 transition-all cursor-pointer"
+                  className="w-full mt-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border border-amber-500/30 hover:border-amber-500/50 text-[#a855f7] font-black text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 transition-all cursor-pointer"
                 >
-                  <Globe className="w-4 h-4 text-[#ff9800]" />
+                  <Globe className="w-4 h-4 text-[#a855f7]" />
                   <span>{lang === 'FR' ? 'Visiter la boutique (Invité)' : 'Vizite boutik la (Envite)'}</span>
                 </button>
               </div>
@@ -2604,7 +2604,7 @@ export default function App() {
                       onChange={(e) => setLoginEmail(e.target.value)}
                       placeholder="gamer@gmail.com"
                       required
-                      className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
                     <Mail className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                   </div>
@@ -2618,7 +2618,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => { setCurrentPage('forgot-password-screen'); setForgotError(null); setForgotSuccess(false); }}
-                      className="text-[10px] text-[#ff9800] hover:underline font-extrabold cursor-pointer"
+                      className="text-[10px] text-[#a855f7] hover:underline font-extrabold cursor-pointer"
                     >
                       {lang === 'FR' ? 'Mot de passe oublié ?' : 'Mo de pas bliye ?'}
                     </button>
@@ -2630,7 +2630,7 @@ export default function App() {
                       onChange={(e) => setLoginPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
                     <Lock className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                   </div>
@@ -2639,7 +2639,7 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={authLoading}
-                  className="w-full mt-2 bg-[#ff9800] hover:bg-[#ffc107] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#ff9800]/10 hover:shadow-[#ff9800]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full mt-2 bg-[#a855f7] hover:bg-[#c084fc] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {authLoading ? (
                     <>
@@ -2718,7 +2718,7 @@ export default function App() {
                       onChange={(e) => setRegisterFullName(e.target.value)}
                       placeholder="e.g. Jean Baptiste"
                       required
-                      className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
                     <User className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                   </div>
@@ -2735,7 +2735,7 @@ export default function App() {
                       onChange={(e) => setRegisterEmail(e.target.value)}
                       placeholder="gamer@gmail.com"
                       required
-                      className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
                     <Mail className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                   </div>
@@ -2752,7 +2752,7 @@ export default function App() {
                       onChange={(e) => setRegisterPassword(e.target.value)}
                       placeholder="•••••••• (Min. 8 car.)"
                       required
-                      className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
                     <Lock className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                   </div>
@@ -2769,7 +2769,7 @@ export default function App() {
                       onChange={(e) => setRegisterConfirmPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
                     <Lock className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                   </div>
@@ -2778,7 +2778,7 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={authLoading}
-                  className="w-full mt-2 bg-[#ff9800] hover:bg-[#ffc107] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#ff9800]/10 hover:shadow-[#ff9800]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full mt-2 bg-[#a855f7] hover:bg-[#c084fc] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {authLoading ? (
                     <>
@@ -2864,7 +2864,7 @@ export default function App() {
                         onChange={(e) => setForgotEmail(e.target.value)}
                         placeholder="gamer@gmail.com"
                         required
-                        className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                        className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
                       />
                       <Mail className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                     </div>
@@ -2873,7 +2873,7 @@ export default function App() {
                   <button
                     type="submit"
                     disabled={authLoading}
-                    className="w-full mt-2 bg-[#ff9800] hover:bg-[#ffc107] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#ff9800]/10 hover:shadow-[#ff9800]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
+                    className="w-full mt-2 bg-[#a855f7] hover:bg-[#c084fc] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {authLoading ? (
                       <>
@@ -2927,9 +2927,9 @@ export default function App() {
       <div className="flex-1 min-w-0 flex flex-col justify-between pb-16 lg:pb-0">
 
       {/* GLOBAL TICKER / MOCK RATE INFO */}
-      <div className="bg-gradient-to-r from-[#ff9800]/10 via-[#7c3aed]/10 to-[#3b82f6]/10 text-xs py-1.5 px-4 text-center border-b border-white/[0.05] flex justify-center items-center gap-4 text-[#c9d1d9] overflow-hidden select-none">
+      <div className="bg-gradient-to-r from-[#a855f7]/10 via-[#7c3aed]/10 to-[#8b5cf6]/10 text-xs py-1.5 px-4 text-center border-b border-white/[0.05] flex justify-center items-center gap-4 text-[#c9d1d9] overflow-hidden select-none">
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-[#ff9800] animate-pulse"></span>
+          <span className="w-2 h-2 rounded-full bg-[#a855f7] animate-pulse"></span>
           Taux du Jour: <strong className="text-white">1 USD = {exchangeRate} HTG</strong>
         </span>
         <span className="hidden md:inline text-white/40">|</span>
@@ -2943,7 +2943,7 @@ export default function App() {
         id="navbar-sticky"
         className={`sticky top-0 z-50 transition-all duration-300 border-b ${
           scrolled
-            ? 'bg-[#0d1117]/95 backdrop-blur-md shadow-xl border-white/[0.08] py-3'
+            ? 'bg-[#0c0714]/95 backdrop-blur-md shadow-xl border-white/[0.08] py-3'
             : 'bg-transparent border-transparent py-5'
         }`}
       >
@@ -2959,7 +2959,7 @@ export default function App() {
               <ThieThieLogo variant="icon" size={44} />
             </div>
             <div className="whitespace-nowrap">
-              <span className="block font-extrabold text-base md:text-lg tracking-wider leading-none bg-gradient-to-r from-white via-white to-[#ff9800] bg-clip-text text-transparent">
+              <span className="block font-extrabold text-base md:text-lg tracking-wider leading-none bg-gradient-to-r from-white via-white to-[#a855f7] bg-clip-text text-transparent">
                 THIE THIE
               </span>
               <span className="block text-[10px] font-bold tracking-widest text-white/60 mt-0.5 uppercase">
@@ -2992,13 +2992,13 @@ export default function App() {
                     (e.target as HTMLInputElement).blur();
                   }
                 }}
-                className="bg-[#1a2332]/80 border border-white/[0.08] text-xs px-4 py-2 pl-9 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-[#ff9800]/50 focus:ring-1 focus:ring-[#ff9800]/20 w-36 lg:w-52 transition-all"
+                className="bg-[#1c1030]/80 border border-white/[0.08] text-xs px-4 py-2 pl-9 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-[#a855f7]/50 focus:ring-1 focus:ring-[#a855f7]/20 w-36 lg:w-52 transition-all"
               />
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-white/40" />
               
               {/* Dynamic Search Suggestions & Recent Searches Popover */}
               {showSearchSuggestions && (
-                <div className="absolute top-12 left-0 w-full bg-[#1a2332] border border-white/[0.08] rounded-xl shadow-2xl p-2 z-50 max-h-72 overflow-y-auto">
+                <div className="absolute top-12 left-0 w-full bg-[#1c1030] border border-white/[0.08] rounded-xl shadow-2xl p-2 z-50 max-h-72 overflow-y-auto">
                   {searchQuery ? (
                     searchSuggestions.length > 0 ? (
                       searchSuggestions.map((p) => (
@@ -3037,7 +3037,7 @@ export default function App() {
                               setRecentSearches([]);
                               localStorage.removeItem('recentSearches');
                             }}
-                            className="text-[9px] font-black text-[#ff9800] hover:text-[#ff9800]/85 transition-colors uppercase tracking-wider"
+                            className="text-[9px] font-black text-[#a855f7] hover:text-[#a855f7]/85 transition-colors uppercase tracking-wider"
                           >
                             {lang === 'FR' ? 'Effacer tout' : 'Klè tout'}
                           </button>
@@ -3057,7 +3057,7 @@ export default function App() {
                             }}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <History className="w-3.5 h-3.5 text-white/30 group-hover/item:text-[#ff9800] transition-colors" />
+                              <History className="w-3.5 h-3.5 text-white/30 group-hover/item:text-[#a855f7] transition-colors" />
                               <span className="text-xs font-semibold text-white/85 truncate">{term}</span>
                             </div>
                             <button
@@ -3088,12 +3088,12 @@ export default function App() {
             </div>
 
             {/* CURRENCY TOGGLE (USD / HTG) */}
-            <div id="currency-toggle-wrapper" className="flex bg-[#1a2332] border border-white/[0.08] rounded-xl p-[3px] select-none">
+            <div id="currency-toggle-wrapper" className="flex bg-[#1c1030] border border-white/[0.08] rounded-xl p-[3px] select-none">
               <button
                 onClick={() => setCurrency('USD')}
                 className={`px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition-all ${
                   currency === 'USD'
-                    ? 'bg-[#ff9800] text-[#0d1117] shadow-md'
+                    ? 'bg-[#a855f7] text-[#0c0714] shadow-md'
                     : 'text-[#c9d1d9] hover:text-white'
                 }`}
               >
@@ -3103,7 +3103,7 @@ export default function App() {
                 onClick={() => setCurrency('HTG')}
                 className={`px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition-all ${
                   currency === 'HTG'
-                    ? 'bg-[#ff9800] text-[#0d1117] shadow-md'
+                    ? 'bg-[#a855f7] text-[#0c0714] shadow-md'
                     : 'text-[#c9d1d9] hover:text-white'
                 }`}
               >
@@ -3112,11 +3112,11 @@ export default function App() {
             </div>
 
             {/* LANGUAGE SELECTOR (mobile — desktop l'a dans la Sidebar) */}
-            <div id="language-toggle-wrapper" className="lg:hidden flex bg-[#1a2332] border border-white/[0.08] rounded-xl p-[3px] select-none">
+            <div id="language-toggle-wrapper" className="lg:hidden flex bg-[#1c1030] border border-white/[0.08] rounded-xl p-[3px] select-none">
               <button
                 onClick={() => setLang('FR')}
                 className={`px-2 py-1 text-[11px] font-bold rounded-lg transition-all ${
-                  lang === 'FR' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-[#c9d1d9] hover:text-white'
+                  lang === 'FR' ? 'bg-[#8b5cf6] text-white shadow-md' : 'text-[#c9d1d9] hover:text-white'
                 }`}
               >
                 FR
@@ -3124,7 +3124,7 @@ export default function App() {
               <button
                 onClick={() => setLang('HT')}
                 className={`px-2 py-1 text-[11px] font-bold rounded-lg transition-all ${
-                  lang === 'HT' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-[#c9d1d9] hover:text-white'
+                  lang === 'HT' ? 'bg-[#8b5cf6] text-white shadow-md' : 'text-[#c9d1d9] hover:text-white'
                 }`}
               >
                 HT
@@ -3134,7 +3134,7 @@ export default function App() {
             {/* THEME TOGGLE (mobile — desktop l'a dans la Sidebar) */}
             <button
               onClick={toggleTheme}
-              className="lg:hidden p-2 bg-[#1a2332] border border-white/[0.08] rounded-xl text-[#c9d1d9] hover:text-white hover:bg-white/[0.04] transition-all flex items-center justify-center active:scale-95"
+              className="lg:hidden p-2 bg-[#1c1030] border border-white/[0.08] rounded-xl text-[#c9d1d9] hover:text-white hover:bg-white/[0.04] transition-all flex items-center justify-center active:scale-95"
               title={theme === 'dark' ? (lang === 'FR' ? 'Mode Clair' : 'Mòd Klè') : (lang === 'FR' ? 'Mode Sombre' : 'Mòd Fènwa')}
               aria-label="Toggle Theme"
             >
@@ -3174,7 +3174,7 @@ export default function App() {
                       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-0" />
 
                       <div className="relative z-20 flex-1 h-full flex flex-col justify-center px-6 md:px-16 lg:px-24 text-left max-w-2xl">
-                        <span className="inline-flex items-center gap-1.5 bg-[#ff9800] text-black font-extrabold text-[10px] md:text-xs uppercase tracking-widest px-3 py-1 rounded-full mb-4 w-max">
+                        <span className="inline-flex items-center gap-1.5 bg-[#a855f7] text-black font-extrabold text-[10px] md:text-xs uppercase tracking-widest px-3 py-1 rounded-full mb-4 w-max">
                           <slide.subtitleIcon className="w-3 h-3 md:w-3.5 md:h-3.5" />
                           {slide.subtitle}
                         </span>
@@ -3188,7 +3188,7 @@ export default function App() {
                         <div className="flex items-center gap-4">
                           <button
                             onClick={() => navigateToCategory(slide.slug)}
-                            className="bg-[#ff9800] hover:bg-[#ff9800]/90 text-[#0d1117] font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-xl hover:shadow-[#ff9800]/20 transition-all hover:-translate-y-0.5"
+                            className="bg-[#a855f7] hover:bg-[#a855f7]/90 text-[#0c0714] font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-xl hover:shadow-[#a855f7]/20 transition-all hover:-translate-y-0.5"
                           >
                             {slide.cta} {lang === 'FR' ? 'Maintenant' : 'Kounye a'}
                           </button>
@@ -3217,13 +3217,13 @@ export default function App() {
                   onClick={() =>
                     setCurrentHeroSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)
                   }
-                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 hover:bg-[#ff9800] text-white hover:text-black flex items-center justify-center backdrop-blur-sm border border-white/10 hover:border-transparent transition-all"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 hover:bg-[#a855f7] text-white hover:text-black flex items-center justify-center backdrop-blur-sm border border-white/10 hover:border-transparent transition-all"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setCurrentHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 hover:bg-[#ff9800] text-white hover:text-black flex items-center justify-center backdrop-blur-sm border border-white/10 hover:border-transparent transition-all"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 hover:bg-[#a855f7] text-white hover:text-black flex items-center justify-center backdrop-blur-sm border border-white/10 hover:border-transparent transition-all"
                 >
                   <ArrowRight className="w-5 h-5" />
                 </button>
@@ -3235,7 +3235,7 @@ export default function App() {
                       key={idx}
                       onClick={() => setCurrentHeroSlide(idx)}
                       className={`h-2.5 rounded-full transition-all duration-300 ${
-                        idx === currentHeroSlide ? 'bg-[#ff9800] w-8' : 'bg-white/40 w-2.5'
+                        idx === currentHeroSlide ? 'bg-[#a855f7] w-8' : 'bg-white/40 w-2.5'
                       }`}
                     />
                   ))}
@@ -3253,7 +3253,7 @@ export default function App() {
               <div className="flex justify-between items-end mb-6">
                 <div>
                   <h3 className="text-xl md:text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#ff9800] animate-pulse" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#a855f7] animate-pulse" />
                     {lang === 'FR' ? 'En Vedette' : 'Seksyon an Vedèt'}
                   </h3>
                   <p className="text-xs text-white/50 mt-1">
@@ -3269,7 +3269,7 @@ export default function App() {
                         prev === 0 ? HIGHLIGHTED_CATEGORIES.length - 1 : prev - 1
                       );
                     }}
-                    className="w-10 h-10 rounded-xl bg-[#1a2332] border border-white/[0.08] text-white/70 hover:text-white hover:bg-[#ff9800] hover:text-black flex items-center justify-center transition-all shadow-md active:scale-95"
+                    className="w-10 h-10 rounded-xl bg-[#1c1030] border border-white/[0.08] text-white/70 hover:text-white hover:bg-[#a855f7] hover:text-black flex items-center justify-center transition-all shadow-md active:scale-95"
                     aria-label="Previous Highlight"
                   >
                     <ArrowLeft className="w-4 h-4" />
@@ -3278,7 +3278,7 @@ export default function App() {
                     onClick={() => {
                       setCategoryCarouselIndex((prev) => (prev + 1) % HIGHLIGHTED_CATEGORIES.length);
                     }}
-                    className="w-10 h-10 rounded-xl bg-[#1a2332] border border-white/[0.08] text-white/70 hover:text-white hover:bg-[#ff9800] hover:text-black flex items-center justify-center transition-all shadow-md active:scale-95"
+                    className="w-10 h-10 rounded-xl bg-[#1c1030] border border-white/[0.08] text-white/70 hover:text-white hover:bg-[#a855f7] hover:text-black flex items-center justify-center transition-all shadow-md active:scale-95"
                     aria-label="Next Highlight"
                   >
                     <ArrowRight className="w-4 h-4" />
@@ -3313,7 +3313,7 @@ export default function App() {
                             className="w-full h-full object-cover object-center group-hover:scale-102 transition-transform duration-1000 opacity-30"
                             referrerPolicy="no-referrer"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-r from-[#0d1117] via-[#0d1117]/90 to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-r from-[#0c0714] via-[#0c0714]/90 to-transparent" />
                           <div className={`absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-gradient-to-tr ${cat.gradient} opacity-20 blur-3xl`} />
                         </div>
 
@@ -3344,10 +3344,10 @@ export default function App() {
                           <div className="mt-4">
                             <span 
                               className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider px-5 py-3 rounded-xl transition-all"
-                              style={{ backgroundColor: cat.color, color: '#0d1117' }}
+                              style={{ backgroundColor: cat.color, color: '#0c0714' }}
                             >
                               <span>{lang === 'FR' ? "Explorer la Section" : "Antre nan Seksyon sa"}</span>
-                              <ArrowRight className="w-4 h-4 text-[#0d1117]" />
+                              <ArrowRight className="w-4 h-4 text-[#0c0714]" />
                             </span>
                           </div>
                         </div>
@@ -3372,7 +3372,7 @@ export default function App() {
                       }}
                       className={`h-1.5 rounded-full transition-all duration-300 ${
                         idx === categoryCarouselIndex 
-                          ? 'bg-[#ff9800] w-6' 
+                          ? 'bg-[#a855f7] w-6' 
                           : 'bg-white/20 w-1.5 hover:bg-white/40'
                       }`}
                       aria-label={`Go to slide ${idx + 1}`}
@@ -3402,7 +3402,7 @@ export default function App() {
                     <TiltCard
                       key={cat.slug}
                       onClick={() => navigateToCategory(cat.slug)}
-                      className="group bg-[#1a2332] border border-white/[0.08] rounded-2xl p-5 overflow-hidden flex flex-col items-center text-center"
+                      className="group bg-[#1c1030] border border-white/[0.08] rounded-2xl p-5 overflow-hidden flex flex-col items-center text-center"
                     >
                       {/* background ambient glow */}
                       <div className={`absolute -right-8 -bottom-8 w-24 h-24 rounded-full bg-gradient-to-tr ${cat.gradient} opacity-5 blur-2xl group-hover:scale-125 transition-transform duration-500`} />
@@ -3411,7 +3411,7 @@ export default function App() {
                         <IconComponent className="w-6 h-6 text-black" />
                       </div>
 
-                      <h4 className="text-sm font-extrabold text-white group-hover:text-[#ff9800] transition-colors truncate w-full">
+                      <h4 className="text-sm font-extrabold text-white group-hover:text-[#a855f7] transition-colors truncate w-full">
                         {cat.name}
                       </h4>
                       <p className="text-[10px] text-white/40 font-semibold mt-1">
@@ -3426,7 +3426,7 @@ export default function App() {
             {/* EXCLUSIVE OFFERS */}
             <section id="exclusive-offers-section" className="max-w-7xl mx-auto px-4 mt-20">
               <div className="text-center mb-12">
-                <span className="text-[#ff9800] text-xs font-black tracking-widest uppercase bg-[#ff9800]/10 px-3.5 py-1.5 rounded-full">
+                <span className="text-[#a855f7] text-xs font-black tracking-widest uppercase bg-[#a855f7]/10 px-3.5 py-1.5 rounded-full">
                   {t('exclusiveTitle')}
                 </span>
                 <h3 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight mt-3">
@@ -3443,7 +3443,7 @@ export default function App() {
                       setSelectedRegionIndex(0);
                       setSelectedAmountIndex(Math.floor(p.options.length / 2));
                     }}
-                    className="group bg-[#1a2332] border border-white/[0.08] hover:border-[#ff9800]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-2xl"
+                    className="group bg-[#1c1030] border border-white/[0.08] hover:border-[#a855f7]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-2xl"
                   >
                     <div className="relative aspect-square overflow-hidden bg-slate-900">
                       <ProductImageWithSkeleton
@@ -3455,7 +3455,7 @@ export default function App() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       
                       {/* Promo Badge */}
-                      <span className="absolute top-3 left-3 bg-gradient-to-r from-[#ff9800] to-[#ffc107] text-[#0d1117] font-black text-[10px] uppercase px-2.5 py-1 rounded-md shadow-md animate-pulse">
+                      <span className="absolute top-3 left-3 bg-gradient-to-r from-[#a855f7] to-[#c084fc] text-[#0c0714] font-black text-[10px] uppercase px-2.5 py-1 rounded-md shadow-md animate-pulse">
                         PROMO {p.discountBadge}
                       </span>
 
@@ -3466,23 +3466,23 @@ export default function App() {
                       >
                         <Heart
                           className={`w-4.5 h-4.5 ${
-                            wishlist.includes(p.id) ? 'fill-[#ff9800] text-[#ff9800]' : 'text-white'
+                            wishlist.includes(p.id) ? 'fill-[#a855f7] text-[#a855f7]' : 'text-white'
                           }`}
                         />
                       </button>
 
                       {/* Rating Badge */}
-                      <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-[#0d1117]/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-[#ffc107]">
+                      <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-[#0c0714]/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-[#c084fc]">
                         <Star className="w-3 h-3 fill-current" />
                         <span>{p.rating}</span>
                       </div>
                     </div>
 
                     <div className="p-4">
-                      <p className="text-[10px] font-bold text-[#3b82f6] uppercase tracking-wider">
+                      <p className="text-[10px] font-bold text-[#8b5cf6] uppercase tracking-wider">
                         {p.regions[0]}
                       </p>
-                      <h4 className="text-sm font-extrabold text-white mt-1 group-hover:text-[#ff9800] transition-colors truncate">
+                      <h4 className="text-sm font-extrabold text-white mt-1 group-hover:text-[#a855f7] transition-colors truncate">
                         {p.name}
                       </h4>
                       
@@ -3498,7 +3498,7 @@ export default function App() {
 
                       <div className="mt-4 flex items-center justify-between gap-2 text-[10px] text-white/50 border-t border-white/[0.05] pt-3">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-[#ffc107]" />
+                          <Clock className="w-3.5 h-3.5 text-[#c084fc]" />
                           {p.deliveryTime}
                         </span>
                         <span className="bg-[#10b981]/10 text-[#10b981] font-bold px-2 py-0.5 rounded-full uppercase">
@@ -3540,7 +3540,7 @@ export default function App() {
                       setSelectedRegionIndex(0);
                       setSelectedAmountIndex(Math.floor(p.options.length / 2));
                     }}
-                    className="group bg-[#1a2332] border border-white/[0.08] hover:border-[#ff9800]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl"
+                    className="group bg-[#1c1030] border border-white/[0.08] hover:border-[#a855f7]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl"
                   >
                     <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
                       <ProductImageWithSkeleton
@@ -3552,15 +3552,15 @@ export default function App() {
                         onClick={(e) => toggleWishlist(p.id, e)}
                         className="absolute top-2 right-2 p-1.5 rounded bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-colors"
                       >
-                        <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#ff9800] text-[#ff9800]' : 'text-white'}`} />
+                        <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[#a855f7]' : 'text-white'}`} />
                       </button>
                     </div>
 
                     <div className="p-3">
-                      <span className="text-[9px] font-bold text-[#ff9800] bg-[#ff9800]/10 px-1.5 py-0.5 rounded uppercase">
+                      <span className="text-[9px] font-bold text-[#a855f7] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase">
                         {p.regions[0]}
                       </span>
-                      <h4 className="text-xs font-extrabold text-white mt-1.5 truncate group-hover:text-[#ff9800] transition-colors">
+                      <h4 className="text-xs font-extrabold text-white mt-1.5 truncate group-hover:text-[#a855f7] transition-colors">
                         {p.name}
                       </h4>
                       <div className="mt-2 text-xs font-bold text-[#10b981] tabular-nums">
@@ -3573,7 +3573,7 @@ export default function App() {
             </section>
 
             {/* WHY CHOOSE US & ANIMATED STATS */}
-            <section id="why-choose-us-section" className="bg-[#1a2332]/40 border-y border-white/[0.04] mt-24 py-20">
+            <section id="why-choose-us-section" className="bg-[#1c1030]/40 border-y border-white/[0.04] mt-24 py-20">
               <div className="max-w-7xl mx-auto px-4">
                 
                 <div className="text-center max-w-2xl mx-auto mb-16">
@@ -3586,23 +3586,23 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="bg-[#1a2332] border border-white/[0.06] rounded-2xl p-6 relative overflow-hidden group">
-                    <div className="w-12 h-12 rounded-xl bg-[#ff9800]/10 flex items-center justify-center text-[#ff9800] mb-5">
+                  <div className="bg-[#1c1030] border border-white/[0.06] rounded-2xl p-6 relative overflow-hidden group">
+                    <div className="w-12 h-12 rounded-xl bg-[#a855f7]/10 flex items-center justify-center text-[#a855f7] mb-5">
                       <Zap className="w-6 h-6" />
                     </div>
                     <h4 className="text-base font-extrabold text-white mb-2">{t('instantDelivery')}</h4>
                     <p className="text-xs text-white/50 leading-relaxed">{t('instantDeliveryDesc')}</p>
                   </div>
 
-                  <div className="bg-[#1a2332] border border-white/[0.06] rounded-2xl p-6 relative overflow-hidden group">
-                    <div className="w-12 h-12 rounded-xl bg-[#3b82f6]/10 flex items-center justify-center text-[#3b82f6] mb-5">
+                  <div className="bg-[#1c1030] border border-white/[0.06] rounded-2xl p-6 relative overflow-hidden group">
+                    <div className="w-12 h-12 rounded-xl bg-[#8b5cf6]/10 flex items-center justify-center text-[#8b5cf6] mb-5">
                       <ShieldCheck className="w-6 h-6" />
                     </div>
                     <h4 className="text-base font-extrabold text-white mb-2">{t('securePayments')}</h4>
                     <p className="text-xs text-white/50 leading-relaxed">{t('securePaymentsDesc')}</p>
                   </div>
 
-                  <div className="bg-[#1a2332] border border-white/[0.06] rounded-2xl p-6 relative overflow-hidden group">
+                  <div className="bg-[#1c1030] border border-white/[0.06] rounded-2xl p-6 relative overflow-hidden group">
                     <div className="w-12 h-12 rounded-xl bg-[#7c3aed]/10 flex items-center justify-center text-[#7c3aed] mb-5">
                       <HelpCircle className="w-6 h-6" />
                     </div>
@@ -3612,13 +3612,13 @@ export default function App() {
                 </div>
 
                 {/* Animated Stats banner */}
-                <div className="grid grid-cols-3 gap-4 bg-[#1a2332] border border-white/[0.06] rounded-2xl mt-12 p-6 md:p-8 text-center">
+                <div className="grid grid-cols-3 gap-4 bg-[#1c1030] border border-white/[0.06] rounded-2xl mt-12 p-6 md:p-8 text-center">
                   <div>
-                    <p className="text-2xl md:text-4xl font-black text-[#ff9800] tabular-nums">1000+</p>
+                    <p className="text-2xl md:text-4xl font-black text-[#a855f7] tabular-nums">1000+</p>
                     <p className="text-[10px] md:text-xs text-white/40 font-bold uppercase mt-1">Commandes</p>
                   </div>
                   <div>
-                    <p className="text-2xl md:text-4xl font-black text-[#3b82f6] tabular-nums">500+</p>
+                    <p className="text-2xl md:text-4xl font-black text-[#8b5cf6] tabular-nums">500+</p>
                     <p className="text-[10px] md:text-xs text-white/40 font-bold uppercase mt-1">Joueurs Heureux</p>
                   </div>
                   <div>
@@ -3640,9 +3640,9 @@ export default function App() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {TESTIMONIALS.map((test, index) => (
-                  <div key={index} className="bg-[#1a2332] border border-white/[0.08] rounded-2xl p-6 flex flex-col justify-between">
+                  <div key={index} className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-6 flex flex-col justify-between">
                     <div>
-                      <div className="flex gap-1 mb-4 text-[#ffc107]">
+                      <div className="flex gap-1 mb-4 text-[#c084fc]">
                         {[...Array(test.stars)].map((_, i) => (
                           <Star key={i} className="w-4 h-4 fill-current" />
                         ))}
@@ -3653,7 +3653,7 @@ export default function App() {
                     </div>
 
                     <div className="flex items-center gap-3 mt-6 border-t border-white/[0.05] pt-4">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#ff9800] to-[#7c3aed] flex items-center justify-center font-bold text-xs text-black">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#a855f7] to-[#7c3aed] flex items-center justify-center font-bold text-xs text-black">
                         {test.name[0]}
                       </div>
                       <div>
@@ -3700,7 +3700,7 @@ export default function App() {
             <div className="mb-6 flex items-center gap-2 text-xs text-white/40 font-semibold">
               <span className="cursor-pointer hover:text-white" onClick={() => navigateToPage('home')}>{t('accueil')}</span>
               <span>/</span>
-              <span className="text-[#ff9800]">
+              <span className="text-[#a855f7]">
                 {lang === 'FR' ? 'Mes Favoris' : 'Favori Mwen'}
               </span>
             </div>
@@ -3708,9 +3708,9 @@ export default function App() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-5 border-b border-white/[0.06]">
               <div>
                 <h2 className="text-xl md:text-3xl font-black text-white tracking-tight flex items-center gap-3">
-                  <Heart className="w-6 h-6 md:w-8 md:h-8 text-[#ff9800] fill-[#ff9800]" />
+                  <Heart className="w-6 h-6 md:w-8 md:h-8 text-[#a855f7] fill-[#a855f7]" />
                   <span>{lang === 'FR' ? 'Mes Favoris' : 'Favori Mwen'}</span>
-                  <span className="text-xs bg-[#ff9800]/10 text-[#ff9800] px-2.5 py-1 rounded-full font-extrabold border border-[#ff9800]/20">
+                  <span className="text-xs bg-[#a855f7]/10 text-[#a855f7] px-2.5 py-1 rounded-full font-extrabold border border-[#a855f7]/20">
                     {wishlist.length} {wishlist.length > 1 ? 'Articles' : 'Article'}
                   </span>
                 </h2>
@@ -3739,9 +3739,9 @@ export default function App() {
 
             {/* Check if wishlist is empty */}
             {wishlist.length === 0 ? (
-              <div id="empty-wishlist-view" className="text-center py-20 px-6 bg-[#1a2332]/50 border border-white/[0.06] rounded-3xl max-w-2xl mx-auto my-12 backdrop-blur-sm">
-                <div className="w-16 h-16 rounded-full bg-[#ff9800]/10 border border-[#ff9800]/20 flex items-center justify-center mx-auto mb-6 animate-pulse">
-                  <Heart className="w-8 h-8 text-[#ff9800]" />
+              <div id="empty-wishlist-view" className="text-center py-20 px-6 bg-[#1c1030]/50 border border-white/[0.06] rounded-3xl max-w-2xl mx-auto my-12 backdrop-blur-sm">
+                <div className="w-16 h-16 rounded-full bg-[#a855f7]/10 border border-[#a855f7]/20 flex items-center justify-center mx-auto mb-6 animate-pulse">
+                  <Heart className="w-8 h-8 text-[#a855f7]" />
                 </div>
                 <h3 className="text-lg md:text-xl font-black text-white">
                   {lang === 'FR' ? 'Votre liste est vide' : 'Lis ou a vid'}
@@ -3758,7 +3758,7 @@ export default function App() {
                       setSelectedCategorySlug(null);
                       setSearchQuery('');
                     }}
-                    className="w-full sm:w-auto bg-gradient-to-r from-[#ff9800] to-[#f57c00] hover:from-[#f57c00] hover:to-[#ff9800] text-[#0d1117] font-black text-xs px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-[#ff9800]/10 hover:shadow-[#ff9800]/20 flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto bg-gradient-to-r from-[#a855f7] to-[#7e22ce] hover:from-[#7e22ce] hover:to-[#a855f7] text-[#0c0714] font-black text-xs px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 flex items-center justify-center gap-2"
                   >
                     <Gamepad2 className="w-4 h-4" />
                     <span>{lang === 'FR' ? 'Découvrir la Boutique' : 'Gade Boutik la'}</span>
@@ -3783,7 +3783,7 @@ export default function App() {
                         setSelectedRegionIndex(0);
                         setSelectedAmountIndex(Math.floor(p.options.length / 2));
                       }}
-                      className="group bg-[#1a2332]/85 border border-white/[0.08] hover:border-[#ff9800]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-2xl flex flex-col justify-between"
+                      className="group bg-[#1c1030]/85 border border-white/[0.08] hover:border-[#a855f7]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-2xl flex flex-col justify-between"
                     >
                       {/* Product Image Panel */}
                       <div className="relative aspect-square overflow-hidden bg-slate-900">
@@ -3801,7 +3801,7 @@ export default function App() {
                           <Trash2 className="w-4 h-4" />
                         </button>
                         {p.isPromo && (
-                          <span className="absolute top-2.5 left-2.5 bg-gradient-to-r from-[#ff9800] to-[#f57c00] text-black font-black text-[9px] uppercase px-2.5 py-1 rounded-md shadow-md tracking-wider">
+                          <span className="absolute top-2.5 left-2.5 bg-gradient-to-r from-[#a855f7] to-[#7e22ce] text-black font-black text-[9px] uppercase px-2.5 py-1 rounded-md shadow-md tracking-wider">
                             PROMO
                           </span>
                         )}
@@ -3811,14 +3811,14 @@ export default function App() {
                       <div className="p-4 flex-grow flex flex-col justify-between">
                         <div>
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[9px] font-black text-[#3b82f6] uppercase tracking-wider bg-[#3b82f6]/10 px-2 py-0.5 rounded-md border border-[#3b82f6]/10">
+                            <span className="text-[9px] font-black text-[#8b5cf6] uppercase tracking-wider bg-[#8b5cf6]/10 px-2 py-0.5 rounded-md border border-[#8b5cf6]/10">
                               {p.regions[0] || 'Global'}
                             </span>
                             <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold px-2 py-0.5 rounded uppercase">
                               {t('stock')}
                             </span>
                           </div>
-                          <h3 className="text-xs md:text-sm font-extrabold text-white mt-2.5 group-hover:text-[#ff9800] transition-colors truncate">
+                          <h3 className="text-xs md:text-sm font-extrabold text-white mt-2.5 group-hover:text-[#a855f7] transition-colors truncate">
                             {p.name}
                           </h3>
                           <p className="text-[10px] text-white/50 mt-1 line-clamp-2 leading-relaxed">
@@ -3857,7 +3857,7 @@ export default function App() {
                                 setSelectedRegionIndex(0);
                                 setSelectedAmountIndex(Math.floor(p.options.length / 2));
                               }}
-                              className="bg-[#ff9800] text-black text-[10px] font-black py-2 rounded-xl hover:bg-[#ff9800]/90 transition-all flex items-center justify-center gap-1 shadow-md shadow-[#ff9800]/5"
+                              className="bg-[#a855f7] text-black text-[10px] font-black py-2 rounded-xl hover:bg-[#a855f7]/90 transition-all flex items-center justify-center gap-1 shadow-md shadow-[#a855f7]/5"
                             >
                               <Send className="w-3 h-3" />
                               <span>{lang === 'FR' ? 'Acheter' : 'Achte'}</span>
@@ -3884,7 +3884,7 @@ export default function App() {
             <div className="mb-6 flex items-center gap-2 text-xs text-white/40 font-semibold">
               <span className="cursor-pointer hover:text-white" onClick={() => navigateToPage('home')}>{t('accueil')}</span>
               <span>/</span>
-              <span className="text-[#ff9800]">
+              <span className="text-[#a855f7]">
                 {selectedCategorySlug 
                   ? CATEGORIES.find(c => c.slug === selectedCategorySlug)?.name 
                   : searchQuery 
@@ -3895,7 +3895,7 @@ export default function App() {
             </div>
 
             {/* Banner Category */}
-            <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-[#1a2332] to-[#0d1117] border border-white/[0.08] p-6 md:p-10 mb-8">
+            <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-[#1c1030] to-[#0c0714] border border-white/[0.08] p-6 md:p-10 mb-8">
               <div className="relative z-10 max-w-xl">
                 <h1 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight">
                   {selectedCategorySlug 
@@ -3913,7 +3913,7 @@ export default function App() {
             </div>
 
             {/* Search and Quick Filters Row on Category Page */}
-            <div className="mb-8 bg-[#1a2332]/50 border border-white/[0.06] rounded-2xl p-4 md:p-6 flex flex-col gap-4">
+            <div className="mb-8 bg-[#1c1030]/50 border border-white/[0.06] rounded-2xl p-4 md:p-6 flex flex-col gap-4">
               {/* Search Bar Input */}
               <div className="relative">
                 <input
@@ -3929,7 +3929,7 @@ export default function App() {
                       (e.target as HTMLInputElement).blur();
                     }
                   }}
-                  className="w-full bg-[#0d1117] border border-white/[0.08] text-sm px-4 py-3.5 pl-11 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#ff9800]/50 transition-all font-medium"
+                  className="w-full bg-[#0c0714] border border-white/[0.08] text-sm px-4 py-3.5 pl-11 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#a855f7]/50 transition-all font-medium"
                 />
                 <Search className="absolute left-4 top-4 w-4 h-4 text-white/30" />
                 {searchQuery && (
@@ -3944,7 +3944,7 @@ export default function App() {
 
                 {/* Recent Searches Dropdown on Category page */}
                 {categorySearchFocused && !searchQuery && (
-                  <div className="absolute top-[52px] left-0 w-full bg-[#1a2332] border border-white/[0.08] rounded-xl shadow-2xl p-2 z-50 max-h-60 overflow-y-auto">
+                  <div className="absolute top-[52px] left-0 w-full bg-[#1c1030] border border-white/[0.08] rounded-xl shadow-2xl p-2 z-50 max-h-60 overflow-y-auto">
                     <div className="flex flex-col gap-1 p-1">
                       <div className="flex items-center justify-between px-1 py-1 border-b border-white/[0.04] mb-1">
                         <span className="text-[10px] uppercase tracking-wider font-extrabold text-white/40">
@@ -3958,7 +3958,7 @@ export default function App() {
                               setRecentSearches([]);
                               localStorage.removeItem('recentSearches');
                             }}
-                            className="text-[9px] font-black text-[#ff9800] hover:text-[#ff9800]/85 transition-colors uppercase tracking-wider"
+                            className="text-[9px] font-black text-[#a855f7] hover:text-[#a855f7]/85 transition-colors uppercase tracking-wider"
                           >
                             {lang === 'FR' ? 'Effacer tout' : 'Klè tout'}
                           </button>
@@ -3974,7 +3974,7 @@ export default function App() {
                             }}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <History className="w-3.5 h-3.5 text-white/30 group-hover/item:text-[#ff9800] transition-colors" />
+                              <History className="w-3.5 h-3.5 text-white/30 group-hover/item:text-[#a855f7] transition-colors" />
                               <span className="text-xs font-semibold text-white/85 truncate">{term}</span>
                             </div>
                             <button
@@ -4011,7 +4011,7 @@ export default function App() {
                 <div className="flex flex-wrap gap-2.5">
                   {[
                     { id: 'ALL', Icon: null, labelFR: 'Tout', labelHT: 'Tout', color: 'border-white/[0.08] hover:bg-white/[0.02]' },
-                    { id: 'PROMO', Icon: Percent, labelFR: 'Promo', labelHT: 'Promo', color: 'border-[#ff9800]/25 hover:bg-[#ff9800]/5 text-[#ff9800]' },
+                    { id: 'PROMO', Icon: Percent, labelFR: 'Promo', labelHT: 'Promo', color: 'border-[#a855f7]/25 hover:bg-[#a855f7]/5 text-[#a855f7]' },
                     { id: 'POPULAR', Icon: Flame, labelFR: 'Plus Populaire', labelHT: 'Pli Popilè', color: 'border-amber-500/25 hover:bg-amber-500/5 text-amber-400' },
                     { id: 'UNDER_10', Icon: Coins, labelFR: `Prix < ${formatPrice(10)}`, labelHT: `Pri < ${formatPrice(10)}`, color: 'border-emerald-500/25 hover:bg-emerald-500/5 text-emerald-400' },
                     { id: 'LATEST', Icon: Sparkles, labelFR: 'Nouveautés', labelHT: 'Dènye Pwodwi', color: 'border-indigo-500/25 hover:bg-indigo-500/5 text-indigo-400' }
@@ -4025,8 +4025,8 @@ export default function App() {
                         onClick={() => setQuickFilter(chip.id as any)}
                         className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
                           isActive
-                            ? 'bg-[#ff9800] text-black border-transparent shadow-lg shadow-[#ff9800]/10 scale-102 font-extrabold'
-                            : `bg-[#0d1117] text-white/60 ${chip.color}`
+                            ? 'bg-[#a855f7] text-black border-transparent shadow-lg shadow-[#a855f7]/10 scale-102 font-extrabold'
+                            : `bg-[#0c0714] text-white/60 ${chip.color}`
                         }`}
                       >
                         {Icon && <Icon className="w-3.5 h-3.5" />}
@@ -4042,9 +4042,9 @@ export default function App() {
             <div className="flex flex-col lg:flex-row gap-8">
               
               {/* Sidebar Filters */}
-              <aside className="w-full lg:w-64 shrink-0 bg-[#1a2332] border border-white/[0.08] rounded-2xl p-5 h-fit">
+              <aside className="w-full lg:w-64 shrink-0 bg-[#1c1030] border border-white/[0.08] rounded-2xl p-5 h-fit">
                 <div className="flex items-center gap-2 pb-4 border-b border-white/[0.06] mb-5">
-                  <Filter className="w-4 h-4 text-[#ff9800]" />
+                  <Filter className="w-4 h-4 text-[#a855f7]" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-white">
                     {t('filters')}
                   </h4>
@@ -4059,7 +4059,7 @@ export default function App() {
                     <button
                       onClick={() => { setSelectedCategorySlug(null); setFilterRegion('ALL'); }}
                       className={`text-left w-full px-3 py-2 text-xs rounded-xl font-semibold transition-all ${
-                        !selectedCategorySlug ? 'bg-[#ff9800] text-black' : 'text-white/75 hover:bg-white/[0.03]'
+                        !selectedCategorySlug ? 'bg-[#a855f7] text-black' : 'text-white/75 hover:bg-white/[0.03]'
                       }`}
                     >
                       {t('allProducts')}
@@ -4069,7 +4069,7 @@ export default function App() {
                         key={c.slug}
                         onClick={() => navigateToCategory(c.slug)}
                         className={`text-left w-full px-3 py-2 text-xs rounded-xl font-semibold transition-all flex justify-between items-center ${
-                          selectedCategorySlug === c.slug ? 'bg-[#ff9800] text-black' : 'text-white/75 hover:bg-white/[0.03]'
+                          selectedCategorySlug === c.slug ? 'bg-[#a855f7] text-black' : 'text-white/75 hover:bg-white/[0.03]'
                         }`}
                       >
                         <span>{c.name}</span>
@@ -4087,7 +4087,7 @@ export default function App() {
                   <select
                     value={filterRegion}
                     onChange={(e) => setFilterRegion(e.target.value)}
-                    className="w-full bg-[#0d1117] border border-white/[0.08] text-xs px-3 py-2.5 rounded-xl text-white focus:outline-none"
+                    className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-3 py-2.5 rounded-xl text-white focus:outline-none"
                   >
                     <option value="ALL">Toutes les régions</option>
                     <option value="Global">Global</option>
@@ -4105,7 +4105,7 @@ export default function App() {
                   <select
                     value={filterSort}
                     onChange={(e) => setFilterSort(e.target.value)}
-                    className="w-full bg-[#0d1117] border border-white/[0.08] text-xs px-3 py-2.5 rounded-xl text-white focus:outline-none"
+                    className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-3 py-2.5 rounded-xl text-white focus:outline-none"
                   >
                     <option value="DEFAULT">Défaut</option>
                     <option value="PRICE_ASC">{t('sortPriceAsc')}</option>
@@ -4134,7 +4134,7 @@ export default function App() {
                           setSelectedRegionIndex(0);
                           setSelectedAmountIndex(Math.floor(p.options.length / 2));
                         }}
-                        className="group bg-[#1a2332] border border-white/[0.08] hover:border-[#ff9800]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col justify-between"
+                        className="group bg-[#1c1030] border border-white/[0.08] hover:border-[#a855f7]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col justify-between"
                         whileHover={{ scale: 1.03, y: -4, transition: { duration: 0.2 } }}
                       >
                         <div className="relative aspect-square overflow-hidden bg-slate-900">
@@ -4147,10 +4147,10 @@ export default function App() {
                             onClick={(e) => toggleWishlist(p.id, e)}
                             className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-colors"
                           >
-                            <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#ff9800] text-[#ff9800]' : 'text-white'}`} />
+                            <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[#a855f7]' : 'text-white'}`} />
                           </button>
                           {p.isPromo && (
-                            <span className="absolute top-2 left-2 bg-[#ff9800] text-black font-black text-[9px] uppercase px-2 py-0.5 rounded">
+                            <span className="absolute top-2 left-2 bg-[#a855f7] text-black font-black text-[9px] uppercase px-2 py-0.5 rounded">
                               PROMO
                             </span>
                           )}
@@ -4158,10 +4158,10 @@ export default function App() {
 
                         <div className="p-4 flex-grow flex flex-col justify-between">
                           <div>
-                            <span className="text-[9px] font-bold text-[#3b82f6] uppercase tracking-wider bg-[#3b82f6]/10 px-2 py-0.5 rounded">
+                            <span className="text-[9px] font-bold text-[#8b5cf6] uppercase tracking-wider bg-[#8b5cf6]/10 px-2 py-0.5 rounded">
                               {p.regions[0] || 'Global'}
                             </span>
-                            <h3 className="text-xs md:text-sm font-extrabold text-white mt-2 group-hover:text-[#ff9800] transition-colors truncate">
+                            <h3 className="text-xs md:text-sm font-extrabold text-white mt-2 group-hover:text-[#a855f7] transition-colors truncate">
                               {p.name}
                             </h3>
                             <p className="text-[10px] text-white/50 mt-1 line-clamp-2">
@@ -4174,7 +4174,7 @@ export default function App() {
                               <p className="text-[9px] text-white/40 font-bold uppercase">{lang === 'FR' ? 'À partir de' : 'Kòmanse nan'}</p>
                               <p className="text-sm font-black text-white tabular-nums">{formatPrice(priceOf(p, 0))}</p>
                             </div>
-                            <span className="text-[10px] text-[#ff9800] font-black group-hover:underline flex items-center gap-0.5">
+                            <span className="text-[10px] text-[#a855f7] font-black group-hover:underline flex items-center gap-0.5">
                               {lang === 'FR' ? 'Commander' : 'Achte'}
                             </span>
                           </div>
@@ -4183,12 +4183,12 @@ export default function App() {
                     ))}
                   </motion.div>
                 ) : (
-                  <div className="text-center py-20 bg-[#1a2332]/50 border border-white/[0.08] rounded-2xl">
+                  <div className="text-center py-20 bg-[#1c1030]/50 border border-white/[0.08] rounded-2xl">
                     <Gamepad2 className="w-12 h-12 text-white/20 mx-auto mb-4" />
                     <p className="text-sm text-white/60 font-semibold">{t('noResults')}</p>
                     <button
                       onClick={() => { setSelectedCategorySlug(null); setSearchQuery(''); setFilterRegion('ALL'); }}
-                      className="mt-4 bg-[#ff9800] text-[#0d1117] font-extrabold text-xs px-5 py-2.5 rounded-xl"
+                      className="mt-4 bg-[#a855f7] text-[#0c0714] font-extrabold text-xs px-5 py-2.5 rounded-xl"
                     >
                       Reset Filters
                     </button>
@@ -4215,8 +4215,8 @@ export default function App() {
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left mb-12">
-              <div className="bg-[#1a2332] border border-white/[0.08] rounded-2xl p-6 md:p-8">
-                <h3 className="text-lg font-bold text-[#ff9800] mb-3 flex items-center gap-2">
+              <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-6 md:p-8">
+                <h3 className="text-lg font-bold text-[#a855f7] mb-3 flex items-center gap-2">
                   <Star className="w-5 h-5 fill-current" />
                   {t('ourStory')}
                 </h3>
@@ -4225,8 +4225,8 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="bg-[#1a2332] border border-white/[0.08] rounded-2xl p-6 md:p-8">
-                <h3 className="text-lg font-bold text-[#3b82f6] mb-3 flex items-center gap-2">
+              <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-6 md:p-8">
+                <h3 className="text-lg font-bold text-[#8b5cf6] mb-3 flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5" />
                   {t('ourMission')}
                 </h3>
@@ -4236,25 +4236,25 @@ export default function App() {
               </div>
             </div>
 
-            <div className="bg-[#1a2332]/40 border border-white/[0.06] rounded-2xl p-6 md:p-8 text-left">
+            <div className="bg-[#1c1030]/40 border border-white/[0.06] rounded-2xl p-6 md:p-8 text-left">
               <h3 className="text-lg font-bold text-white mb-4">Nos Valeurs Clés</h3>
               <ul className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-white/70">
                 <li className="flex gap-2.5 items-start">
-                  <Check className="w-4 h-4 text-[#ff9800] flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-[#a855f7] flex-shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-white">Rapidité Absolute</strong>
                     <p className="text-white/50 mt-1">Livraison garantie de vos codes de jeux sous 5 minutes par e-mail.</p>
                   </div>
                 </li>
                 <li className="flex gap-2.5 items-start">
-                  <Check className="w-4 h-4 text-[#ff9800] flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-[#a855f7] flex-shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-white">Sécurité Maximale</strong>
                     <p className="text-white/50 mt-1">Transactions validées via les systèmes financiers officiels locaux MonCash/NatCash.</p>
                   </div>
                 </li>
                 <li className="flex gap-2.5 items-start">
-                  <Check className="w-4 h-4 text-[#ff9800] flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-[#a855f7] flex-shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-white">Service Transparent</strong>
                     <p className="text-white/50 mt-1">Aucuns frais d'enregistrement ou coûts cachés additionnels sur vos forfaits.</p>
@@ -4285,28 +4285,28 @@ export default function App() {
               
               {/* Left Contact Coordinates cards */}
               <div className="flex flex-col gap-4">
-                <div className="bg-[#1a2332] border border-white/[0.08] rounded-2xl p-5 flex items-center gap-4">
+                <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-5 flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500">
                     <Send className="w-5 h-5" />
                   </div>
                   <div>
                     <p className="text-[10px] text-white/40 uppercase font-bold">WhatsApp Direct</p>
-                    <a href="https://wa.me/50943231463" className="text-sm font-black text-white hover:text-[#ff9800] transition-colors">+509 43 23 1463</a>
+                    <a href="https://wa.me/50943231463" className="text-sm font-black text-white hover:text-[#a855f7] transition-colors">+509 43 23 1463</a>
                   </div>
                 </div>
 
-                <div className="bg-[#1a2332] border border-white/[0.08] rounded-2xl p-5 flex items-center gap-4">
+                <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-5 flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
                     <User className="w-5 h-5" />
                   </div>
                   <div>
                     <p className="text-[10px] text-white/40 uppercase font-bold">Email Support</p>
-                    <a href="mailto:support@thie-thie-services.com" className="text-sm font-black text-white hover:text-[#ff9800] transition-colors">support@thie-thie.com</a>
+                    <a href="mailto:support@thie-thie-services.com" className="text-sm font-black text-white hover:text-[#a855f7] transition-colors">support@thie-thie.com</a>
                   </div>
                 </div>
 
-                <div className="bg-[#1a2332] border border-white/[0.08] rounded-2xl p-5 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#ff9800]/10 flex items-center justify-center text-[#ff9800]">
+                <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-5 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-[#a855f7]/10 flex items-center justify-center text-[#a855f7]">
                     <Clock className="w-5 h-5" />
                   </div>
                   <div>
@@ -4316,7 +4316,7 @@ export default function App() {
                 </div>
 
                 {/* Styled Map Placeholder */}
-                <div className="bg-[#1a2332] border border-white/[0.08] rounded-2xl overflow-hidden h-48 relative">
+                <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl overflow-hidden h-48 relative">
                   <div className="absolute inset-0 bg-slate-950/65 flex flex-col items-center justify-center text-center p-4">
                     <div className="mb-2">
                       <ThieThieLogo variant="icon" size={32} />
@@ -4324,12 +4324,12 @@ export default function App() {
                     <strong className="text-xs text-white">Thie Thie Services HQ</strong>
                     <p className="text-[10px] text-white/50 mt-1">Port-au-Prince, Haïti</p>
                   </div>
-                  <div className="w-full h-full bg-gradient-to-tr from-[#1a2332] to-[#0d1117]" />
+                  <div className="w-full h-full bg-gradient-to-tr from-[#1c1030] to-[#0c0714]" />
                 </div>
               </div>
 
               {/* Form container */}
-              <div className="lg:col-span-2 bg-[#1a2332] border border-white/[0.08] rounded-2xl p-6 md:p-8">
+              <div className="lg:col-span-2 bg-[#1c1030] border border-white/[0.08] rounded-2xl p-6 md:p-8">
                 <h3 className="text-lg font-bold text-white mb-6">Formulaire de Message</h3>
                 
                 {contactSuccess ? (
@@ -4351,7 +4351,7 @@ export default function App() {
                           required
                           value={contactName}
                           onChange={(e) => setContactName(e.target.value)}
-                          className="w-full bg-[#0d1117] border border-white/[0.08] text-xs px-4 py-3 rounded-xl text-white focus:outline-none focus:border-[#ff9800] focus:ring-1 focus:ring-[#ff9800]/20 transition-colors"
+                          className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-4 py-3 rounded-xl text-white focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/20 transition-colors"
                         />
                       </div>
                       <div>
@@ -4363,7 +4363,7 @@ export default function App() {
                           required
                           value={contactEmail}
                           onChange={(e) => setContactEmail(e.target.value)}
-                          className="w-full bg-[#0d1117] border border-white/[0.08] text-xs px-4 py-3 rounded-xl text-white focus:outline-none focus:border-[#ff9800] focus:ring-1 focus:ring-[#ff9800]/20 transition-colors"
+                          className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-4 py-3 rounded-xl text-white focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/20 transition-colors"
                         />
                       </div>
                     </div>
@@ -4377,13 +4377,13 @@ export default function App() {
                         rows={5}
                         value={contactMessage}
                         onChange={(e) => setContactMessage(e.target.value)}
-                        className="w-full bg-[#0d1117] border border-white/[0.08] text-xs px-4 py-3 rounded-xl text-white focus:outline-none focus:border-[#ff9800] focus:ring-1 focus:ring-[#ff9800]/20 transition-colors"
+                        className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-4 py-3 rounded-xl text-white focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/20 transition-colors"
                       />
                     </div>
 
                     <button
                       type="submit"
-                      className="bg-[#ff9800] hover:bg-[#ff9800]/90 text-[#0d1117] font-extrabold text-xs px-6 py-3.5 rounded-xl self-end transition-colors"
+                      className="bg-[#a855f7] hover:bg-[#a855f7]/90 text-[#0c0714] font-extrabold text-xs px-6 py-3.5 rounded-xl self-end transition-colors"
                     >
                       {t('sendMessage')}
                     </button>
@@ -4415,7 +4415,7 @@ export default function App() {
                 return (
                   <div
                     key={index}
-                    className="bg-[#1a2332] border border-white/[0.08] rounded-2xl overflow-hidden transition-all duration-300"
+                    className="bg-[#1c1030] border border-white/[0.08] rounded-2xl overflow-hidden transition-all duration-300"
                   >
                     <button
                       onClick={() => setExpandedFaqIndex(isExpanded ? null : index)}
@@ -4424,7 +4424,7 @@ export default function App() {
                       <strong className="text-xs md:text-sm text-white font-extrabold leading-snug">
                         {lang === 'FR' ? faq.qFR : faq.qHT}
                       </strong>
-                      <span className={`text-[#ff9800] font-black text-base transition-transform duration-300 ${isExpanded ? 'rotate-45' : ''}`}>
+                      <span className={`text-[#a855f7] font-black text-base transition-transform duration-300 ${isExpanded ? 'rotate-45' : ''}`}>
                         +
                       </span>
                     </button>
@@ -4519,12 +4519,12 @@ export default function App() {
       {selectedProduct && (
         <div id="product-detail-modal" className="fixed inset-0 z-50 bg-black/80 overflow-y-auto animate-fadeIn backdrop-blur-sm">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <div className="bg-[#1a2332] border border-white/[0.08] rounded-3xl w-full max-w-3xl overflow-hidden relative shadow-2xl my-8 text-left">
+            <div className="bg-[#1c1030] border border-white/[0.08] rounded-3xl w-full max-w-3xl overflow-hidden relative shadow-2xl my-8 text-left">
             
             {/* Close modal action */}
             <button
               onClick={() => setSelectedProduct(null)}
-              className="absolute top-4 right-4 p-2.5 rounded-full bg-black/40 text-white hover:bg-[#ff9800] hover:text-black transition-colors z-10"
+              className="absolute top-4 right-4 p-2.5 rounded-full bg-black/40 text-white hover:bg-[#a855f7] hover:text-black transition-colors z-10"
               aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}
             >
               <X className="w-4 h-4" />
@@ -4543,7 +4543,7 @@ export default function App() {
                 
                 {/* Product Badge Info */}
                 <div className="absolute bottom-6 left-6 right-6">
-                  <span className="bg-[#ff9800] text-black text-[9px] font-black uppercase px-2 py-1 rounded-md">
+                  <span className="bg-[#a855f7] text-black text-[9px] font-black uppercase px-2 py-1 rounded-md">
                     {selectedProduct.regions[0]}
                   </span>
                   <h2 className="text-xl md:text-2xl font-black text-white mt-2">
@@ -4582,7 +4582,7 @@ export default function App() {
                         <select
                           value={reportIssueType}
                           onChange={(e) => setReportIssueType(e.target.value)}
-                          className="w-full bg-[#0d1117] border border-white/[0.08] text-xs px-3.5 py-3 rounded-2xl text-white font-semibold focus:outline-none focus:border-[#ff9800]/50"
+                          className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-3.5 py-3 rounded-2xl text-white font-semibold focus:outline-none focus:border-[#a855f7]/50"
                         >
                           <option value="PRICE_ERROR">
                             {lang === 'FR' ? "Option de prix incorrecte" : "Opsyon pri ki pa kòrèk"}
@@ -4613,7 +4613,7 @@ export default function App() {
                               ? "Décrivez le problème rencontré avec le plus de précisions possibles (packs, prix affiché, erreur etc.)..."
                               : "Dekri pwoblèm ou jwenn nan ak plis detay posib (pake, pri ki afiche, erè, elatriye)..."
                           }
-                          className="w-full bg-[#0d1117] border border-white/[0.08] text-xs px-3.5 py-3 rounded-2xl text-white font-medium focus:outline-none focus:border-[#ff9800]/50 placeholder-white/20 resize-none leading-relaxed"
+                          className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-3.5 py-3 rounded-2xl text-white font-medium focus:outline-none focus:border-[#a855f7]/50 placeholder-white/20 resize-none leading-relaxed"
                         />
                       </div>
                     </div>
@@ -4624,7 +4624,7 @@ export default function App() {
                         href={getWhatsAppReportLink(selectedProduct, reportIssueType, reportIssueDetails)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full bg-gradient-to-r from-[#ff9800] to-[#f57c00] hover:from-[#f57c00] hover:to-[#ff9800] text-[#0d1117] font-black text-xs py-3.5 rounded-2xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#ff9800]/5 hover:shadow-[#ff9800]/15 hover:-translate-y-0.5 transition-all mb-2.5"
+                        className="w-full bg-gradient-to-r from-[#a855f7] to-[#7e22ce] hover:from-[#7e22ce] hover:to-[#a855f7] text-[#0c0714] font-black text-xs py-3.5 rounded-2xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/5 hover:shadow-[#a855f7]/15 hover:-translate-y-0.5 transition-all mb-2.5"
                       >
                         <Send className="w-4 h-4" />
                         <span>{lang === 'FR' ? "Envoyer le rapport sur WhatsApp" : "Voye rapò a sou WhatsApp"}</span>
@@ -4643,7 +4643,7 @@ export default function App() {
                     <div>
                       {/* Out of Stock Header */}
                       <div className="flex items-center gap-2 mb-4">
-                        <Info className="w-5 h-5 text-[#ff9800]" />
+                        <Info className="w-5 h-5 text-[#a855f7]" />
                         <h3 className="text-base font-black text-white">
                           {lang === 'FR' ? "Produit en rupture de stock" : "Pwodwi sa a fini nan stòk"}
                         </h3>
@@ -4683,7 +4683,7 @@ export default function App() {
                                 value={alertEmail}
                                 onChange={(e) => setAlertEmail(e.target.value)}
                                 placeholder="nom@exemple.com"
-                                className="w-full bg-[#0d1117] border border-white/[0.08] text-xs pl-10 pr-3.5 py-3 rounded-2xl text-white font-medium focus:outline-none focus:border-[#ff9800]/50 placeholder-white/20"
+                                className="w-full bg-[#0c0714] border border-white/[0.08] text-xs pl-10 pr-3.5 py-3 rounded-2xl text-white font-medium focus:outline-none focus:border-[#a855f7]/50 placeholder-white/20"
                                 required
                                 disabled={alertLoading}
                               />
@@ -4699,10 +4699,10 @@ export default function App() {
                           <button
                             type="submit"
                             disabled={alertLoading}
-                            className="w-full bg-gradient-to-r from-[#ff9800] to-[#f57c00] hover:from-[#f57c00] hover:to-[#ff9800] disabled:from-[#ff9800]/50 disabled:to-[#f57c00]/50 text-[#0d1117] font-black text-xs py-3.5 rounded-2xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#ff9800]/5 hover:shadow-[#ff9800]/15 hover:-translate-y-0.5 disabled:pointer-events-none transition-all cursor-pointer"
+                            className="w-full bg-gradient-to-r from-[#a855f7] to-[#7e22ce] hover:from-[#7e22ce] hover:to-[#a855f7] disabled:from-[#a855f7]/50 disabled:to-[#7e22ce]/50 text-[#0c0714] font-black text-xs py-3.5 rounded-2xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/5 hover:shadow-[#a855f7]/15 hover:-translate-y-0.5 disabled:pointer-events-none transition-all cursor-pointer"
                           >
                             {alertLoading ? (
-                              <span className="w-4 h-4 border-2 border-[#0d1117] border-t-transparent rounded-full animate-spin" />
+                              <span className="w-4 h-4 border-2 border-[#0c0714] border-t-transparent rounded-full animate-spin" />
                             ) : (
                               <>
                                 <Zap className="w-4 h-4 animate-bounce" style={{ animationDuration: '2s' }} />
@@ -4725,9 +4725,9 @@ export default function App() {
                       <div className="mt-2 text-center">
                         <button
                           onClick={() => setShowReportForm(true)}
-                          className="text-[10px] text-white/35 hover:text-[#ff9800] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
+                          className="text-[10px] text-white/35 hover:text-[#a855f7] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
                         >
-                          <AlertTriangle className="w-3.5 h-3.5 text-[#ff9800]/50" />
+                          <AlertTriangle className="w-3.5 h-3.5 text-[#a855f7]/50" />
                           <span>{lang === 'FR' ? "Signaler un problème" : "Rapòte yon pwoblèm"}</span>
                         </button>
                       </div>
@@ -4741,7 +4741,7 @@ export default function App() {
                       {/* Game Player ID Input */}
                       {isGameCategoryRequiringPlayerId(selectedProduct.categorySlug) && (
                         <div className="mb-6">
-                          <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[#ff9800] mb-2 flex items-center gap-1">
+                          <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[#a855f7] mb-2 flex items-center gap-1">
                             <span>
                               {selectedProduct.categorySlug === 'free-fire' ? 'Free Fire Player ID' : 
                                selectedProduct.categorySlug === 'pubg' ? 'PUBG Mobile Player ID' : 
@@ -4764,7 +4764,7 @@ export default function App() {
                                 `Enter your ${CATEGORIES.find(c => c.slug === selectedProduct.categorySlug)?.name || 'Game'} Player ID`
                               }
                               required
-                              className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-xs text-white px-3.5 py-3 rounded-2xl focus:outline-none pl-10 transition-colors"
+                              className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-xs text-white px-3.5 py-3 rounded-2xl focus:outline-none pl-10 transition-colors"
                             />
                             <User className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                           </div>
@@ -4796,8 +4796,8 @@ export default function App() {
                                 onClick={() => setSelectedRegionIndex(idx)}
                                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                                   idx === selectedRegionIndex
-                                    ? 'bg-[#3b82f6] text-white border-transparent shadow-md'
-                                    : 'bg-[#0d1117] border-white/[0.08] text-white/60 hover:text-white'
+                                    ? 'bg-[#8b5cf6] text-white border-transparent shadow-md'
+                                    : 'bg-[#0c0714] border-white/[0.08] text-white/60 hover:text-white'
                                 }`}
                               >
                                 {reg}
@@ -4819,21 +4819,21 @@ export default function App() {
                               onClick={() => setSelectedAmountIndex(idx)}
                               className={`flex justify-between items-center p-3 rounded-2xl cursor-pointer border transition-all ${
                                 idx === selectedAmountIndex
-                                  ? 'bg-[#ff9800]/10 border-[#ff9800] text-white shadow-inner'
-                                  : 'bg-[#0d1117] border-white/[0.08] text-white/60 hover:bg-white/[0.02]'
+                                  ? 'bg-[#a855f7]/10 border-[#a855f7] text-white shadow-inner'
+                                  : 'bg-[#0c0714] border-white/[0.08] text-white/60 hover:bg-white/[0.02]'
                               }`}
                             >
                               <div className="flex items-center gap-2.5">
                                 <span className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                                  idx === selectedAmountIndex ? 'border-[#ff9800]' : 'border-white/20'
+                                  idx === selectedAmountIndex ? 'border-[#a855f7]' : 'border-white/20'
                                 }`}>
                                   {idx === selectedAmountIndex && (
-                                    <span className="w-2 h-2 rounded-full bg-[#ff9800]" />
+                                    <span className="w-2 h-2 rounded-full bg-[#a855f7]" />
                                   )}
                                 </span>
                                 <span className="text-xs font-extrabold">{opt.amount}</span>
                               </div>
-                              <span className="text-xs font-black text-[#ff9800] tabular-nums">
+                              <span className="text-xs font-black text-[#a855f7] tabular-nums">
                                 {formatPrice(priceOf(selectedProduct, idx))}
                               </span>
                             </div>
@@ -4858,15 +4858,15 @@ export default function App() {
                                 pm.id === 'BinancePay' || pm.id === 'NatCash' || pm.id === 'MonCash' ? 'col-span-2' : ''
                               } ${
                                 selectedPaymentMethod === pm.id
-                                  ? 'bg-[#ff9800]/10 border-[#ff9800] text-white shadow-lg shadow-[#ff9800]/5'
-                                  : 'bg-[#0d1117] border-white/[0.08] text-white/60 hover:border-white/20 hover:bg-white/[0.02]'
+                                  ? 'bg-[#a855f7]/10 border-[#a855f7] text-white shadow-lg shadow-[#a855f7]/5'
+                                  : 'bg-[#0c0714] border-white/[0.08] text-white/60 hover:border-white/20 hover:bg-white/[0.02]'
                               }`}
                             >
                               <div className="flex justify-between items-center w-full">
                                 <div className="flex items-center gap-2">
                                   {pm.id === 'BinancePay' && (
                                     <div className="relative w-4 h-4 flex items-center justify-center bg-[#F0B90B] rotate-45 rounded-[2px] shadow-sm shrink-0">
-                                      <div className="w-2 h-2 bg-[#0d1117] rounded-[1px]" />
+                                      <div className="w-2 h-2 bg-[#0c0714] rounded-[1px]" />
                                     </div>
                                   )}
                                   {pm.id === 'NatCash' && (
@@ -4882,7 +4882,7 @@ export default function App() {
                                   <span className="text-xs font-black text-white">{pm.label}</span>
                                 </div>
                                 <span className={`w-2.5 h-2.5 rounded-full border flex items-center justify-center ${
-                                  selectedPaymentMethod === pm.id ? 'border-[#ff9800] bg-[#ff9800]' : 'border-white/25'
+                                  selectedPaymentMethod === pm.id ? 'border-[#a855f7] bg-[#a855f7]' : 'border-white/25'
                                 }`} />
                               </div>
                               <span className="text-[9px] text-white/45 mt-1 font-bold uppercase tracking-wider tabular-nums">{pm.desc}</span>
@@ -4900,11 +4900,11 @@ export default function App() {
                            PAIEMENT WALLET — débit instantané via placeOrder (rien en externe)
                         ========================================== */
                         <div className="flex flex-col gap-3">
-                          <div className="flex items-center justify-between p-3 rounded-2xl bg-[#0d1117] border border-white/[0.08]">
+                          <div className="flex items-center justify-between p-3 rounded-2xl bg-[#0c0714] border border-white/[0.08]">
                             <span className="text-[10px] uppercase tracking-wider font-extrabold text-white/40">
                               {lang === 'FR' ? 'Solde Wallet' : 'Balans Wallet'}
                             </span>
-                            <span className="text-sm font-black text-[#ff9800] tabular-nums">
+                            <span className="text-sm font-black text-[#a855f7] tabular-nums">
                               {(walletBalanceCents / 100).toLocaleString('fr-FR')} HTG
                             </span>
                           </div>
@@ -4918,7 +4918,7 @@ export default function App() {
                                 value={freeFirePlayerId}
                                 onChange={(e) => setFreeFirePlayerId(e.target.value)}
                                 placeholder={getPlayerIdHelperText(selectedProduct.categorySlug, lang)}
-                                className="w-full p-3 rounded-2xl bg-[#0d1117] border border-white/[0.08] text-white text-sm outline-none focus:border-[#ff9800]"
+                                className="w-full p-3 rounded-2xl bg-[#0c0714] border border-white/[0.08] text-white text-sm outline-none focus:border-[#a855f7]"
                               />
                             </div>
                           )}
@@ -4934,7 +4934,7 @@ export default function App() {
                                   type="button"
                                   disabled={walletPaying || !enough || !available}
                                   onClick={handleWalletPay}
-                                  className="w-full py-3.5 rounded-2xl font-black text-sm bg-[#ff9800] text-[#0d1117] disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:brightness-105 active:scale-[0.99] tabular-nums"
+                                  className="w-full py-3.5 rounded-2xl font-black text-sm bg-[#a855f7] text-[#0c0714] disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:brightness-105 active:scale-[0.99] tabular-nums"
                                 >
                                   {walletPaying
                                     ? (lang === 'FR' ? 'Paiement…' : 'N ap peye…')
@@ -4977,9 +4977,9 @@ export default function App() {
                       <div className="mt-3.5 text-center">
                         <button
                           onClick={() => setShowReportForm(true)}
-                          className="text-[10px] text-white/35 hover:text-[#ff9800] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
+                          className="text-[10px] text-white/35 hover:text-[#a855f7] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
                         >
-                          <AlertTriangle className="w-3.5 h-3.5 text-[#ff9800]/50" />
+                          <AlertTriangle className="w-3.5 h-3.5 text-[#a855f7]/50" />
                           <span>{lang === 'FR' ? "Signaler un problème" : "Rapòte yon pwoblèm"}</span>
                         </button>
                       </div>
@@ -5002,7 +5002,7 @@ export default function App() {
       {authModalOpen && (
         <div id="auth-modal" className="fixed inset-0 z-50 bg-black/80 overflow-y-auto animate-fadeIn backdrop-blur-sm">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <div className="bg-[#1a2332] border border-white/[0.08] rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl my-8 p-6 text-left">
+            <div className="bg-[#1c1030] border border-white/[0.08] rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl my-8 p-6 text-left">
             
             {/* Close button */}
             <button
@@ -5019,7 +5019,7 @@ export default function App() {
                 onClick={() => { setAuthMode('login'); setAuthError(null); }}
                 className={`py-2 text-xs font-black rounded-lg transition-all ${
                   authMode === 'login' 
-                    ? 'bg-[#ff9800] text-black shadow-sm' 
+                    ? 'bg-[#a855f7] text-black shadow-sm' 
                     : 'text-white/60 hover:text-white hover:bg-white/[0.02]'
                 }`}
               >
@@ -5029,7 +5029,7 @@ export default function App() {
                 onClick={() => { setAuthMode('register'); setAuthError(null); }}
                 className={`py-2 text-xs font-black rounded-lg transition-all ${
                   authMode === 'register' 
-                    ? 'bg-[#ff9800] text-black shadow-sm' 
+                    ? 'bg-[#a855f7] text-black shadow-sm' 
                     : 'text-white/60 hover:text-white hover:bg-white/[0.02]'
                 }`}
               >
@@ -5038,7 +5038,7 @@ export default function App() {
             </div>
 
             <h3 className="text-xl font-black text-white mb-2 tracking-tight flex items-center gap-2">
-              <Lock className="w-5 h-5 text-[#ff9800]" />
+              <Lock className="w-5 h-5 text-[#a855f7]" />
               {authMode === 'login' 
                 ? (lang === 'FR' ? 'Bon retour parmi nous !' : 'Byenveni ankò !') 
                 : (lang === 'FR' ? 'Créer un compte Joueur' : 'Kreye yon kont Jwè')
@@ -5073,7 +5073,7 @@ export default function App() {
                         onChange={(e) => setAuthDisplayName(e.target.value)}
                         placeholder="e.g. ProGamer"
                         required
-                        className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                        className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
                       />
                       <User className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                     </div>
@@ -5089,7 +5089,7 @@ export default function App() {
                         value={authPhone}
                         onChange={(e) => setAuthPhone(e.target.value)}
                         placeholder="e.g. +509 3737-3737"
-                        className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                        className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
                       />
                       <Phone className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                     </div>
@@ -5108,7 +5108,7 @@ export default function App() {
                     onChange={(e) => setAuthEmail(e.target.value)}
                     placeholder="e.g. joueur@gmail.com"
                     required
-                    className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                    className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
                   />
                   <Mail className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                 </div>
@@ -5125,7 +5125,7 @@ export default function App() {
                     onChange={(e) => setAuthPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full bg-[#0d1117] border border-white/[0.08] focus:border-[#ff9800] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                    className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
                   />
                   <Lock className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
                 </div>
@@ -5134,7 +5134,7 @@ export default function App() {
               <button
                 type="submit"
                 disabled={authLoading}
-                className="w-full mt-2 bg-[#ff9800] hover:bg-[#ffc107] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#ff9800]/10 hover:shadow-[#ff9800]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
+                className="w-full mt-2 bg-[#a855f7] hover:bg-[#c084fc] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
               >
                 {authLoading ? (
                   <>
@@ -5162,21 +5162,21 @@ export default function App() {
       {pointsToast && pointsToast.show && (
         <div
           id="loyalty-points-celebration"
-          className="tt-toast fixed top-24 right-6 z-50 max-w-[340px] bg-gradient-to-r from-[#1a2332] to-[#0d1117] border-2 border-[#ff9800] rounded-2xl p-4 shadow-2xl flex items-center gap-3.5 overflow-hidden"
+          className="tt-toast fixed top-24 right-6 z-50 max-w-[340px] bg-gradient-to-r from-[#1c1030] to-[#0c0714] border-2 border-[#a855f7] rounded-2xl p-4 shadow-2xl flex items-center gap-3.5 overflow-hidden"
         >
-          <div className="w-12 h-12 rounded-full bg-[#ff9800]/10 border border-[#ff9800]/30 flex items-center justify-center text-[#ffc107] relative flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-[#a855f7]/10 border border-[#a855f7]/30 flex items-center justify-center text-[#c084fc] relative flex-shrink-0">
             <Coins className="w-6 h-6 animate-spin" style={{ animationDuration: '4s' }} />
-            <Sparkles className="w-3.5 h-3.5 text-[#ff9800] absolute -top-1 -right-1 animate-pulse" />
+            <Sparkles className="w-3.5 h-3.5 text-[#a855f7] absolute -top-1 -right-1 animate-pulse" />
           </div>
           <div className="flex-grow">
-            <h4 className="text-xs font-black text-[#ff9800] uppercase tracking-wider mb-0.5">
+            <h4 className="text-xs font-black text-[#a855f7] uppercase tracking-wider mb-0.5">
               {lang === 'FR' ? 'Points Gagnés !' : 'Pwen jwenn !'}
             </h4>
             <p className="text-[11px] text-white font-medium leading-relaxed">
               {pointsToast.msg}
             </p>
-            <div className="flex items-center gap-1 mt-1 text-[9px] text-[#ffc107] font-extrabold uppercase tracking-widest">
-              <Award className="w-3.5 h-3.5 text-[#ff9800]" />
+            <div className="flex items-center gap-1 mt-1 text-[9px] text-[#c084fc] font-extrabold uppercase tracking-widest">
+              <Award className="w-3.5 h-3.5 text-[#a855f7]" />
               <span>{lang === 'FR' ? 'Nouveau total : ' : 'Nouvo total : '} {thieThiePoints} PTS</span>
             </div>
           </div>
@@ -5187,7 +5187,7 @@ export default function App() {
           >
             <X className="w-3 h-3" />
           </button>
-          <span className="tt-toast-bar absolute left-0 bottom-0 h-[3px] bg-[#ff9800]" style={{ animationDuration: '4s' }} />
+          <span className="tt-toast-bar absolute left-0 bottom-0 h-[3px] bg-[#a855f7]" style={{ animationDuration: '4s' }} />
         </div>
       )}
 
@@ -5195,7 +5195,7 @@ export default function App() {
       {orderToast && orderToast.show && (
         <div
           id="order-status-completed-toast"
-          className={`tt-toast fixed right-6 z-50 max-w-[360px] bg-gradient-to-r from-[#0d1527] to-[#070b13] border-2 border-emerald-500 rounded-2xl p-4 shadow-2xl flex items-center gap-3.5 overflow-hidden transition-[top] duration-300 ${
+          className={`tt-toast fixed right-6 z-50 max-w-[360px] bg-gradient-to-r from-[#0b0518] to-[#070310] border-2 border-emerald-500 rounded-2xl p-4 shadow-2xl flex items-center gap-3.5 overflow-hidden transition-[top] duration-300 ${
             pointsToast?.show ? 'top-[184px]' : 'top-24'
           }`}
         >
@@ -5236,7 +5236,7 @@ export default function App() {
           <button
             id="scroll-to-top-button"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="bg-[#1a2332]/90 hover:bg-[#ff9800] text-white hover:text-black p-3.5 rounded-full border border-white/10 hover:border-transparent shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center backdrop-blur-md group"
+            className="bg-[#1c1030]/90 hover:bg-[#a855f7] text-white hover:text-black p-3.5 rounded-full border border-white/10 hover:border-transparent shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center backdrop-blur-md group"
             aria-label="Scroll to top"
           >
             <ArrowUp className="w-5 h-5 transition-transform group-hover:-translate-y-0.5" />
@@ -5265,7 +5265,7 @@ export default function App() {
           {/* Logo Description */}
           <div className="flex flex-col gap-4 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#ff9800] to-[#7c3aed] flex items-center justify-center text-black font-extrabold text-xs">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#a855f7] to-[#7c3aed] flex items-center justify-center text-black font-extrabold text-xs">
                 TT
               </div>
               <span className="font-extrabold text-lg tracking-wider text-white">THIE THIE SERVICES</span>
@@ -5279,10 +5279,10 @@ export default function App() {
           <div>
             <h4 className="text-white font-extrabold text-xs uppercase tracking-wider mb-4">Navigation</h4>
             <ul className="flex flex-col gap-2 font-medium">
-              <li><button onClick={() => navigateToPage('home')} className="hover:text-[#ff9800] transition-colors">{t('accueil')}</button></li>
-              <li><button onClick={() => navigateToPage('about')} className="hover:text-[#ff9800] transition-colors">{lang === 'FR' ? 'À Propos' : 'Kiyès nou ye'}</button></li>
-              <li><button onClick={() => navigateToPage('contact')} className="hover:text-[#ff9800] transition-colors">{t('contact')}</button></li>
-              <li><button onClick={() => navigateToPage('faq')} className="hover:text-[#ff9800] transition-colors">{t('faqTitle')}</button></li>
+              <li><button onClick={() => navigateToPage('home')} className="hover:text-[#a855f7] transition-colors">{t('accueil')}</button></li>
+              <li><button onClick={() => navigateToPage('about')} className="hover:text-[#a855f7] transition-colors">{lang === 'FR' ? 'À Propos' : 'Kiyès nou ye'}</button></li>
+              <li><button onClick={() => navigateToPage('contact')} className="hover:text-[#a855f7] transition-colors">{t('contact')}</button></li>
+              <li><button onClick={() => navigateToPage('faq')} className="hover:text-[#a855f7] transition-colors">{t('faqTitle')}</button></li>
             </ul>
           </div>
 
@@ -5290,8 +5290,8 @@ export default function App() {
           <div>
             <h4 className="text-white font-extrabold text-xs uppercase tracking-wider mb-4">Légal</h4>
             <ul className="flex flex-col gap-2 font-medium">
-              <li><button onClick={() => navigateToPage('privacy')} className="hover:text-[#ff9800] transition-colors">{t('privacyTitle')}</button></li>
-              <li><button onClick={() => navigateToPage('terms')} className="hover:text-[#ff9800] transition-colors">{t('termsTitle')}</button></li>
+              <li><button onClick={() => navigateToPage('privacy')} className="hover:text-[#a855f7] transition-colors">{t('privacyTitle')}</button></li>
+              <li><button onClick={() => navigateToPage('terms')} className="hover:text-[#a855f7] transition-colors">{t('termsTitle')}</button></li>
             </ul>
           </div>
 
@@ -5314,7 +5314,7 @@ export default function App() {
                       if (newsletterStatus !== 'idle') setNewsletterStatus('idle');
                     }}
                     placeholder={lang === 'FR' ? 'Votre adresse email' : 'Adrès imel ou'}
-                    className="w-full bg-[#1a2332] border border-white/[0.08] text-xs px-3.5 py-3 pl-9 rounded-xl text-white focus:outline-none focus:border-[#ff9800]/50 placeholder-white/25"
+                    className="w-full bg-[#1c1030] border border-white/[0.08] text-xs px-3.5 py-3 pl-9 rounded-xl text-white focus:outline-none focus:border-[#a855f7]/50 placeholder-white/25"
                     disabled={newsletterStatus === 'loading' || newsletterStatus === 'success'}
                   />
                   <Mail className="absolute left-3 top-3.5 w-4 h-4 text-white/30" />
@@ -5322,7 +5322,7 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={newsletterStatus === 'loading' || newsletterStatus === 'success'}
-                  className="w-full bg-gradient-to-r from-[#ff9800] to-[#f57c00] hover:from-[#f57c00] hover:to-[#ff9800] text-black font-black text-xs px-4 py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-[#a855f7] to-[#7e22ce] hover:from-[#7e22ce] hover:to-[#a855f7] text-black font-black text-xs px-4 py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {newsletterStatus === 'loading' ? (
                     <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
@@ -5366,7 +5366,7 @@ export default function App() {
           <div className="flex flex-col gap-3 bg-[#131a26]/90 border border-white/[0.08] p-4 rounded-2xl shadow-xl">
             <div className="flex items-center justify-between">
               <h4 className="text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5">
-                <Coins className="w-3.5 h-3.5 text-[#ff9800]" />
+                <Coins className="w-3.5 h-3.5 text-[#a855f7]" />
                 <span>{lang === 'FR' ? 'Convertisseur' : 'Konvètisè'}</span>
               </h4>
               <span className="text-[8px] bg-white/[0.04] border border-white/[0.08] px-2 py-0.5 rounded-full text-white/50 font-black uppercase tracking-wider">
@@ -5390,13 +5390,13 @@ export default function App() {
                   placeholder="0"
                   className={`w-full bg-black/40 border text-[11px] px-2.5 py-2 pl-12 rounded-xl text-white font-extrabold transition-all duration-300 focus:outline-none ${
                     calcMode === 'USD' 
-                      ? 'border-[#ff9800] bg-[#ff9800]/5 shadow-[0_0_12px_rgba(255,152,0,0.15)]' 
+                      ? 'border-[#a855f7] bg-[#a855f7]/5 shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
                       : 'border-white/[0.08] opacity-70 hover:opacity-100'
                   }`}
                 />
                 <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-white/40">USD ($)</span>
                 {calcMode === 'USD' && (
-                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[#ff9800] bg-[#ff9800]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
+                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[#a855f7] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
                     {lang === 'FR' ? 'Actif' : 'Aktif'}
                   </span>
                 )}
@@ -5404,8 +5404,8 @@ export default function App() {
 
               {/* Arrow Indicator */}
               <div className="flex justify-center -my-1">
-                <div className="bg-[#1a2332] border border-white/[0.08] p-0.5 rounded-full text-white/60">
-                  <ArrowUpDown className="w-3 h-3 text-[#ff9800]" />
+                <div className="bg-[#1c1030] border border-white/[0.08] p-0.5 rounded-full text-white/60">
+                  <ArrowUpDown className="w-3 h-3 text-[#a855f7]" />
                 </div>
               </div>
 
@@ -5419,13 +5419,13 @@ export default function App() {
                   placeholder="0"
                   className={`w-full bg-black/40 border text-[11px] px-2.5 py-2 pl-14 rounded-xl font-extrabold transition-all duration-300 focus:outline-none ${
                     calcMode === 'HTG' 
-                      ? 'border-[#ff9800] bg-[#ff9800]/5 text-[#ff9800] shadow-[0_0_12px_rgba(255,152,0,0.15)]' 
-                      : 'border-white/[0.08] text-[#ff9800]/70 opacity-70 hover:opacity-100'
+                      ? 'border-[#a855f7] bg-[#a855f7]/5 text-[#a855f7] shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
+                      : 'border-white/[0.08] text-[#a855f7]/70 opacity-70 hover:opacity-100'
                   }`}
                 />
                 <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-white/40">HTG (G)</span>
                 {calcMode === 'HTG' && (
-                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[#ff9800] bg-[#ff9800]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
+                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[#a855f7] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
                     {lang === 'FR' ? 'Actif' : 'Aktif'}
                   </span>
                 )}
@@ -5444,7 +5444,7 @@ export default function App() {
                       handlePresetClick(preset);
                       setCalcMode('USD');
                     }}
-                    className="text-[9px] bg-white/[0.03] hover:bg-[#ff9800]/10 hover:text-[#ff9800] hover:border-[#ff9800]/30 border border-white/[0.05] px-1.5 py-0.5 rounded-md text-white/70 font-extrabold transition-all"
+                    className="text-[9px] bg-white/[0.03] hover:bg-[#a855f7]/10 hover:text-[#a855f7] hover:border-[#a855f7]/30 border border-white/[0.05] px-1.5 py-0.5 rounded-md text-white/70 font-extrabold transition-all"
                   >
                     ${preset}
                   </button>

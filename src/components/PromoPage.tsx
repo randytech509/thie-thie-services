@@ -25,17 +25,17 @@ export function PromoPage({ id }: { id: string }) {
       .catch(() => setState('notfound'));
   }, [id]);
 
-  if (state === 'loading') return <div style={{ minHeight: '100vh', background: '#0a0e27', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Chargement…</div>;
+  if (state === 'loading') return <div style={{ minHeight: '100vh', background: '#0a0510', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Chargement…</div>;
   if (state === 'notfound') return (
-    <div style={{ minHeight: '100vh', background: '#0a0e27', color: '#fff', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ minHeight: '100vh', background: '#0a0510', color: '#fff', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
       <p>Cette promotion n'est pas disponible.</p>
-      <a href="/" style={{ color: '#ff9800', fontWeight: 700 }}>Retour au site</a>
+      <a href="/" style={{ color: '#a855f7', fontWeight: 700 }}>Retour au site</a>
     </div>
   );
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0e27', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: '12px 16px', background: '#11162e', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <a href="/" style={{ color: '#ff9800', fontWeight: 800, fontSize: 13, textDecoration: 'none' }}>← Thie Thie Services</a>
+    <div style={{ minHeight: '100vh', background: '#0a0510', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ padding: '12px 16px', background: '#150b28', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <a href="/" style={{ color: '#a855f7', fontWeight: 800, fontSize: 13, textDecoration: 'none' }}>← Thie Thie Services</a>
       </div>
       <iframe title={title} sandbox="allow-popups" srcDoc={html} style={{ flex: 1, width: '100%', border: 0, background: '#fff' }} />
     </div>
