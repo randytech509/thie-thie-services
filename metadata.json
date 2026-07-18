@@ -1,0 +1,6 @@
+{
+  "name": "Thie Thie Services",
+  "description": "Premium Digital Gaming Store for game credits, subscriptions, and gift cards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,157 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Represents a user profile in ThieThie Services",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "thieThiePoints": { "type": "number" },
+        "balance": { "type": "number" },
+        "walletBalance": { "type": "number" },
+        "totalAdded": { "type": "number" },
+        "totalMoneyAdded": { "type": "number" },
+        "totalSpent": { "type": "number" },
+        "totalMoneySpent": { "type": "number" },
+        "memberSince": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "email", "thieThiePoints"]
+    },
+    "Coupon": {
+      "title": "Coupon",
+      "description": "A coupon claimed by a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "titleFR": { "type": "string" },
+        "titleHT": { "type": "string" },
+        "cost": { "type": "number" },
+        "claimedAt": { "type": "string" }
+      },
+      "required": ["id", "code", "titleFR", "titleHT", "cost", "claimedAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "An order of game credits placed by a user",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string" },
+        "userId": { "type": "string" },
+        "productName": { "type": "string" },
+        "productSlug": { "type": "string" },
+        "amount": { "type": "string" },
+        "priceUSD": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "region": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "completed", "cancelled", "Pending Verification", "rejected"] },
+        "txId": { "type": "string" },
+        "screenshotUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["orderId", "userId", "productName", "amount", "priceUSD", "paymentMethod", "status", "createdAt"]
+    },
+    "WalletTransaction": {
+      "title": "WalletTransaction",
+      "description": "Represents a completed or failed wallet transaction (deposit or payment)",
+      "type": "object",
+      "properties": {
+        "transactionId": { "type": "string" },
+        "uid": { "type": "string" },
+        "type": { "type": "string", "enum": ["deposit", "payment"] },
+        "amount": { "type": "number" },
+        "balanceBefore": { "type": "number" },
+        "balanceAfter": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "transactionReference": { "type": "string" },
+        "screenshotURL": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending Verification", "Completed", "Rejected", "pending", "completed", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["transactionId", "uid", "type", "amount", "balanceBefore", "balanceAfter", "status", "createdAt"]
+    },
+    "WalletRequest": {
+      "title": "WalletRequest",
+      "description": "Represents a wallet deposit request pending verification",
+      "type": "object",
+      "properties": {
+        "requestId": { "type": "string" },
+        "uid": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "transactionReference": { "type": "string" },
+        "screenshotURL": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending Verification", "Completed", "Rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["requestId", "uid", "amount", "paymentMethod", "transactionReference", "screenshotURL", "status", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "A system or transaction notification sent to a user",
+      "type": "object",
+      "properties": {
+        "notificationId": { "type": "string" },
+        "uid": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["notificationId", "uid", "title", "message", "read", "createdAt"]
+    },
+    "StockAlert": {
+      "title": "StockAlert",
+      "description": "Represents a user alert subscription for an out of stock product",
+      "type": "object",
+      "properties": {
+        "alertId": { "type": "string" },
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "productSlug": { "type": "string" },
+        "productName": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "notified"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["alertId", "email", "productSlug", "productName", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Main user collection"
+    },
+    "/users/{userId}/coupons/{couponId}": {
+      "schema": "Coupon",
+      "description": "Subcollection storing coupons claimed by the user"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Collection storing game credit orders"
+    },
+    "/wallet_transactions/{transactionId}": {
+      "schema": "WalletTransaction",
+      "description": "Collection storing completed or failed wallet transactions"
+    },
+    "/wallet_requests/{requestId}": {
+      "schema": "WalletRequest",
+      "description": "Collection storing wallet deposit requests pending verification"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Collection storing user notifications"
+    },
+    "/stock_alerts/{alertId}": {
+      "schema": "StockAlert",
+      "description": "Collection storing stock alert subscription requests for out of stock products"
+    }
+  }
+}

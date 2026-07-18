@@ -1,0 +1,338 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- GLOBAL HELPER FUNCTIONS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn();
+    }
+
+    // INVARIANT 6: l'autorité admin provient EXCLUSIVEMENT du custom claim `admin`.
+    // Aucune élévation de privilège possible par écriture d'un champ `role` Firestore.
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_-]+$');
+    }
+
+    // Helper to get incoming / existing document states safely
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // INVARIANT 2: liste exhaustive des champs financiers verrouillés (écriture serveur uniquement).
+    function financialFields() {
+      return ['balance', 'walletBalance', 'thieThiePoints',
+              'totalAdded', 'totalMoneyAdded', 'totalSpent', 'totalMoneySpent'];
+    }
+
+    // Aucun champ financier n'est modifié par cette écriture client (robuste aux clés absentes via diff()).
+    function noFinancialChange() {
+      return !incoming().diff(existing()).affectedKeys().hasAny(financialFields());
+    }
+
+    // Statut KYC : verrouillé côté serveur (comme role) — seule reviewKyc() (Cloud Function,
+    // Admin SDK) peut le faire transiter. Empêche un client (même admin) de s'auto-approuver
+    // ou d'approuver via une écriture Firestore directe.
+    function noKycChange() {
+      return !incoming().diff(existing()).affectedKeys().hasAny(['kycStatus']);
+    }
+
+    function isValidKycStatus(s) {
+      return s is string && (s == 'none' || s == 'pending' || s == 'approved' || s == 'rejected');
+    }
+
+    // --- ENTITY VALIDATORS ---
+
+    // 1. User Entity Validator (forme générale, hors politique de mutation)
+    function isValidUser(data) {
+      return data.uid == request.auth.uid &&
+             data.displayName is string && data.displayName.size() > 0 && data.displayName.size() <= 100 &&
+             data.fullName is string && data.fullName.size() > 0 && data.fullName.size() <= 100 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 100 &&
+             data.email == request.auth.token.email &&
+             data.role is string && (data.role == "customer" || data.role == "admin") &&
+             data.thieThiePoints is int && data.thieThiePoints >= 0 &&
+             (!data.keys().hasAny(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 1000)) &&
+             (!data.keys().hasAny(['phoneNumber']) || (data.phoneNumber is string && data.phoneNumber.size() <= 100)) &&
+             (!data.keys().hasAny(['balance']) || (data.balance is number)) &&
+             (!data.keys().hasAny(['walletBalance']) || (data.walletBalance is number)) &&
+             (!data.keys().hasAny(['totalAdded']) || (data.totalAdded is number)) &&
+             (!data.keys().hasAny(['totalMoneyAdded']) || (data.totalMoneyAdded is number)) &&
+             (!data.keys().hasAny(['totalSpent']) || (data.totalSpent is number)) &&
+             (!data.keys().hasAny(['totalMoneySpent']) || (data.totalMoneySpent is number)) &&
+             (!data.keys().hasAny(['memberSince']) || (data.memberSince is string)) &&
+             (!data.keys().hasAny(['kycStatus']) || isValidKycStatus(data.kycStatus)) &&
+             // Jetons FCM (notifications push) — non financier, borné pour éviter un abus de stockage.
+             (!data.keys().hasAny(['fcmTokens']) || (data.fcmTokens is list && data.fcmTokens.size() <= 10));
+    }
+
+    // 2. Coupon Entity Validator
+    function isValidCoupon(data) {
+      return data.id is string && data.id.size() > 0 && data.id.size() <= 100 &&
+             data.code is string && data.code.size() > 0 && data.code.size() <= 50 &&
+             data.titleFR is string && data.titleFR.size() > 0 && data.titleFR.size() <= 100 &&
+             data.titleHT is string && data.titleHT.size() > 0 && data.titleHT.size() <= 100 &&
+             data.cost is int && data.cost >= 0 &&
+             data.claimedAt is string && data.claimedAt.size() > 0 && data.claimedAt.size() <= 100;
+    }
+
+    // 3. Order Entity Validator
+    function isValidOrder(data) {
+      return data.orderId is string && data.orderId.size() > 0 && data.orderId.size() <= 100 &&
+             (data.userId == request.auth.uid || data.userId == "anonymous" || data.uid == request.auth.uid) &&
+             data.productName is string && data.productName.size() > 0 && data.productName.size() <= 100 &&
+             data.productSlug is string && data.productSlug.size() > 0 && data.productSlug.size() <= 100 &&
+             data.amount is string && data.amount.size() > 0 && data.amount.size() <= 100 &&
+             data.priceUSD is number && data.priceUSD >= 0.0 &&
+             data.paymentMethod is string && data.paymentMethod.size() > 0 && data.paymentMethod.size() <= 50 &&
+             data.region is string && data.region.size() > 0 && data.region.size() <= 100 &&
+             data.status is string && (data.status == 'pending' || data.status == 'completed' || data.status == 'cancelled' || data.status == 'Pending Verification' || data.status == 'rejected') &&
+             (!data.keys().hasAny(['txId']) || (data.txId is string && data.txId.size() <= 150)) &&
+             (!data.keys().hasAny(['screenshotUrl']) || (data.screenshotUrl is string && data.screenshotUrl.size() <= 1000)) &&
+             (!data.keys().hasAny(['uid']) || (data.uid == request.auth.uid)) &&
+             (!data.keys().hasAny(['game']) || (data.game is string)) &&
+             (!data.keys().hasAny(['product']) || (data.product is string)) &&
+             (!data.keys().hasAny(['playerUID']) || (data.playerUID is string));
+    }
+
+    // 4. Stock Alert Entity Validator
+    function isValidStockAlert(data) {
+      return data.alertId is string && data.alertId.size() > 0 && data.alertId.size() <= 100 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 150 &&
+             data.productSlug is string && data.productSlug.size() > 0 && data.productSlug.size() <= 100 &&
+             data.productName is string && data.productName.size() > 0 && data.productName.size() <= 100 &&
+             data.status == "pending" &&
+             data.createdAt is string && data.createdAt.size() <= 100 &&
+             (!data.keys().hasAny(['userId']) || (data.userId is string && data.userId.size() <= 100));
+    }
+
+    // 5. Newsletter Subscriber Entity Validator
+    function isValidNewsletterSubscriber(data) {
+      return data.email is string && data.email.size() > 0 && data.email.size() <= 150 &&
+             data.email.matches('^[^@\\s]+@[^@\\s]+[.][^@\\s]+$') &&
+             data.createdAt is string && data.createdAt.size() <= 100 &&
+             (!data.keys().hasAny(['lang']) || (data.lang is string && (data.lang == 'FR' || data.lang == 'HT')));
+    }
+
+    // --- COLLECTION PATH MATCHERS ---
+
+    // 1. Users Collection
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isSignedIn() && (userId == request.auth.uid || isAdmin());
+
+      // CREATE: un nouvel utilisateur s'auto-provisionne UNIQUEMENT en `customer`,
+      // soldes obligatoirement à zéro (invariant 2 : pas d'auto-crédit, invariant 6 : pas d'auto-admin).
+      allow create: if isEmailVerified() &&
+                       isValidId(userId) &&
+                       userId == request.auth.uid &&
+                       isValidUser(incoming()) &&
+                       incoming().role == 'customer' &&
+                       incoming().thieThiePoints == 0 &&
+                       (!incoming().keys().hasAny(['balance']) || incoming().balance == 0) &&
+                       (!incoming().keys().hasAny(['walletBalance']) || incoming().walletBalance == 0) &&
+                       (!incoming().keys().hasAny(['totalAdded']) || incoming().totalAdded == 0) &&
+                       (!incoming().keys().hasAny(['totalMoneyAdded']) || incoming().totalMoneyAdded == 0) &&
+                       (!incoming().keys().hasAny(['totalSpent']) || incoming().totalSpent == 0) &&
+                       (!incoming().keys().hasAny(['totalMoneySpent']) || incoming().totalMoneySpent == 0) &&
+                       (!incoming().keys().hasAny(['kycStatus']) || incoming().kycStatus == 'none') &&
+                       incoming().keys().hasAll(['uid', 'displayName', 'fullName', 'email', 'role', 'thieThiePoints', 'createdAt', 'updatedAt']);
+
+      // UPDATE: le propriétaire n'écrit QUE du cosmétique. `role`, `uid`, `email` et TOUS
+      // les champs financiers sont immuables côté client — y compris pour un admin
+      // (invariant 3 : tout mouvement de solde passe par une Cloud Function via l'Admin SDK,
+      //  qui contourne ces règles). Le client ne peut JAMAIS muter un solde.
+      allow update: if isEmailVerified() &&
+                       isValidUser(incoming()) &&
+                       incoming().uid == existing().uid &&
+                       incoming().email == existing().email &&
+                       incoming().role == existing().role &&
+                       noFinancialChange() &&
+                       noKycChange() &&
+                       (
+                         (userId == request.auth.uid &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'fullName', 'phoneNumber', 'photoURL', 'memberSince', 'updatedAt', 'fcmTokens']))
+                         || isAdmin()
+                       );
+    }
+
+    // 2. User Coupons Subcollection — SERVEUR-ONLY.
+    // Un coupon = valeur acquise en dépensant des `thieThiePoints` (champ financier verrouillé).
+    // Comme la dépense de points ne peut plus se faire côté client (invariant 2), la création du
+    // coupon doit elle aussi être serveur-only, sinon un client mint des coupons gratuitement.
+    // À émettre par une Cloud Function (J2 : redeemReward, transaction points→coupon).
+    match /users/{userId}/coupons/{couponId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create, update, delete: if false;
+    }
+
+    // --- CATALOGUE (products) : lecture publique, écriture serveur-only ---
+    // Source de vérité (prix en centimes, stock, dispo). Écrit UNIQUEMENT via l'Admin SDK
+    // (callables seedProducts / placeOrder pour le stock), qui contourne ces règles.
+    // Aucun client ne peut écrire (invariant 3 : prix résolus serveur).
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // --- CONFIG (coordonnées de dépôt affichées dans le modal Add Funds) : lecture publique,
+    // écriture serveur-only. Sorti du code source pour préparer la publication du repo
+    // (invariant 7bis : aucune coordonnée de contact en dur dans un dépôt public).
+    // NB : rule scopée au SEUL doc depositAccounts, PAS un wildcard /config/{doc} — config/fx
+    // (taux FX serveur-only) reste sous le default-deny global.
+    match /config/depositAccounts {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Pages promo HTML (composer push). Lecture publique UNIQUEMENT si publiée ; l'admin voit tout.
+    // Écriture serveur-only (callables savePromo/deletePromo, admin + step-up passkey).
+    match /promos/{promoId} {
+      allow get: if (resource != null && resource.data.published == true) || isAdmin();
+      allow list: if isAdmin();
+      allow write: if false;
+    }
+
+    // 3. Orders Collection (Secure Relational Enforced List & Write)
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.uid == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.uid == request.auth.uid || isAdmin());
+
+      // CREATE: SERVEUR-ONLY (invariant 3). Les commandes sont créées EXCLUSIVEMENT par la
+      // Cloud Function placeOrder (Admin SDK, contourne ces règles), qui débite le wallet et
+      // décrémente le stock atomiquement. Autoriser la création client permettait de FORGER une
+      // commande impayée (statut 'pending') ET d'empoisonner l'idempotence de placeOrder
+      // (orders/{idempotencyKey} pré-créé → dédup renvoyée sans débit) = contournement de paiement.
+      // Vestige de l'ancien flux de paiement externe (retiré). Ne JAMAIS rouvrir au client.
+      allow create: if false;
+
+      // UPDATE: identité, horodatage et PRIX immuables (anti-tamper). Seule action client :
+      // annuler une commande encore en attente. Tout le reste = admin (à terme : placeOrder Function).
+      allow update: if isEmailVerified() && (
+                       (
+                         (existing().userId == request.auth.uid || existing().uid == request.auth.uid) &&
+                         incoming().orderId == existing().orderId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().userId == existing().userId &&
+                         incoming().priceUSD == existing().priceUSD &&
+                         isValidOrder(incoming()) &&
+                         ((existing().status == 'pending' || existing().status == 'Pending Verification') && (incoming().status == 'cancelled') && incoming().diff(existing()).affectedKeys().hasOnly(['status']))
+                       )
+                       || isAdmin()
+                     );
+
+      allow delete: if false;
+    }
+
+    // 4. Wallet Transactions Collection (GRAND LIVRE — écriture SERVEUR uniquement)
+    // INVARIANT 3 : le ledger financier n'est jamais écrit par un client (même admin).
+    // Les Cloud Functions écrivent via l'Admin SDK qui contourne ces règles.
+    match /wallet_transactions/{transactionId} {
+      allow get: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+
+      allow create, update, delete: if false;
+    }
+
+    // 5. Wallet Requests Collection
+    // Le client CRÉE une demande (montant + statut initial figés). Toute TRANSITION
+    // (Completed/Rejected/...) est serveur-only via Function — interdite au client (invariant 3).
+    match /wallet_requests/{requestId} {
+      allow get: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+
+      // NB (fix drift 2026-07-16) : le client (UserProfile.tsx handleSubmitDeposit) écrit
+      // TOUJOURS status:'Pending Verification' — c'est la seule valeur réellement produite
+      // par l'app (et celle attendue par reconcileSms()/reviewDeposit()). L'ancienne liste
+      // ('PendingReview'/'AwaitingProof'/'AwaitingSms') ne correspondait à aucun code réel :
+      // la création du dépôt aurait été refusée par ces règles en prod (jamais déployé/testé
+      // contre le vrai flux UI, seulement contre des docs de test forgés).
+      allow create: if isEmailVerified() &&
+                       isValidId(requestId) &&
+                       incoming().uid == request.auth.uid &&
+                       incoming().status == 'Pending Verification' &&
+                       incoming().keys().hasAll(['requestId', 'uid', 'amount', 'paymentMethod', 'transactionReference', 'screenshotURL', 'status', 'createdAt']);
+
+      allow update, delete: if false;
+    }
+
+    // 5bis. KYC Requests Collection — même politique que wallet_requests (invariant 3/6) :
+    // le client crée une demande (statut initial figé 'pending'), toute transition
+    // (approved/rejected) est serveur-only via reviewKyc() (Admin SDK, contourne ces règles).
+    match /kyc_requests/{requestId} {
+      allow get: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+
+      allow create: if isEmailVerified() &&
+                       isValidId(requestId) &&
+                       incoming().uid == request.auth.uid &&
+                       incoming().status == 'pending' &&
+                       incoming().fullName is string && incoming().fullName.size() > 0 && incoming().fullName.size() <= 100 &&
+                       incoming().idPhotoURL is string && incoming().idPhotoURL.size() > 0 && incoming().idPhotoURL.size() <= 1000 &&
+                       incoming().selfiePhotoURL is string && incoming().selfiePhotoURL.size() > 0 && incoming().selfiePhotoURL.size() <= 1000 &&
+                       incoming().keys().hasAll(['requestId', 'uid', 'fullName', 'idPhotoURL', 'selfiePhotoURL', 'status', 'createdAt']);
+
+      allow update, delete: if false;
+    }
+
+    // 6. Notifications Collection
+    match /notifications/{notificationId} {
+      allow get: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+
+      allow create: if isEmailVerified() && (incoming().uid == request.auth.uid || isAdmin()) &&
+                       incoming().keys().hasAll(['notificationId', 'uid', 'title', 'message', 'read', 'createdAt']);
+
+      // L'utilisateur ne peut que marquer comme lu.
+      allow update: if isEmailVerified() && (
+                       (existing().uid == request.auth.uid &&
+                        incoming().uid == existing().uid &&
+                        incoming().diff(existing()).affectedKeys().hasOnly(['read']))
+                       || isAdmin()
+                     );
+
+      allow delete: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    // 7. Stock Alerts Collection
+    match /stock_alerts/{alertId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && isAdmin();
+
+      allow create: if isValidId(alertId) &&
+                       isValidStockAlert(incoming()) &&
+                       incoming().keys().hasAll(['alertId', 'email', 'productSlug', 'productName', 'status', 'createdAt']);
+
+      allow update, delete: if isEmailVerified() && isAdmin();
+    }
+
+    // 8. Newsletter Subscribers — capture d'e-mail seule (pas d'envoi de campagne pour l'instant).
+    // Ouvert aux visiteurs anonymes (un formulaire d'abonnement n'exige pas de compte).
+    // Doc ID = e-mail normalisé côté client → une resoumission est une "update" (refusée),
+    // pas une "create" : le client traite ce refus comme "déjà abonné", jamais une erreur.
+    match /newsletter_subscribers/{subscriberId} {
+      allow get, list: if isSignedIn() && isAdmin();
+
+      allow create: if isValidNewsletterSubscriber(incoming()) &&
+                       incoming().keys().hasAll(['email', 'createdAt']);
+
+      allow update, delete: if false;
+    }
+  }
+}

@@ -1,0 +1,326 @@
+@import "tailwindcss";
+
+/* ==========================================
+   DESIGN TOKENS (refonte sidebar + palette affinée)
+   Utilisés via la syntaxe Tailwind arbitraire, ex. bg-[var(--tt-surface)].
+   Dark = valeurs par défaut (app dark-first) ; body.light les redéfinit,
+   donc tout composant construit sur ces tokens gère clair/sombre gratuitement.
+   ========================================== */
+:root {
+  --tt-bg: #0a0e16;
+  --tt-surface: #131a27;
+  --tt-surface-2: #1b2434;
+  --tt-surface-3: #232e42;
+  --tt-border: rgba(255, 255, 255, 0.08);
+  --tt-text: #f5f7fa;
+  --tt-text-muted: #93a1b8;
+  --tt-text-faint: #667088;
+  --tt-accent: #ff9800;
+  --tt-accent-ink: #ffd9a0;
+  --tt-accent-soft: rgba(255, 152, 0, 0.14);
+  --tt-good: #34d399;
+  --tt-good-soft: rgba(52, 211, 153, 0.14);
+  --tt-danger: #f87171;
+  --tt-danger-soft: rgba(248, 113, 113, 0.14);
+  --tt-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.55);
+}
+
+body.light {
+  --tt-bg: #f6f7fb;
+  --tt-surface: #ffffff;
+  --tt-surface-2: #eef1f6;
+  --tt-surface-3: #e4e8f0;
+  --tt-border: #e1e5ee;
+  --tt-text: #10131a;
+  --tt-text-muted: #5b6478;
+  --tt-text-faint: #8891a3;
+  --tt-accent: #ff9500;
+  --tt-accent-ink: #7a3d00;
+  --tt-accent-soft: #fff1de;
+  --tt-good: #16a34a;
+  --tt-good-soft: #e8f8ee;
+  --tt-danger: #dc2626;
+  --tt-danger-soft: #fdecec;
+  --tt-shadow: 0 1px 2px rgba(16, 19, 26, 0.04), 0 8px 24px -12px rgba(16, 19, 26, 0.12);
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.8s infinite linear;
+}
+
+/* Squelette de chargement réutilisable (listes/grilles). */
+.tt-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--tt-surface-3);
+  border-radius: 8px;
+}
+.tt-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  animation: shimmer 1.6s infinite;
+}
+body.light .tt-skeleton::after {
+  background: linear-gradient(90deg, transparent, rgba(16, 19, 26, 0.06), transparent);
+}
+
+/* Toast — animation d'entrée + barre de progression avant disparition. */
+@keyframes tt-toast-in {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes tt-toast-bar {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+.tt-toast { animation: tt-toast-in 0.22s ease-out; }
+.tt-toast-bar { animation: tt-toast-bar linear forwards; }
+
+/* ==========================================
+   HIGH-CONTRAST LIGHT MODE THEME OVERRIDES
+   ========================================== */
+
+body.light {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Base backgrounds */
+body.light .bg-\[\#0d1117\] {
+  background-color: #f8fafc !important;
+}
+
+body.light .bg-\[\#1a2332\] {
+  background-color: #ffffff !important;
+}
+
+body.light .bg-\[\#0c1017\] {
+  background-color: #f1f5f9 !important;
+}
+
+/* Semi-transparent backgrounds */
+body.light .bg-\[\#1a2332\]\/50 {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+body.light .bg-\[\#1a2332\]\/80 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+body.light .bg-\[\#0d1117\]\/95 {
+  background-color: rgba(248, 250, 252, 0.95) !important;
+}
+
+body.light .bg-\[\#0d1117\]\/80 {
+  background-color: rgba(248, 250, 252, 0.8) !important;
+}
+
+/* Texts and titles */
+body.light .text-white {
+  color: #0f172a !important;
+}
+
+body.light .text-white\/90 {
+  color: rgba(15, 23, 42, 0.9) !important;
+}
+
+body.light .text-white\/80 {
+  color: rgba(15, 23, 42, 0.8) !important;
+}
+
+body.light .text-white\/70 {
+  color: rgba(15, 23, 42, 0.7) !important;
+}
+
+body.light .text-white\/60 {
+  color: rgba(15, 23, 42, 0.6) !important;
+}
+
+body.light .text-white\/50 {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+
+body.light .text-white\/40 {
+  color: rgba(15, 23, 42, 0.4) !important;
+}
+
+body.light .text-white\/30 {
+  color: rgba(15, 23, 42, 0.3) !important;
+}
+
+body.light .text-white\/20 {
+  color: rgba(15, 23, 42, 0.25) !important;
+}
+
+body.light .text-\[\#c9d1d9\] {
+  color: #334155 !important;
+}
+
+/* Keep dark text on orange and vibrant CTA buttons */
+body.light .text-\[\#0d1117\] {
+  color: #0d1117 !important;
+}
+
+body.light .text-black {
+  color: #000000 !important;
+}
+
+/* Borders and lines */
+body.light .border-white\/\[0\.08\] {
+  border-color: #cbd5e1 !important;
+}
+
+body.light .border-white\/\[0\.06\] {
+  border-color: #e2e8f0 !important;
+}
+
+body.light .border-white\/\[0\.05\] {
+  border-color: #f1f5f9 !important;
+}
+
+body.light .border-white\/\[0\.1\] {
+  border-color: #94a3b8 !important;
+}
+
+/* Skeletons & placeholders */
+body.light .bg-slate-900 {
+  background-color: #e2e8f0 !important;
+}
+
+body.light .bg-slate-950 {
+  background-color: #cbd5e1 !important;
+}
+
+/* Gradients mapping to light theme backgrounds */
+body.light .from-\[\#0d1117\] {
+  --tw-gradient-from: #f1f5f9 !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(241, 245, 249, 0)) !important;
+}
+
+body.light .via-\[\#0d1117\]\/90 {
+  --tw-gradient-stops: var(--tw-gradient-from), rgba(241, 245, 249, 0.9) 50%, var(--tw-gradient-to, rgba(241, 245, 249, 0)) !important;
+}
+
+body.light .to-\[\#0d1117\] {
+  --tw-gradient-to: #f1f5f9 !important;
+}
+
+body.light .from-\[\#1a2332\] {
+  --tw-gradient-from: #ffffff !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(255, 255, 255, 0)) !important;
+}
+
+/* Hover and transitions on interactive elements */
+body.light .hover\:bg-white\/\[0\.04\]:hover {
+  background-color: rgba(15, 23, 42, 0.05) !important;
+}
+
+body.light .hover\:bg-white\/\[0\.02\]:hover {
+  background-color: rgba(15, 23, 42, 0.02) !important;
+}
+
+body.light .hover\:text-white:hover {
+  color: #0f172a !important;
+}
+
+/* Dropdown/popover custom shadows to feel floaty in light mode */
+body.light .shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Input elements placeholders */
+body.light ::placeholder {
+  color: rgba(15, 23, 42, 0.4) !important;
+}
+body.light .placeholder-white\/30::placeholder {
+  color: rgba(15, 23, 42, 0.4) !important;
+}
+body.light .placeholder-white\/40::placeholder {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
+
+/* Footer & other dark layouts */
+body.light .bg-\[\#0b0e14\] {
+  background-color: #f8fafc !important;
+  border-top-color: #e2e8f0 !important;
+}
+
+body.light .bg-\[\#111827\]\/95 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+body.light .bg-\[\#1a2332\]\/90 {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+body.light .bg-\[\#1a2332\]\/85 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+body.light .bg-black\/40 {
+  background-color: rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}
+
+/* Fix specific texts on light backgrounds */
+body.light .hover\:text-[#ff9800]:hover {
+  color: #f57c00 !important;
+}
+
+body.light .text-[#c9d1d9] {
+  color: #475569 !important;
+}
+
+/* Scrollbar styles for light mode */
+body.light ::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+}
+
+body.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 4px !important;
+}
+
+body.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important;
+}
+
+/* Chiffres tabulaires : prix, soldes et compteurs alignés → pas de décalage de
+   largeur quand les montants changent. N'affecte que le rendu des chiffres. */
+.font-black,
+.font-extrabold,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Accessibilité — respecte prefers-reduced-motion : réduit/désactive les animations
+   et transitions CSS pour les utilisateurs sensibles au mouvement (WCAG). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-shimmer {
+    animation: none !important;
+  }
+}
+
+

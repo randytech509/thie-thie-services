@@ -1,0 +1,51 @@
+rules_version = '2';
+
+// INVARIANT 7 : preuves de paiement non lisibles hors propriétaire/admin,
+// chemins non devinables ({uid}/{uuid}), MIME image borné, poids borné.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Default deny — tout chemin non explicitement autorisé est refusé.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Autorité admin = custom claim `admin` uniquement (invariant 6).
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    function isValidProof() {
+      return request.resource.size <= 5 * 1024 * 1024 &&            // ≤ 5 Mo
+             request.resource.contentType.matches('image/(png|jpeg|jpg|webp)');
+    }
+
+    // Preuves de paiement : proofs/{uid}/{fileId}
+    // - propriétaire : peut téléverser/lire/remplacer ses propres preuves
+    // - admin : lecture seule (validation des dépôts)
+    // - aucun listing du dossier d'un autre utilisateur (chemin {uid} segmenté)
+    match /proofs/{uid}/{fileId} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, update: if isSignedIn() && request.auth.uid == uid && isValidProof();
+      allow delete: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Avatars publics en lecture, écriture par le propriétaire uniquement.
+    match /avatars/{uid}/{fileId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && request.auth.uid == uid && isValidProof();
+      allow delete: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Preuves KYC (photo ID + selfie) : kyc_proofs/{uid}/{fileId} — même politique que /proofs.
+    match /kyc_proofs/{uid}/{fileId} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, update: if isSignedIn() && request.auth.uid == uid && isValidProof();
+      allow delete: if isSignedIn() && request.auth.uid == uid;
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "name": "thie-thie-services",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port=3000 --host=0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview",
+    "clean": "rm -rf dist server.js",
+    "lint": "tsc --noEmit",
+    "test:rules": "firebase emulators:exec --only firestore \"node --test tests/rules/*.test.mjs\"",
+    "test:functions": "npm --prefix functions run build && firebase emulators:exec --only firestore \"node --test functions/test/*.test.mjs\"",
+    "test": "npm run test:rules && npm run test:functions"
+  },
+  "dependencies": {
+    "@simplewebauthn/browser": "^13.3.0",
+    "@tailwindcss/vite": "^4.1.14",
+    "@vitejs/plugin-react": "^5.0.4",
+    "dotenv": "^17.2.3",
+    "firebase": "^12.15.0",
+    "lucide-react": "^0.546.0",
+    "motion": "^12.23.24",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "vite": "^6.2.3"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
+    "@types/node": "^22.14.0",
+    "autoprefixer": "^10.4.21",
+    "esbuild": "^0.25.0",
+    "firebase-tools": "^14.0.0",
+    "tailwindcss": "^4.1.14",
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.3"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.1": true,
+    "protobufjs@7.6.4": true,
+    "re2@1.25.0": true,
+    "@firebase/util@1.15.1": true,
+    "fsevents@2.3.3": true
+  }
+}
