@@ -41,6 +41,14 @@ service firebase.storage {
       allow delete: if isSignedIn() && request.auth.uid == uid;
     }
 
+    // Images pour les push / pages promo : lecture publique (FCM et les pages promo doivent
+    // afficher l'image via URL publique), écriture réservée aux admins (custom claim).
+    match /promo_images/{uid}/{fileId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && request.auth.uid == uid && isValidProof();
+      allow delete: if isAdmin() && request.auth.uid == uid;
+    }
+
     // Preuves KYC (photo ID + selfie) : kyc_proofs/{uid}/{fileId} — même politique que /proofs.
     match /kyc_proofs/{uid}/{fileId} {
       allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());

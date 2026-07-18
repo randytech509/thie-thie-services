@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase';
 import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo } from '../lib/api';
 import { getPasskeyStatus, enrollPasskey, verifyPasskey } from '../lib/passkey';
 import {
   LayoutDashboard, ShoppingBag, Wallet, ShieldCheck, Bell, Settings, KeyRound,
-  Check, X, Loader2, Mail, ChevronLeft, Fingerprint, Send, Trash2, ExternalLink,
+  Check, X, Loader2, Mail, ChevronLeft, Fingerprint, Send, Trash2, ExternalLink, ImagePlus,
 } from 'lucide-react';
 
 interface AdminPanelProps {
@@ -244,7 +245,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
 
         {tab === 'settings' && <AdminSettings flash={flash} />}
 
-        {tab === 'notifications' && <AdminNotifications flash={flash} />}
+        {tab === 'notifications' && <AdminNotifications flash={flash} uid={user.uid} />}
         {tab === 'security' && (
           <div className="max-w-lg">
             <h2 className="text-2xl font-black mb-4">Sécurité</h2>
@@ -338,13 +339,29 @@ function AdminSettings({ flash }: { flash: (m: string) => void }) {
   );
 }
 
-function AdminNotifications({ flash }: { flash: (m: string) => void }) {
+function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: string }) {
   const [promos, setPromos] = useState<any[]>([]);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [url, setUrl] = useState('');
   const [sending, setSending] = useState(false);
+  const [uploadingImg, setUploadingImg] = useState(false);
+
+  const uploadImage = async (file: File) => {
+    if (!file.type.startsWith('image/')) { flash('Choisis un fichier image.'); return; }
+    if (file.size > 5 * 1024 * 1024) { flash('Image trop lourde (5 Mo max).'); return; }
+    setUploadingImg(true);
+    try {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const r = ref(storage, `promo_images/${uid}/push-${Date.now()}.${ext}`);
+      await uploadBytes(r, file);
+      const dl = await getDownloadURL(r);
+      setImageUrl(dl);
+      flash('Image importée.');
+    } catch (e) { flash(`Échec de l'import : ${(e as Error).message}`); }
+    finally { setUploadingImg(false); }
+  };
 
   // Éditeur promo
   const [pId, setPId] = useState<string | null>(null);
@@ -390,7 +407,18 @@ function AdminNotifications({ flash }: { flash: (m: string) => void }) {
         <div className="bg-[#11162e] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre" maxLength={60} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#ff9800] outline-none" />
           <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message" rows={2} maxLength={160} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm resize-none focus:border-[#ff9800] outline-none" />
-          <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="URL image d'aperçu (optionnel)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#ff9800] outline-none" />
+          {/* Image d'aperçu : upload direct (Storage public) OU coller une URL */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <label className="cursor-pointer bg-white/[0.06] hover:bg-white/10 rounded-xl px-3 py-2.5 text-xs font-bold flex items-center gap-1.5 shrink-0">
+                {uploadingImg ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5" />} Importer une image
+                <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp" className="hidden" onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0])} />
+              </label>
+              {imageUrl && <button onClick={() => setImageUrl('')} className="text-white/40 hover:text-red-400 text-xs font-bold">retirer</button>}
+            </div>
+            <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="…ou colle une URL d'image (optionnel)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#ff9800] outline-none" />
+            {imageUrl && <img src={imageUrl} alt="aperçu" className="rounded-lg max-h-28 w-auto object-cover border border-white/10" />}
+          </div>
           <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Lien au clic (ex. page promo)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#ff9800] outline-none" />
           <button onClick={send} disabled={sending} className="bg-[#ff9800] hover:bg-[#ffa726] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}Envoyer à tous</button>
           <p className="text-[10px] text-white/30">Le push affiche titre + message + image ; le HTML riche va sur une page promo (ci-contre) vers laquelle pointe le lien.</p>

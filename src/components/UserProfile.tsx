@@ -64,7 +64,8 @@ import {
   ExternalLink,
   ChevronDown,
   UserCheck,
-  BellOff
+  BellOff,
+  LayoutDashboard
 } from 'lucide-react';
 
 interface UserProfileProps {
@@ -927,6 +928,17 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               <p className="text-xs text-white/50 font-bold mt-1 tracking-tight">
                 @{user.email?.split('@')[0] || 'gamer'}
               </p>
+
+              {/* Accès back-office (admin) — point d'entrée mobile ET desktop (la Sidebar
+                  desktop l'a aussi, mais sur mobile c'est le SEUL accès). */}
+              {isAdminClaim && (
+                <button
+                  onClick={() => navigateToPage('admin')}
+                  className="mt-4 w-full flex items-center justify-center gap-2 bg-[#ff9800] hover:bg-[#ffa726] text-black font-black uppercase tracking-wider text-xs rounded-xl py-3 transition-colors"
+                >
+                  <LayoutDashboard className="w-4 h-4" /> Ouvrir le back-office
+                </button>
+              )}
 
               <div className="mt-4 flex flex-col gap-2 w-full text-xs font-semibold text-white/60 bg-black/25 rounded-2xl p-3 border border-white/[0.04]">
                 <div className="flex items-center justify-between">
