@@ -993,7 +993,16 @@ export default function App() {
   // Global States
   const [lang, setLang] = useState<'FR' | 'HT'>('FR');
   const [currency, setCurrency] = useState<'USD' | 'HTG'>('HTG');
-  const exchangeRate = 145.0; // 1 USD = 145 HTG mock rate
+  // Taux de change lu depuis config/fx (défini par l'admin via setFxRate) et propagé EN TEMPS
+  // RÉEL à tout le site via onSnapshot — modifier le taux dans le back-office se reflète
+  // immédiatement (bandeau, convertisseur, formatPrice) sans rechargement. Fallback 145.
+  const [exchangeRate, setExchangeRate] = useState<number>(145);
+  useEffect(() => {
+    return onSnapshot(doc(db, 'config', 'fx'), (snap) => {
+      const cents = snap.data()?.htgCentsPerUsd;
+      if (typeof cents === 'number' && cents > 0) setExchangeRate(cents / 100);
+    }, () => {});
+  }, []);
 
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     try {

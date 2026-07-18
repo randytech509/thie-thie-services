@@ -206,6 +206,13 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Taux de change affiché sur le site : lecture publique (le taux EST une info publique),
+    // écriture serveur-only (callable admin setFxRate + step-up).
+    match /config/fx {
+      allow get: if true;
+      allow write: if false;
+    }
+
     // Pages promo HTML (composer push). Lecture publique UNIQUEMENT si publiée ; l'admin voit tout.
     // Écriture serveur-only (callables savePromo/deletePromo, admin + step-up passkey).
     match /promos/{promoId} {
