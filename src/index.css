@@ -323,4 +323,18 @@ body.light ::-webkit-scrollbar-thumb:hover {
   }
 }
 
+/* ── Sections TOUJOURS sombres (fond image/dégradé) : garder le texte CLAIR en mode jour,
+   sinon le texte s'assombrit (body.light .text-white) sur un fond resté sombre = illisible. */
+body.light #hero-slider-section [class*="text-white"],
+body.light #hero-slider-section h1,
+body.light #hero-slider-section h2,
+body.light #hero-slider-section p,
+body.light .keep-dark [class*="text-white"] {
+  color: #fff !important;
+}
+/* Le fond du hero reste sombre en mode jour (il porte une image) — ne pas l'éclaircir. */
+body.light #hero-slider-section {
+  color: #fff;
+}
+
 
