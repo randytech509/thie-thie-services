@@ -81,6 +81,7 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   sendPasswordResetEmail,
+  sendEmailVerification,
   User as FirebaseUser
 } from 'firebase/auth';
 import { 
@@ -1581,7 +1582,10 @@ export default function App() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
-      
+
+      // Envoi de l'e-mail de vérification (best-effort) — requis pour les actions sensibles.
+      try { await sendEmailVerification(currentUser); } catch (e) { console.warn('Envoi vérif e-mail:', e); }
+
       setAuthModalOpen(false);
       setAuthEmail('');
       setAuthPassword('');
@@ -1677,7 +1681,11 @@ export default function App() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
-      
+
+      // Envoi de l'e-mail de vérification (best-effort). La vérif est exigée par les règles
+      // pour les actions sensibles (dépôts, commandes, KYC) — voir isEmailVerified().
+      try { await sendEmailVerification(currentUser); } catch (e) { console.warn('Envoi vérif e-mail:', e); }
+
       // Clear fields
       setRegisterFullName('');
       setRegisterEmail('');

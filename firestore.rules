@@ -13,7 +13,9 @@ service cloud.firestore {
     }
 
     function isEmailVerified() {
-      return isSignedIn();
+      // Vérif e-mail RÉELLEMENT appliquée. Les admins sont exemptés (comptes de service /
+      // bootstrap créés par script, non vérifiés — sinon l'admin serait verrouillé dehors).
+      return isAdmin() || (isSignedIn() && request.auth.token.email_verified == true);
     }
 
     // INVARIANT 6: l'autorité admin provient EXCLUSIVEMENT du custom claim `admin`.
@@ -139,7 +141,10 @@ service cloud.firestore {
 
       // CREATE: un nouvel utilisateur s'auto-provisionne UNIQUEMENT en `customer`,
       // soldes obligatoirement à zéro (invariant 2 : pas d'auto-crédit, invariant 6 : pas d'auto-admin).
-      allow create: if isEmailVerified() &&
+      // NB : PAS de `isEmailVerified()` ici — un nouveau compte n'est pas encore vérifié au moment
+      // où l'app crée son profil. La vérif e-mail est exigée pour les actions sensibles (dépôts,
+      // commandes, KYC), pas pour la simple création du profil (soldes forcés à 0, rôle=customer).
+      allow create: if isSignedIn() &&
                        isValidId(userId) &&
                        userId == request.auth.uid &&
                        isValidUser(incoming()) &&
