@@ -128,6 +128,31 @@ describe('reconcileSms — auto-crédit conservateur', () => {
     assert.equal(r.credited, false);
   });
 
+  test('repli : TxID discordant mais NUMÉRO expéditeur + montant concordants → crédite (par senderPhone)', async () => {
+    await db.doc(`users/${UID}`).set({ uid: UID, walletBalanceCents: 0, totalAddedCents: 0 });
+    await db.doc('wallet_requests/REQ_SMS').set({
+      uid: UID, paymentMethod: 'NatCash', status: 'Pending Verification',
+      expectedAmountCentimes: 150000, transactionReference: 'CLIENTCODE_DIFF', senderPhone: '40000000',
+    });
+    // SMS marchand : reçu 1500 HTG de 40000000, mais TransCode ≠ celui saisi par le client.
+    const r = await reconcileSms(db, parseSms('NatCash',
+      'Vous avez recu 1,500 HTG de SPECIMEN TEST 40000000 a 15:20 01/07/2026, contenu: Ok. Votre solde: 1,000.00 HTG. TransCode: MERCHANTCODE99. Merci'));
+    assert.equal(r.credited, true);
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 150000);
+  });
+
+  test('repli : NUMÉRO expéditeur différent → NON crédité', async () => {
+    await db.doc(`users/${UID}`).set({ uid: UID, walletBalanceCents: 0, totalAddedCents: 0 });
+    await db.doc('wallet_requests/REQ_SMS').set({
+      uid: UID, paymentMethod: 'NatCash', status: 'Pending Verification',
+      expectedAmountCentimes: 150000, transactionReference: 'CLIENTCODE_DIFF', senderPhone: '99999999',
+    });
+    const r = await reconcileSms(db, parseSms('NatCash',
+      'Vous avez recu 1,500 HTG de SPECIMEN TEST 40000000 a 15:20 01/07/2026, contenu: Ok. Votre solde: 1,000.00 HTG. TransCode: MERCHANTCODE99. Merci'));
+    assert.equal(r.credited, false);
+  });
+
   test('SÉCURITÉ : SMS SORTANT concordant (txId+montant) → JAMAIS crédité', async () => {
     // Une demande en attente existe avec ce txId+montant, mais le SMS est un "transferred" (sortant)
     await seedReq({ amountCents: 1350000, ref: '00000000000005' });

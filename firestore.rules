@@ -284,6 +284,9 @@ service cloud.firestore {
                        incoming().amount is number &&
                        incoming().amount >= 10 &&
                        incoming().amount <= 1000000 &&
+                       // Nom / numéro de l'expéditeur (vérification MonCash/NatCash) — bornés si présents.
+                       (!incoming().keys().hasAny(['senderName']) || (incoming().senderName is string && incoming().senderName.size() <= 80)) &&
+                       (!incoming().keys().hasAny(['senderPhone']) || (incoming().senderPhone is string && incoming().senderPhone.size() <= 15)) &&
                        incoming().keys().hasAll(['requestId', 'uid', 'amount', 'paymentMethod', 'transactionReference', 'screenshotURL', 'status', 'createdAt']);
 
       allow update, delete: if false;

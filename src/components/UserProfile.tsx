@@ -312,8 +312,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const [withdrawAlertOpen, setWithdrawAlertOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState('1000');
   const [depositPaymentMethod, setDepositPaymentMethod] = useState<'MonCash' | 'NatCash' | 'Binance Pay' | 'PayPal' | 'Crypto'>('MonCash');
-  const [depositPhoneRef, setDepositPhoneRef] = useState('');
-  const [depositTxId, setDepositTxId] = useState('');
+  const [depositPhoneRef, setDepositPhoneRef] = useState(''); // MonCash/NatCash : numéro de l'expéditeur ; PayPal : e-mail
+  const [depositTxId, setDepositTxId] = useState('');         // Transaction ID (TransCode) — clé de rapprochement
+  const [depositSenderName, setDepositSenderName] = useState(''); // Nom de l'expéditeur (MonCash/NatCash)
   const [submittingDeposit, setSubmittingDeposit] = useState(false);
   const [depositSuccessMsg, setDepositSuccessMsg] = useState(false);
 
@@ -610,6 +611,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       return;
     }
 
+    const isMobile = depositPaymentMethod === 'MonCash' || depositPaymentMethod === 'NatCash';
+    if (isMobile && (!depositTxId.trim() || !depositSenderName.trim() || !depositPhoneRef.trim())) {
+      alert(lang === 'FR' ? 'Transaction ID, nom et numéro de l\'expéditeur requis.' : 'Transaction ID, non ak nimewo moun ki voye a obligatwa.');
+      return;
+    }
+
     setSubmittingDeposit(true);
     try {
       const requestId = 'WREQ-' + Math.floor(100000 + Math.random() * 900000);
@@ -622,13 +629,18 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         screenshotURL = await getDownloadURL(uploadResult.ref);
       }
 
+      // transactionReference = Transaction ID (TransCode) : clé de rapprochement auto avec le SMS
+      // marchand. senderName/senderPhone = vérification + repli (numéro+montant) si le TxID diffère.
+      const reference = isMobile ? depositTxId.trim() : (depositTxId.trim() || depositPhoneRef.trim() || 'N/A');
       const txRef = doc(db, 'wallet_requests', requestId);
       await setDoc(txRef, {
         requestId,
         uid: user.uid,
         amount: parsedAmount,
         paymentMethod: depositPaymentMethod,
-        transactionReference: depositPhoneRef || depositTxId || 'N/A',
+        transactionReference: reference,
+        senderName: isMobile ? depositSenderName.trim().slice(0, 80) : '',
+        senderPhone: isMobile ? depositPhoneRef.trim().slice(0, 15) : '',
         screenshotURL: screenshotURL || 'N/A',
         status: 'Pending Verification',
         createdAt: new Date().toISOString()
@@ -652,6 +664,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       setPhoneSenderState('');
       setDepositPhoneRef('');
       setDepositTxId('');
+      setDepositSenderName('');
       setDepositScreenshot(null);
       setTimeout(() => {
         setDepositSuccessMsg(false);
@@ -2482,33 +2495,54 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   </div>
                 </div>
 
-                {/* Dynamic Input based on method */}
-                <div>
-                  <label className="block text-[10px] text-white/40 uppercase tracking-widest mb-1.5 font-black">
-                    {depositPaymentMethod === 'MonCash' || depositPaymentMethod === 'NatCash' 
-                      ? "Numéro de téléphone de l'envoi" 
-                      : depositPaymentMethod === 'Binance Pay' 
-                        ? "Transaction ID (TxID)" 
-                        : "Référence PayPal / Email"}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={depositPaymentMethod === 'Binance Pay' ? depositTxId : depositPhoneRef}
-                      onChange={(e) => depositPaymentMethod === 'Binance Pay' ? setDepositTxId(e.target.value) : setDepositPhoneRef(e.target.value)}
-                      placeholder={depositPaymentMethod === 'MonCash' || depositPaymentMethod === 'NatCash' ? "Ex. 12345678" : depositPaymentMethod === 'Binance Pay' ? "Ex. 29108429012" : "Ex. email@example.com"}
-                      required
-                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
-                    />
-                    {depositPaymentMethod === 'Binance Pay' ? (
-                      <CreditCard className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
-                    ) : depositPaymentMethod === 'PayPal' ? (
-                      <Mail className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
-                    ) : (
-                      <Phone className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
-                    )}
+                {/* Champs de vérification selon la méthode.
+                    MonCash/NatCash : Transaction ID (TransCode) + Nom + Numéro de l'expéditeur →
+                    permettent le rapprochement AUTOMATIQUE avec le SMS marchand (TxID+montant, repli numéro+montant). */}
+                {depositPaymentMethod === 'MonCash' || depositPaymentMethod === 'NatCash' ? (
+                  <div className="grid gap-3">
+                    <div>
+                      <label className="block text-[10px] text-white/40 uppercase tracking-widest mb-1.5 font-black">Transaction ID (TransCode)</label>
+                      <div className="relative">
+                        <input type="text" value={depositTxId} onChange={(e) => setDepositTxId(e.target.value)} placeholder="Ex. 26070198044868" required
+                          className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none transition-all pl-10" />
+                        <CreditCard className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] text-white/40 uppercase tracking-widest mb-1.5 font-black">Nom de l'expéditeur</label>
+                        <input type="text" value={depositSenderName} onChange={(e) => setDepositSenderName(e.target.value)} placeholder="Ex. Jean Pierre" required maxLength={80}
+                          className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-white/40 uppercase tracking-widest mb-1.5 font-black">Numéro de l'expéditeur</label>
+                        <input type="text" inputMode="numeric" value={depositPhoneRef} onChange={(e) => { const v = e.target.value; if (v === '' || /^[\d +-]{0,15}$/.test(v)) setDepositPhoneRef(v); }} placeholder="Ex. 43457660" required maxLength={15}
+                          className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none transition-all tabular-nums" />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div>
+                    <label className="block text-[10px] text-white/40 uppercase tracking-widest mb-1.5 font-black">
+                      {depositPaymentMethod === 'Binance Pay' ? "Transaction ID (TxID)" : "Référence PayPal / Email"}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={depositPaymentMethod === 'Binance Pay' ? depositTxId : depositPhoneRef}
+                        onChange={(e) => depositPaymentMethod === 'Binance Pay' ? setDepositTxId(e.target.value) : setDepositPhoneRef(e.target.value)}
+                        placeholder={depositPaymentMethod === 'Binance Pay' ? "Ex. 29108429012" : "Ex. email@example.com"}
+                        required
+                        className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
+                      />
+                      {depositPaymentMethod === 'Binance Pay' ? (
+                        <CreditCard className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                      ) : (
+                        <Mail className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* DRAG AND DROP SCREENSHOT UPLOADER */}
                 <div>

@@ -28,14 +28,24 @@ function reqAmountCents(data: FirebaseFirestore.DocumentData): number | null {
   return null;
 }
 
+/** Normalise un numéro de téléphone en chiffres, 8 derniers (numéros haïtiens). */
+function normPhone(v: unknown): string {
+  return String(v ?? '').replace(/\D/g, '').slice(-8);
+}
+
 export async function reconcileSms(db: Firestore, parsed: ParsedSms): Promise<ReconcileResult> {
   // SÉCURITÉ : ne créditer QUE les SMS d'argent REÇU. « transferred / retiré » (sortant) et
   // le bruit (promo, OTP) ne doivent jamais créditer un wallet.
   if (parsed.direction !== 'in') {
     return { matched: false, credited: false, reason: `sms non-entrant (${parsed.direction})` };
   }
-  if (parsed.amountCents == null || !parsed.txId) {
-    return { matched: false, credited: false, reason: 'sms-incomplet (montant ou txId manquant)' };
+  // Le montant est INDISPENSABLE (jamais de crédit sans montant concordant). Le txId OU le
+  // numéro expéditeur sert de clé de rapprochement.
+  if (parsed.amountCents == null) {
+    return { matched: false, credited: false, reason: 'sms-incomplet (montant manquant)' };
+  }
+  if (!parsed.txId && !parsed.sender) {
+    return { matched: false, credited: false, reason: 'sms-incomplet (ni txId ni expéditeur)' };
   }
 
   const snap = await db
@@ -44,15 +54,33 @@ export async function reconcileSms(db: Firestore, parsed: ParsedSms): Promise<Re
     .where('status', '==', 'Pending Verification')
     .get();
 
-  const candidates = snap.docs.filter((d) => {
-    const data = d.data();
-    const ref = String(data.transactionReference ?? '').toUpperCase().trim();
-    const amt = reqAmountCents(data);
-    return ref && ref === parsed.txId && amt === parsed.amountCents;
-  });
+  const amountMatch = (data: FirebaseFirestore.DocumentData) => reqAmountCents(data) === parsed.amountCents;
+
+  // 1) PRIMAIRE : Transaction ID + montant (le TransCode saisi par le client == celui du SMS marchand).
+  let candidates = parsed.txId
+    ? snap.docs.filter((d) => {
+        const data = d.data();
+        const ref = String(data.transactionReference ?? '').toUpperCase().trim();
+        return ref && ref === String(parsed.txId).toUpperCase().trim() && amountMatch(data);
+      })
+    : [];
+  let matchBy = 'txId';
+
+  // 2) REPLI : numéro de l'expéditeur + montant (si le TxID ne concorde pas — le TransCode peut
+  //    différer entre le SMS du client et celui du marchand). Le Nom sert de vérification/affichage.
+  if (candidates.length === 0 && parsed.sender) {
+    const smsPhone = normPhone(parsed.sender);
+    if (smsPhone.length >= 6) {
+      candidates = snap.docs.filter((d) => {
+        const data = d.data();
+        return normPhone(data.senderPhone) === smsPhone && amountMatch(data);
+      });
+      matchBy = 'senderPhone';
+    }
+  }
 
   if (candidates.length === 0) return { matched: false, credited: false, reason: 'aucune demande concordante' };
-  if (candidates.length > 1) return { matched: false, credited: false, reason: 'correspondance ambiguë (plusieurs demandes)' };
+  if (candidates.length > 1) return { matched: false, credited: false, reason: `correspondance ambiguë (plusieurs demandes, par ${matchBy})` };
 
   const doc = candidates[0];
   const data = doc.data();
@@ -65,14 +93,15 @@ export async function reconcileSms(db: Firestore, parsed: ParsedSms): Promise<Re
     idempotencyKey: requestId,
     type: 'deposit',
     actorUid: 'sms-hook',
-    meta: { provider: parsed.provider, txId: parsed.txId, sender: parsed.sender ?? null, source: 'sms-hook' },
+    meta: { provider: parsed.provider, txId: parsed.txId, sender: parsed.sender ?? null, senderName: parsed.senderName ?? null, matchBy, source: 'sms-hook' },
   });
 
   await doc.ref.update({
     status: 'Completed',
     reviewedBy: 'sms-hook',
     reviewedAt: FieldValue.serverTimestamp(),
-    matchedTxId: parsed.txId,
+    matchedTxId: parsed.txId ?? null,
+    matchedBy: matchBy,
   });
 
   return { matched: true, credited: true, requestId, deduped: res.deduped };
