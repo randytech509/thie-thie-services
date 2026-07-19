@@ -152,3 +152,18 @@ export async function deletePromo(input: { id: string }): Promise<{ ok: boolean 
   const fn = httpsCallable<typeof input, { ok: boolean }>(functionsClient, 'deletePromo');
   return (await fn(input)).data;
 }
+
+/** Admin : solde du fournisseur Reloadly. */
+export async function reloadlyBalance(): Promise<{ configured: boolean; balance?: number; currencyCode?: string }> {
+  return (await httpsCallable<Record<string, never>, any>(functionsClient, 'reloadlyBalance')({})).data;
+}
+
+/** Admin : recherche produits Reloadly. */
+export async function reloadlyFindProducts(input: { query: string }): Promise<{ total: number; products: any[] }> {
+  return (await httpsCallable<typeof input, any>(functionsClient, 'reloadlyFindProducts')(input)).data;
+}
+
+/** Admin : mappe un produit du catalogue à un produit Reloadly. */
+export async function setProductSupplier(input: { productId: string; reloadlyProductId?: number; reloadlyCountryCode?: string; reloadlyUnitPrice?: number; autoFulfill: boolean }): Promise<{ ok: boolean }> {
+  return (await httpsCallable<typeof input, any>(functionsClient, 'setProductSupplier')(input)).data;
+}

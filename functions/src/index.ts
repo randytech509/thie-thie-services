@@ -20,3 +20,5 @@ export { setFxRate, setDepositAccounts } from './config-admin';
 export { fulfillOrder } from './fulfillment';
 export { passkeyStatus, passkeyRegisterOptions, passkeyRegisterVerify, passkeyAuthOptions, passkeyAuthVerify } from './webauthn';
 export { sendBroadcastPush, savePromo, deletePromo } from './broadcast';
+export { autoFulfillOrder } from './auto-fulfillment';
+export { reloadlyBalance, reloadlyFindProducts, setProductSupplier } from './reloadly-admin';

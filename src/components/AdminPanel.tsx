@@ -3,11 +3,11 @@ import type { User as FirebaseUser } from 'firebase/auth';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
-import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo } from '../lib/api';
+import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier } from '../lib/api';
 import { getPasskeyStatus, enrollPasskey, verifyPasskey } from '../lib/passkey';
 import {
   LayoutDashboard, ShoppingBag, Wallet, ShieldCheck, Bell, Settings, KeyRound,
-  Check, X, Loader2, Mail, ChevronLeft, Fingerprint, Send, Trash2, ExternalLink, ImagePlus,
+  Check, X, Loader2, Mail, ChevronLeft, Fingerprint, Send, Trash2, ExternalLink, ImagePlus, Boxes,
 } from 'lucide-react';
 
 interface AdminPanelProps {
@@ -16,7 +16,7 @@ interface AdminPanelProps {
   formatPrice?: (priceUSD: number) => string;
 }
 
-type Tab = 'dashboard' | 'orders' | 'deposits' | 'kyc' | 'notifications' | 'settings' | 'security';
+type Tab = 'dashboard' | 'orders' | 'deposits' | 'kyc' | 'notifications' | 'supplier' | 'settings' | 'security';
 
 const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
@@ -24,6 +24,7 @@ const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: 'deposits', label: 'Dépôts', icon: Wallet },
   { id: 'kyc', label: 'KYC', icon: ShieldCheck },
   { id: 'notifications', label: 'Notifications', icon: Bell },
+  { id: 'supplier', label: 'Fournisseur', icon: Boxes },
   { id: 'settings', label: 'Paramètres', icon: Settings },
   { id: 'security', label: 'Sécurité', icon: KeyRound },
 ];
@@ -246,6 +247,8 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         {tab === 'settings' && <AdminSettings flash={flash} />}
 
         {tab === 'notifications' && <AdminNotifications flash={flash} uid={user.uid} />}
+
+        {tab === 'supplier' && <AdminSupplier flash={flash} />}
         {tab === 'security' && (
           <div className="max-w-lg">
             <h2 className="text-2xl font-black mb-4">Sécurité</h2>
@@ -453,6 +456,92 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
             ))}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function AdminSupplier({ flash }: { flash: (m: string) => void }) {
+  const [bal, setBal] = useState<any | null>(null);
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<any[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [sel, setSel] = useState<any | null>(null);   // produit Reloadly sélectionné
+  const [catId, setCatId] = useState('');             // productId catalogue (ex. apple-gift-card__0)
+  const [unit, setUnit] = useState('');
+  const [auto, setAuto] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => { reloadlyBalance().then(setBal).catch(() => setBal({ configured: false })); }, []);
+
+  const search = async () => {
+    if (!query.trim()) return;
+    setSearching(true);
+    try { const r = await reloadlyFindProducts({ query: query.trim() }); setResults(r.products || []); }
+    catch (e) { flash(`Recherche échouée : ${(e as Error).message}`); } finally { setSearching(false); }
+  };
+  const pick = (p: any) => {
+    setSel(p);
+    setUnit(p.denominationType === 'FIXED' ? String(p.fixedRecipientDenominations?.[0] ?? '') : '');
+  };
+  const save = async () => {
+    if (!sel || !catId.trim() || !unit) { flash('Renseigne le produit catalogue, le produit Reloadly et le montant.'); return; }
+    setSaving(true);
+    try {
+      await setProductSupplier({ productId: catId.trim(), reloadlyProductId: sel.productId, reloadlyCountryCode: sel.countryCode, reloadlyUnitPrice: Number(unit), autoFulfill: auto });
+      flash(`Mappé : ${catId.trim()} → ${sel.productName} (${unit} ${sel.recipientCurrencyCode})${auto ? ' · auto' : ''}`);
+      setSel(null); setCatId(''); setUnit('');
+    } catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setSaving(false); }
+  };
+
+  const lowBal = bal?.configured && typeof bal.balance === 'number' && bal.balance < 20;
+
+  return (
+    <div className="max-w-3xl">
+      <h2 className="text-2xl font-black mb-4 flex items-center gap-2"><Boxes className="w-5 h-5 text-[#a855f7]" />Fournisseur (Reloadly)</h2>
+
+      {/* Solde */}
+      <div className={`rounded-2xl p-5 mb-6 border ${lowBal ? 'border-red-500/40 bg-red-500/5' : 'border-white/[0.06] bg-[#150b28]'}`}>
+        {!bal ? <Loader2 className="w-4 h-4 animate-spin" /> : !bal.configured ? (
+          <p className="text-sm text-white/50">Reloadly non configuré (clés absentes).</p>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-3xl font-black tabular-nums text-[#a855f7]">{bal.balance?.toLocaleString()} {bal.currencyCode}</p>
+              <p className="text-xs text-white/50 font-bold mt-1">Solde fournisseur {lowBal && <span className="text-red-400">· solde bas !</span>}</p>
+            </div>
+            <span className="text-[10px] font-black text-emerald-400 flex items-center gap-1"><Check className="w-3 h-3" />connecté</span>
+          </div>
+        )}
+      </div>
+
+      {/* Mapping produit */}
+      <h3 className="font-black text-sm mb-2">Mapper un produit du catalogue → Reloadly</h3>
+      <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
+        <div className="flex gap-2">
+          <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && search()} placeholder="Chercher un produit Reloadly (ex. Steam, Google Play, App Store)" className="flex-1 bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
+          <button onClick={search} disabled={searching} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4">{searching ? '…' : 'Chercher'}</button>
+        </div>
+        {results.length > 0 && (
+          <div className="max-h-52 overflow-y-auto flex flex-col gap-1">
+            {results.map((p) => (
+              <button key={p.productId} onClick={() => pick(p)} className={`text-left rounded-lg px-3 py-2 text-xs border ${sel?.productId === p.productId ? 'border-[#a855f7] bg-[#a855f7]/10' : 'border-white/[0.06] hover:bg-white/[0.04]'}`}>
+                <span className="font-bold text-white">{p.productName}</span> <span className="text-white/40">· {p.recipientCurrencyCode} · {p.countryCode} · {p.denominationType}{p.discountPercentage ? ` · -${p.discountPercentage}%` : ''}</span>
+                {p.denominationType === 'FIXED' && <span className="block text-white/40">dénoms : {(p.fixedRecipientDenominations || []).join(', ')}</span>}
+              </button>
+            ))}
+          </div>
+        )}
+        {sel && (
+          <div className="border-t border-white/[0.06] pt-3 flex flex-col gap-2">
+            <p className="text-xs text-white/60">Sélectionné : <strong className="text-[#a855f7]">{sel.productName}</strong> (id {sel.productId})</p>
+            <input value={catId} onChange={(e) => setCatId(e.target.value)} placeholder="ID produit catalogue (ex. apple-gift-card__0)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono focus:border-[#a855f7] outline-none" />
+            <input value={unit} onChange={(e) => setUnit(e.target.value)} placeholder={`Montant à commander (${sel.recipientCurrencyCode})`} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+            <label className="flex items-center gap-2 text-xs font-bold"><input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} /> Livraison automatique dès qu'une commande est payée</label>
+            <button onClick={save} disabled={saving} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl py-2.5">{saving ? 'Enregistrement…' : 'Mapper ce produit'}</button>
+          </div>
+        )}
+        <p className="text-[10px] text-white/30">Les recharges jeu (Free Fire, PUBG…) ne sont pas des cartes Reloadly → laisse-les sans mapping, elles restent en livraison manuelle.</p>
       </div>
     </div>
   );
