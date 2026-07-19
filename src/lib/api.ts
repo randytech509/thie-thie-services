@@ -167,3 +167,38 @@ export async function reloadlyFindProducts(input: { query: string }): Promise<{ 
 export async function setProductSupplier(input: { productId: string; reloadlyProductId?: number; reloadlyCountryCode?: string; reloadlyUnitPrice?: number; autoFulfill: boolean }): Promise<{ ok: boolean }> {
   return (await httpsCallable<typeof input, any>(functionsClient, 'setProductSupplier')(input)).data;
 }
+
+// --- Tarification (moteur coût fournisseur → prix HTG) ---
+
+export interface PricingConfig {
+  acquisitionHtgCentsPerUsd: number;
+  cryptoDepositBps: number;
+  marginBps: number;
+  marginMode: 'markup' | 'margin';
+  roundToHtgCents: number;
+}
+
+/** Admin : met à jour la config de tarification (config/pricing). Champs partiels acceptés. */
+export async function setPricingConfig(input: Partial<PricingConfig>): Promise<{ ok: boolean; config: PricingConfig }> {
+  return (await httpsCallable<typeof input, any>(functionsClient, 'setPricingConfig')(input)).data;
+}
+
+/** Admin : fixe le coût fournisseur d'un produit non-Reloadly → calcule et écrit son prix. */
+export async function setProductCost(input: { productId: string; faceUsdCents: number; discountBps?: number; fixedFeeUsdCents?: number }): Promise<{ ok: boolean; breakdown: any }> {
+  return (await httpsCallable<typeof input, any>(functionsClient, 'setProductCost')(input)).data;
+}
+
+/** Admin : importe une page du catalogue Reloadly (idempotent). Boucler tant que nextPage ≠ null. */
+export async function reloadlyImportCatalog(input: { page?: number; size?: number; countryCode?: string }): Promise<{ ok: boolean; page: number; imported: number; totalPages: number; nextPage: number | null }> {
+  return (await httpsCallable<typeof input, any>(functionsClient, 'reloadlyImportCatalog')(input)).data;
+}
+
+/** Admin : recalcule le prix de tous les produits ayant un coût (après changement FX/marge). */
+export async function repriceAll(): Promise<{ ok: boolean; repriced: number; skipped: number }> {
+  return (await httpsCallable<Record<string, never>, any>(functionsClient, 'repriceAll')({})).data;
+}
+
+/** Admin : estime le float USDT à déposer + capital HTG + CA/marge potentiels. */
+export async function estimateFunding(input: { qtyPerProduct?: number; availableOnly?: boolean }): Promise<{ ok: boolean; qtyPerProduct: number; config: PricingConfig; perProvider: Record<string, any>; total: any; human: { usdtToDeposit: string; htgCapital: number; potentialRevenueHtg: number; projectedMarginHtg: number } }> {
+  return (await httpsCallable<typeof input, any>(functionsClient, 'estimateFunding')(input)).data;
+}

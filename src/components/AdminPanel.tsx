@@ -3,11 +3,11 @@ import type { User as FirebaseUser } from 'firebase/auth';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
-import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier } from '../lib/api';
+import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, repriceAll, estimateFunding, type PricingConfig } from '../lib/api';
 import { getPasskeyStatus, enrollPasskey, verifyPasskey } from '../lib/passkey';
 import {
   LayoutDashboard, ShoppingBag, Wallet, ShieldCheck, Bell, Settings, KeyRound,
-  Check, X, Loader2, Mail, ChevronLeft, Fingerprint, Send, Trash2, ExternalLink, ImagePlus, Boxes,
+  Check, X, Loader2, Mail, ChevronLeft, Fingerprint, Send, Trash2, ExternalLink, ImagePlus, Boxes, Calculator, DownloadCloud, RefreshCw, Coins,
 } from 'lucide-react';
 
 interface AdminPanelProps {
@@ -16,7 +16,7 @@ interface AdminPanelProps {
   formatPrice?: (priceUSD: number) => string;
 }
 
-type Tab = 'dashboard' | 'orders' | 'deposits' | 'kyc' | 'notifications' | 'supplier' | 'settings' | 'security';
+type Tab = 'dashboard' | 'orders' | 'deposits' | 'kyc' | 'notifications' | 'supplier' | 'pricing' | 'settings' | 'security';
 
 const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
@@ -25,6 +25,7 @@ const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: 'kyc', label: 'KYC', icon: ShieldCheck },
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'supplier', label: 'Fournisseur', icon: Boxes },
+  { id: 'pricing', label: 'Tarification', icon: Calculator },
   { id: 'settings', label: 'Paramètres', icon: Settings },
   { id: 'security', label: 'Sécurité', icon: KeyRound },
 ];
@@ -249,6 +250,8 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         {tab === 'notifications' && <AdminNotifications flash={flash} uid={user.uid} />}
 
         {tab === 'supplier' && <AdminSupplier flash={flash} />}
+
+        {tab === 'pricing' && <AdminPricing flash={flash} />}
         {tab === 'security' && (
           <div className="max-w-lg">
             <h2 className="text-2xl font-black mb-4">Sécurité</h2>
@@ -544,5 +547,211 @@ function AdminSupplier({ flash }: { flash: (m: string) => void }) {
         <p className="text-[10px] text-white/30">Les recharges jeu (Free Fire, PUBG…) ne sont pas des cartes Reloadly → laisse-les sans mapping, elles restent en livraison manuelle.</p>
       </div>
     </div>
+  );
+}
+
+function AdminPricing({ flash }: { flash: (m: string) => void }) {
+  const [cfg, setCfg] = useState<PricingConfig | null>(null);
+  const [funding, setFunding] = useState<any | null>(null);
+  const [perProvider, setPerProvider] = useState<Record<string, any>>({});
+  const [loading, setLoading] = useState(true);
+
+  // Champs config (unités lisibles → converties en cents/bps à l'envoi).
+  const [acq, setAcq] = useState('142');     // HTG / USDT
+  const [crypto, setCrypto] = useState('1'); // %
+  const [margin, setMargin] = useState('15');// %
+  const [mode, setMode] = useState<'markup' | 'margin'>('margin');
+  const [round, setRound] = useState('5');   // HTG
+  const [savingCfg, setSavingCfg] = useState(false);
+
+  // Estimation float
+  const [qty, setQty] = useState('1');
+  const [availOnly, setAvailOnly] = useState(false);
+
+  // Import / reprice
+  const [country, setCountry] = useState('');
+  const [importing, setImporting] = useState(false);
+  const [importMsg, setImportMsg] = useState('');
+  const [repricing, setRepricing] = useState(false);
+
+  // Coût manuel
+  const [mProd, setMProd] = useState('');
+  const [mFace, setMFace] = useState('');
+  const [mDisc, setMDisc] = useState('0');
+  const [mBusy, setMBusy] = useState(false);
+  const [mPreview, setMPreview] = useState<any | null>(null);
+
+  const applyCfg = (c: PricingConfig) => {
+    setCfg(c);
+    setAcq(String(c.acquisitionHtgCentsPerUsd / 100));
+    setCrypto(String(c.cryptoDepositBps / 100));
+    setMargin(String(c.marginBps / 100));
+    setMode(c.marginMode);
+    setRound(String(c.roundToHtgCents / 100));
+  };
+
+  const refresh = async (qtyPerProduct = Number(qty) || 1, availableOnly = availOnly) => {
+    setLoading(true);
+    try {
+      const r = await estimateFunding({ qtyPerProduct, availableOnly });
+      applyCfg(r.config);
+      setFunding(r.human);
+      setPerProvider(r.perProvider || {});
+    } catch (e) { flash(`Estimation impossible : ${(e as Error).message}`); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { refresh(); /* eslint-disable-next-line */ }, []);
+
+  const saveCfg = async () => {
+    setSavingCfg(true);
+    try {
+      const r = await setPricingConfig({
+        acquisitionHtgCentsPerUsd: Math.round(parseFloat(acq) * 100),
+        cryptoDepositBps: Math.round(parseFloat(crypto) * 100),
+        marginBps: Math.round(parseFloat(margin) * 100),
+        marginMode: mode,
+        roundToHtgCents: Math.round(parseFloat(round) * 100),
+      });
+      applyCfg(r.config);
+      flash('Config de tarification enregistrée. Pense à « Recalculer les prix ».');
+    } catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setSavingCfg(false); }
+  };
+
+  const doImport = async () => {
+    setImporting(true); setImportMsg('');
+    try {
+      let page: number | null = 1, total = 0, pages = 0;
+      while (page && page <= 60) { // garde-fou anti-boucle
+        const r: any = await reloadlyImportCatalog({ page, countryCode: country.trim() || undefined });
+        total += r.imported; pages++;
+        setImportMsg(`Page ${r.page}/${r.totalPages} — ${total} variantes importées…`);
+        page = r.nextPage;
+      }
+      flash(`Import Reloadly terminé : ${total} variantes (${pages} pages). Elles sont masquées (available:false) — à activer.`);
+    } catch (e) { flash(`Import échoué : ${(e as Error).message}`); } finally { setImporting(false); }
+  };
+
+  const doReprice = async () => {
+    setRepricing(true);
+    try { const r = await repriceAll(); flash(`Prix recalculés : ${r.repriced} produits (${r.skipped} sans coût, ignorés).`); await refresh(); }
+    catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setRepricing(false); }
+  };
+
+  const saveManual = async () => {
+    if (!mProd.trim() || !mFace) { flash('ID produit et coût requis.'); return; }
+    setMBusy(true);
+    try {
+      const r = await setProductCost({
+        productId: mProd.trim(),
+        faceUsdCents: Math.round(parseFloat(mFace) * 100),
+        discountBps: Math.round((parseFloat(mDisc) || 0) * 100),
+      });
+      setMPreview(r.breakdown);
+      flash(`Prix calculé pour ${mProd.trim()} : ${htg(r.breakdown.retailHtgCents)}.`);
+    } catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setMBusy(false); }
+  };
+
+  const inputCls = 'bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none';
+  const card = 'bg-[#150b28] border border-white/[0.06] rounded-2xl p-5';
+  const btn = 'bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5 flex items-center justify-center gap-2';
+
+  return (
+    <div className="max-w-3xl flex flex-col gap-8">
+      <h2 className="text-2xl font-black flex items-center gap-2"><Calculator className="w-5 h-5 text-[#a855f7]" />Tarification</h2>
+
+      {/* Estimation du float */}
+      <div className={card}>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-black text-sm flex items-center gap-2"><Coins className="w-4 h-4 text-[#a855f7]" />Float initial à déposer</h3>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-1 text-[11px] text-white/50 font-bold"><input type="checkbox" checked={availOnly} onChange={(e) => { setAvailOnly(e.target.checked); refresh(Number(qty) || 1, e.target.checked); }} /> publiés seulement</label>
+            <input value={qty} onChange={(e) => setQty(e.target.value)} onBlur={() => refresh()} type="number" min={1} className={`${inputCls} w-20`} title="Quantité par produit" />
+          </div>
+        </div>
+        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : funding ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { l: 'USDT à déposer', v: `$${funding.usdtToDeposit}`, c: '#a855f7' },
+              { l: 'Capital HTG', v: `${funding.htgCapital.toLocaleString()} G`, c: '#f97316' },
+              { l: 'CA potentiel', v: `${funding.potentialRevenueHtg.toLocaleString()} G`, c: '#34d399' },
+              { l: 'Marge projetée', v: `${funding.projectedMarginHtg.toLocaleString()} G`, c: '#fbbf24' },
+            ].map((s) => (
+              <div key={s.l} className="bg-black/20 rounded-xl p-3">
+                <p className="text-lg font-black tabular-nums" style={{ color: s.c }}>{s.v}</p>
+                <p className="text-[10px] text-white/50 font-bold mt-0.5">{s.l}</p>
+              </div>
+            ))}
+          </div>
+        ) : <p className="text-xs text-white/40">Aucun produit avec coût. Importe Reloadly ou saisis un coût manuel.</p>}
+        {Object.keys(perProvider).length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {Object.entries(perProvider).map(([src, t]: any) => (
+              <span key={src} className="text-[10px] font-bold text-white/50 bg-white/[0.04] rounded-lg px-2 py-1">{src} : ${(t.usdtToDepositUsdCents / 100).toFixed(2)} USDT</span>
+            ))}
+          </div>
+        )}
+        <p className="text-[10px] text-white/30 mt-3">Quantité × chaque produit ayant un coût. Le capital HTG = USDT × taux d'acquisition.</p>
+      </div>
+
+      {/* Config tarification */}
+      <div className={card}>
+        <h3 className="font-black text-sm mb-1">Paramètres du calcul</h3>
+        <p className="text-[11px] text-white/40 mb-3">face fournisseur → −remise → ×(1+frais crypto) → ×acquisition → marge → arrondi.</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <Field label="Acquisition (HTG / USDT)"><input value={acq} onChange={(e) => setAcq(e.target.value)} type="number" className={inputCls} /></Field>
+          <Field label="Frais crypto (%)"><input value={crypto} onChange={(e) => setCrypto(e.target.value)} type="number" className={inputCls} /></Field>
+          <Field label="Marge (%)"><input value={margin} onChange={(e) => setMargin(e.target.value)} type="number" className={inputCls} /></Field>
+          <Field label="Mode de marge">
+            <select value={mode} onChange={(e) => setMode(e.target.value as any)} className={inputCls}>
+              <option value="margin">Vraie marge (÷0,85)</option>
+              <option value="markup">Markup (×1,15)</option>
+            </select>
+          </Field>
+          <Field label="Arrondi (HTG)"><input value={round} onChange={(e) => setRound(e.target.value)} type="number" className={inputCls} /></Field>
+        </div>
+        <button onClick={saveCfg} disabled={savingCfg} className={`${btn} mt-4`}>{savingCfg ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}Enregistrer la config</button>
+      </div>
+
+      {/* Import Reloadly + reprice */}
+      <div className={card}>
+        <h3 className="font-black text-sm mb-1">Auto-listing Reloadly</h3>
+        <p className="text-[11px] text-white/40 mb-3">Importe tout le catalogue Reloadly (USD), prix calculés. Produits masqués (à activer un par un).</p>
+        <div className="flex flex-wrap gap-2 items-center">
+          <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Pays ISO (optionnel, ex. US)" className={`${inputCls} w-48`} />
+          <button onClick={doImport} disabled={importing} className={btn}>{importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <DownloadCloud className="w-4 h-4" />}Importer Reloadly</button>
+          <button onClick={doReprice} disabled={repricing} className="bg-white/[0.06] hover:bg-white/10 disabled:opacity-40 text-white font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">{repricing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}Recalculer les prix</button>
+        </div>
+        {importMsg && <p className="text-[11px] text-white/50 mt-2 tabular-nums">{importMsg}</p>}
+      </div>
+
+      {/* Coût manuel (non-Reloadly) */}
+      <div className={card}>
+        <h3 className="font-black text-sm mb-1">Coût manuel (Free Fire, PUBG…)</h3>
+        <p className="text-[11px] text-white/40 mb-3">Saisis le coût d'achat réel en USD ; le prix de vente HTG est calculé avec la même marge.</p>
+        <div className="grid sm:grid-cols-3 gap-2">
+          <input value={mProd} onChange={(e) => setMProd(e.target.value)} placeholder="ID produit (ex. ff-diamonds__0)" className={`${inputCls} font-mono text-xs sm:col-span-3`} />
+          <Field label="Coût d'achat (USD)"><input value={mFace} onChange={(e) => setMFace(e.target.value)} type="number" step="0.01" className={inputCls} /></Field>
+          <Field label="Remise fournisseur (%)"><input value={mDisc} onChange={(e) => setMDisc(e.target.value)} type="number" className={inputCls} /></Field>
+        </div>
+        <button onClick={saveManual} disabled={mBusy} className={`${btn} mt-3`}>{mBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}Calculer & fixer le prix</button>
+        {mPreview && (
+          <div className="mt-3 text-xs bg-black/20 rounded-xl p-3 flex flex-wrap gap-x-5 gap-y-1">
+            <span className="text-white/50">coût : <strong className="text-white">{htg(mPreview.costHtgCents)}</strong></span>
+            <span className="text-white/50">prix de vente : <strong className="text-[#a855f7]">{htg(mPreview.retailHtgCents)}</strong></span>
+            <span className="text-white/50">marge : <strong className="text-emerald-400">{htg(mPreview.marginHtgCents)} ({(mPreview.effectiveMarginBps / 100).toFixed(1)}%)</strong></span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: any }) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-[10px] text-white/40 font-bold uppercase tracking-wide">{label}</span>
+      {children}
+    </label>
   );
 }
