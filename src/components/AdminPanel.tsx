@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { User as FirebaseUser } from 'firebase/auth';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
-import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, repriceAll, estimateFunding, type PricingConfig } from '../lib/api';
+import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, repriceAll, estimateFunding, setProductInventory, deleteProduct, type PricingConfig } from '../lib/api';
 import { getPasskeyStatus, enrollPasskey, verifyPasskey } from '../lib/passkey';
 import {
   LayoutDashboard, ShoppingBag, Wallet, ShieldCheck, Bell, Settings, KeyRound,
@@ -754,6 +754,89 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
           </div>
         )}
       </div>
+
+      {/* Gestion stock & prix des produits manuels */}
+      <AdminManualProducts flash={flash} />
+    </div>
+  );
+}
+
+function AdminManualProducts({ flash }: { flash: (m: string) => void }) {
+  const [rows, setRows] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [edits, setEdits] = useState<Record<string, { stock: string; priceHtg: string }>>({});
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const snap = await getDocs(collection(db, 'products'));
+      const list = snap.docs
+        .map((d) => ({ id: d.id, ...(d.data() as any) }))
+        .filter((p) => p?.pricing?.source === 'manual');
+      list.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+      setRows(list);
+      const e: Record<string, { stock: string; priceHtg: string }> = {};
+      for (const p of list) e[p.id] = { stock: String(p.stock ?? 0), priceHtg: String(Math.round((p.priceCents ?? 0) / 100)) };
+      setEdits(e);
+    } catch (err) { flash(`Lecture impossible : ${(err as Error).message}`); }
+    finally { setLoading(false); }
+  };
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+
+  const save = async (p: any) => {
+    const e = edits[p.id];
+    const stock = parseInt(e.stock, 10);
+    const priceHtg = parseInt(e.priceHtg, 10);
+    if (!Number.isInteger(stock) || stock < 0 || !Number.isInteger(priceHtg) || priceHtg < 0) { flash('Stock et prix : entiers ≥ 0.'); return; }
+    setBusy(p.id);
+    try {
+      await setProductInventory({ productId: p.id, stock, priceCents: priceHtg * 100 });
+      flash(`« ${p.name} » mis à jour : stock ${stock}, prix ${priceHtg.toLocaleString()} HTG.`);
+      await load();
+    } catch (err) { flash(`Échec : ${(err as Error).message}`); } finally { setBusy(null); }
+  };
+  const toggle = async (p: any) => {
+    setBusy(p.id);
+    try { await setProductInventory({ productId: p.id, available: p.available === false }); await load(); }
+    catch (err) { flash(`Échec : ${(err as Error).message}`); } finally { setBusy(null); }
+  };
+  const remove = async (p: any) => {
+    setBusy(p.id);
+    try { await deleteProduct({ productId: p.id }); flash(`« ${p.name} » supprimé.`); await load(); }
+    catch (err) { flash(`Échec : ${(err as Error).message}`); } finally { setBusy(null); }
+  };
+
+  const inputCls = 'bg-black/30 border border-white/10 rounded-lg px-2 py-1.5 text-xs focus:border-[#a855f7] outline-none w-24 tabular-nums';
+
+  return (
+    <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="font-black text-sm flex items-center gap-2"><Boxes className="w-4 h-4 text-[#a855f7]" />Produits manuels — stock & prix</h3>
+        <button onClick={load} className="text-[11px] font-bold text-white/50 hover:text-white flex items-center gap-1"><RefreshCw className="w-3 h-3" />Rafraîchir</button>
+      </div>
+      <p className="text-[11px] text-white/40 mb-3">Ajuste le stock, le prix de vente (HTG) et la disponibilité des produits créés à la main.</p>
+      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : rows.length === 0 ? (
+        <p className="text-xs text-white/40">Aucun produit manuel. Crée-en un via « Produit / carte manuelle » ci-dessus.</p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {rows.map((p) => (
+            <div key={p.id} className="bg-black/20 rounded-xl p-3 flex flex-wrap items-end gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold truncate">{p.name} {p.available === false && <span className="text-[9px] text-red-400">masqué</span>}</p>
+                <p className="text-[10px] text-white/30 font-mono truncate">{p.id}</p>
+              </div>
+              <label className="flex flex-col gap-0.5"><span className="text-[9px] text-white/40 font-bold uppercase">Stock</span>
+                <input type="number" value={edits[p.id]?.stock ?? ''} onChange={(e) => setEdits({ ...edits, [p.id]: { ...edits[p.id], stock: e.target.value } })} className={inputCls} /></label>
+              <label className="flex flex-col gap-0.5"><span className="text-[9px] text-white/40 font-bold uppercase">Prix HTG</span>
+                <input type="number" value={edits[p.id]?.priceHtg ?? ''} onChange={(e) => setEdits({ ...edits, [p.id]: { ...edits[p.id], priceHtg: e.target.value } })} className={inputCls} /></label>
+              <button onClick={() => save(p)} disabled={busy === p.id} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-xs rounded-lg px-3 py-1.5">{busy === p.id ? '…' : 'Enregistrer'}</button>
+              <button onClick={() => toggle(p)} disabled={busy === p.id} className="bg-white/[0.06] hover:bg-white/10 disabled:opacity-40 text-white font-bold text-xs rounded-lg px-3 py-1.5">{p.available === false ? 'Afficher' : 'Masquer'}</button>
+              <button onClick={() => remove(p)} disabled={busy === p.id} className="text-white/40 hover:text-red-400 p-1.5" aria-label="Supprimer"><Trash2 className="w-3.5 h-3.5" /></button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

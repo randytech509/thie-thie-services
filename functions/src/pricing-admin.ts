@@ -140,6 +140,46 @@ export const setProductCost = onCall(callOpts, async (req) => {
   return { ok: true, breakdown: b };
 });
 
+// --- 2bis. Stock / disponibilité / prix direct d'un produit (back-office) ---
+
+/**
+ * Met à jour le STOCK, la DISPONIBILITÉ et/ou le PRIX de vente direct d'un produit.
+ * Sert au back-office « Produits manuels » (stock réel, retrait de la vente, ajustement de prix).
+ * `priceCents` écrase le prix calculé (override admin assumé, produits manuels surtout).
+ */
+export const setProductInventory = onCall(callOpts, async (req) => {
+  const admin = requireAdmin(req);
+  const db = getFirestore();
+  await requireStepUp(db, admin.uid);
+  const productId = String(req.data?.productId ?? '').trim();
+  if (!productId) throw new HttpsError('invalid-argument', 'productId requis');
+  const ref = db.doc(`products/${productId}`);
+  const snap = await ref.get();
+  if (!snap.exists) throw new HttpsError('not-found', 'produit introuvable');
+
+  const patch: Record<string, unknown> = { updatedAt: new Date().toISOString() };
+  if (req.data?.stock !== undefined) patch.stock = requireInt(req.data.stock, 'stock', 0);
+  if (req.data?.available !== undefined) patch.available = req.data.available === true;
+  if (req.data?.priceCents !== undefined) patch.priceCents = requireInt(req.data.priceCents, 'priceCents', 0);
+  if (Object.keys(patch).length === 1) throw new HttpsError('invalid-argument', 'aucun champ à modifier');
+
+  await ref.set(patch, { merge: true });
+  await audit(db, { action: 'setProductInventory', actorUid: admin.uid, meta: { productId, ...patch } });
+  return { ok: true };
+});
+
+/** Supprime un produit du catalogue (back-office). Réservé admin + step-up. */
+export const deleteProduct = onCall(callOpts, async (req) => {
+  const admin = requireAdmin(req);
+  const db = getFirestore();
+  await requireStepUp(db, admin.uid);
+  const productId = String(req.data?.productId ?? '').trim();
+  if (!productId) throw new HttpsError('invalid-argument', 'productId requis');
+  await db.doc(`products/${productId}`).delete();
+  await audit(db, { action: 'deleteProduct', actorUid: admin.uid, meta: { productId } });
+  return { ok: true };
+});
+
 // --- 3. Import Reloadly (page par page, idempotent) → produits + prix calculés ---
 
 /**

@@ -201,6 +201,16 @@ export async function repriceAll(): Promise<{ ok: boolean; repriced: number; ski
   return (await httpsCallable<Record<string, never>, any>(functionsClient, 'repriceAll')({})).data;
 }
 
+/** Admin : modifie stock / disponibilité / prix direct d'un produit (back-office). */
+export async function setProductInventory(input: { productId: string; stock?: number; available?: boolean; priceCents?: number }): Promise<{ ok: boolean }> {
+  return (await httpsCallable<typeof input, any>(functionsClient, 'setProductInventory')(input)).data;
+}
+
+/** Admin : supprime un produit du catalogue. */
+export async function deleteProduct(input: { productId: string }): Promise<{ ok: boolean }> {
+  return (await httpsCallable<typeof input, any>(functionsClient, 'deleteProduct')(input)).data;
+}
+
 /** Admin : estime le float USDT à déposer + capital HTG + CA/marge potentiels. */
 export async function estimateFunding(input: { qtyPerProduct?: number; availableOnly?: boolean }): Promise<{ ok: boolean; qtyPerProduct: number; config: PricingConfig; perProvider: Record<string, any>; total: any; human: { usdtToDeposit: string; htgCapital: number; potentialRevenueHtg: number; projectedMarginHtg: number } }> {
   return (await httpsCallable<typeof input, any>(functionsClient, 'estimateFunding')(input)).data;
