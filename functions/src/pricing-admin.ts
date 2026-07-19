@@ -109,17 +109,33 @@ export const setProductCost = onCall(callOpts, async (req) => {
   const cost: ProviderCostInput = { faceUsdCents, discountBps, fixedFeeUsdCents };
   const b = computePrice(cost, cfg);
 
-  await db.doc(`products/${productId}`).set(
-    {
-      pricing: { source: 'manual', faceUsdCents, discountBps, fixedFeeUsdCents },
-      priceCents: b.retailHtgCents,
-      costHtgCents: b.costHtgCents,
-      marginHtgCents: b.marginHtgCents,
-      pricedAt: new Date().toISOString(),
-    },
-    { merge: true },
-  );
-  await audit(db, { action: 'setProductCost', actorUid: admin.uid, meta: { productId, faceUsdCents, priceCents: b.retailHtgCents } });
+  const patch: Record<string, unknown> = {
+    pricing: { source: 'manual', faceUsdCents, discountBps, fixedFeeUsdCents },
+    priceCents: b.retailHtgCents,
+    costHtgCents: b.costHtgCents,
+    marginHtgCents: b.marginHtgCents,
+    pricedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  // Si un nom est fourni → produit AFFICHABLE (carte cadeau visible dans la catégorie Cartes
+  // cadeaux). Sinon on ne fait que (re)tarifer un produit existant (ex. variante seedée).
+  const name = req.data?.name ? String(req.data.name).slice(0, 100) : undefined;
+  if (name) {
+    patch.name = name;
+    patch.category = req.data?.category ? String(req.data.category).slice(0, 50) : 'gift-cards';
+    patch.image = req.data?.image ? String(req.data.image).slice(0, 1000) : '';
+    patch.optionLabel = req.data?.optionLabel ? String(req.data.optionLabel).slice(0, 50) : `$${(faceUsdCents / 100).toFixed(2)}`;
+    patch.currency = 'HTG';
+    patch.available = req.data?.available !== false;
+    patch.stock = 999;
+    patch.deliveryTime = '1-5 Min';
+    patch.regions = ['Global'];
+    patch.requiresPlayerId = false;
+  }
+
+  await db.doc(`products/${productId}`).set(patch, { merge: true });
+  await audit(db, { action: 'setProductCost', actorUid: admin.uid, meta: { productId, faceUsdCents, priceCents: b.retailHtgCents, displayable: !!name } });
   return { ok: true, breakdown: b };
 });
 

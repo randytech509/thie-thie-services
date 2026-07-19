@@ -183,8 +183,9 @@ export async function setPricingConfig(input: Partial<PricingConfig>): Promise<{
   return (await httpsCallable<typeof input, any>(functionsClient, 'setPricingConfig')(input)).data;
 }
 
-/** Admin : fixe le coût fournisseur d'un produit non-Reloadly → calcule et écrit son prix. */
-export async function setProductCost(input: { productId: string; faceUsdCents: number; discountBps?: number; fixedFeeUsdCents?: number }): Promise<{ ok: boolean; breakdown: any }> {
+/** Admin : fixe le coût fournisseur d'un produit non-Reloadly → calcule et écrit son prix.
+ *  Fournir `name` (+ image/optionLabel) crée un produit AFFICHABLE dans la catégorie Cartes cadeaux. */
+export async function setProductCost(input: { productId: string; faceUsdCents: number; discountBps?: number; fixedFeeUsdCents?: number; name?: string; image?: string; optionLabel?: string; category?: string }): Promise<{ ok: boolean; breakdown: any }> {
   return (await httpsCallable<typeof input, any>(functionsClient, 'setProductCost')(input)).data;
 }
 

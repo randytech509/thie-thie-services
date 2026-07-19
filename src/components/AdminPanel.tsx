@@ -578,6 +578,9 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
   const [mProd, setMProd] = useState('');
   const [mFace, setMFace] = useState('');
   const [mDisc, setMDisc] = useState('0');
+  const [mName, setMName] = useState('');
+  const [mImage, setMImage] = useState('');
+  const [mLabel, setMLabel] = useState('');
   const [mBusy, setMBusy] = useState(false);
   const [mPreview, setMPreview] = useState<any | null>(null);
 
@@ -646,9 +649,14 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
         productId: mProd.trim(),
         faceUsdCents: Math.round(parseFloat(mFace) * 100),
         discountBps: Math.round((parseFloat(mDisc) || 0) * 100),
+        name: mName.trim() || undefined,
+        image: mImage.trim() || undefined,
+        optionLabel: mLabel.trim() || undefined,
       });
       setMPreview(r.breakdown);
-      flash(`Prix calculé pour ${mProd.trim()} : ${htg(r.breakdown.retailHtgCents)}.`);
+      flash(mName.trim()
+        ? `Carte « ${mName.trim()} » créée dans Cartes cadeaux : ${htg(r.breakdown.retailHtgCents)}.`
+        : `Prix calculé pour ${mProd.trim()} : ${htg(r.breakdown.retailHtgCents)}.`);
     } catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setMBusy(false); }
   };
 
@@ -725,16 +733,19 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
         {importMsg && <p className="text-[11px] text-white/50 mt-2 tabular-nums">{importMsg}</p>}
       </div>
 
-      {/* Coût manuel (non-Reloadly) */}
+      {/* Coût manuel (non-Reloadly / cartes non-USD comme Netflix) */}
       <div className={card}>
-        <h3 className="font-black text-sm mb-1">Coût manuel (Free Fire, PUBG…)</h3>
-        <p className="text-[11px] text-white/40 mb-3">Saisis le coût d'achat réel en USD ; le prix de vente HTG est calculé avec la même marge.</p>
+        <h3 className="font-black text-sm mb-1">Produit / carte manuelle (Netflix, Free Fire…)</h3>
+        <p className="text-[11px] text-white/40 mb-3">Saisis le coût d'achat réel en USD ; le prix HTG est calculé avec la même marge. <strong className="text-white/60">Renseigne un Nom pour créer une carte affichable</strong> dans la catégorie Cartes cadeaux (ex. Netflix EUR converti à la main).</p>
         <div className="grid sm:grid-cols-3 gap-2">
-          <input value={mProd} onChange={(e) => setMProd(e.target.value)} placeholder="ID produit (ex. ff-diamonds__0)" className={`${inputCls} font-mono text-xs sm:col-span-3`} />
+          <input value={mProd} onChange={(e) => setMProd(e.target.value)} placeholder="ID produit (ex. manual-netflix-25)" className={`${inputCls} font-mono text-xs sm:col-span-3`} />
+          <Field label="Nom affiché (→ crée une carte)"><input value={mName} onChange={(e) => setMName(e.target.value)} placeholder="ex. Netflix 25€" className={inputCls} /></Field>
+          <Field label="Dénomination (badge)"><input value={mLabel} onChange={(e) => setMLabel(e.target.value)} placeholder="ex. 25 €" className={inputCls} /></Field>
+          <Field label="URL du logo"><input value={mImage} onChange={(e) => setMImage(e.target.value)} placeholder="https://…" className={inputCls} /></Field>
           <Field label="Coût d'achat (USD)"><input value={mFace} onChange={(e) => setMFace(e.target.value)} type="number" step="0.01" className={inputCls} /></Field>
           <Field label="Remise fournisseur (%)"><input value={mDisc} onChange={(e) => setMDisc(e.target.value)} type="number" className={inputCls} /></Field>
         </div>
-        <button onClick={saveManual} disabled={mBusy} className={`${btn} mt-3`}>{mBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}Calculer & fixer le prix</button>
+        <button onClick={saveManual} disabled={mBusy} className={`${btn} mt-3`}>{mBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}Calculer & créer / tarifer</button>
         {mPreview && (
           <div className="mt-3 text-xs bg-black/20 rounded-xl p-3 flex flex-wrap gap-x-5 gap-y-1">
             <span className="text-white/50">coût : <strong className="text-white">{htg(mPreview.costHtgCents)}</strong></span>
