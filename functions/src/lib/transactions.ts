@@ -301,6 +301,180 @@ export async function placeOrder(db: Firestore, p: PlaceOrderParams): Promise<Pl
 }
 
 /* =========================================================================
+ * PANIER (invariant 3) : achat de PLUSIEURS articles en une seule transaction.
+ *
+ * Architecture : 1 DÉBIT, N COMMANDES. Le wallet est débité une seule fois pour
+ * le total, mais chaque ligne produit une commande NORMALE à un seul produit
+ * (`orders/{key}-{i}`, partageant un `groupId`). Conséquence voulue : l'auto-
+ * livraison (`autoFulfillOrder`), le back-office et l'historique fonctionnent
+ * SANS modification, et l'échec d'une ligne à la livraison ne bloque pas les autres.
+ *
+ * Prix TOUJOURS résolus serveur (le client envoie produit + quantité + montant,
+ * jamais un prix). Atomique : si une ligne est indisponible/en rupture, RIEN n'est débité.
+ * ====================================================================== */
+export interface CartLine {
+  productId: string;
+  quantity: number;
+  amountUsdCents?: number;  // dénomination / montant choisi (cartes cadeaux)
+  playerId?: string;        // ID de joueur (recharges de jeux) — par ligne
+  region?: string;
+  optionLabel?: string;
+}
+
+export interface PlaceCartOrderParams {
+  uid: string;
+  lines: CartLine[];
+  idempotencyKey: string;   // clé du panier (dédupe le double-checkout)
+}
+
+export interface PlaceCartOrderResult {
+  groupId: string;
+  orderIds: string[];
+  totalCents: Cents;
+  balanceAfterCents: Cents;
+  pointsEarned: number;
+  deduped: boolean;
+}
+
+const MAX_CART_LINES = 20;
+
+export async function placeCartOrder(db: Firestore, p: PlaceCartOrderParams): Promise<PlaceCartOrderResult> {
+  if (!p.uid) throw new DomainError('invalid-arg', 'uid manquant');
+  if (!p.idempotencyKey) throw new DomainError('invalid-arg', 'idempotencyKey manquant');
+  if (!Array.isArray(p.lines) || p.lines.length === 0) throw new DomainError('invalid-arg', 'panier vide');
+  if (p.lines.length > MAX_CART_LINES) throw new DomainError('invalid-arg', `panier trop grand (max ${MAX_CART_LINES})`);
+  for (const l of p.lines) {
+    if (!l.productId) throw new DomainError('invalid-arg', 'productId manquant dans une ligne');
+    if (!Number.isInteger(l.quantity) || l.quantity <= 0 || l.quantity > 20) {
+      throw new DomainError('invalid-qty', 'quantité de ligne invalide');
+    }
+  }
+
+  const key = p.idempotencyKey;
+  const userRef = db.doc(`users/${p.uid}`);
+  const fxRef = db.doc('config/fx');
+  const pricingRef = db.doc('config/pricing');
+  const ledgerRef = db.doc(`wallet_transactions/${key}-cart-debit`);
+  const uniqueIds = [...new Set(p.lines.map((l) => l.productId))];
+
+  return db.runTransaction(async (t) => {
+    // — Idempotence : le ledger du panier fait foi (rejeu → on renvoie le résultat stocké) —
+    const ledgerSnap = await t.get(ledgerRef);
+    if (ledgerSnap.exists) {
+      const meta = (ledgerSnap.get('meta') as { orderIds?: string[]; pointsEarned?: number }) ?? {};
+      return {
+        groupId: key,
+        orderIds: meta.orderIds ?? [],
+        totalCents: ledgerSnap.get('amountCents') as number,
+        balanceAfterCents: ledgerSnap.get('balanceAfterCents') as number,
+        pointsEarned: meta.pointsEarned ?? 0,
+        deduped: true,
+      };
+    }
+
+    // — Lectures (toutes avant écritures) —
+    const [userSnap, fxSnap, pricingSnap, ...productSnaps] = await Promise.all([
+      t.get(userRef), t.get(fxRef), t.get(pricingRef),
+      ...uniqueIds.map((id) => t.get(db.doc(`products/${id}`))),
+    ]);
+    if (!userSnap.exists) throw new DomainError('user-not-found', 'utilisateur introuvable');
+
+    const byId = new Map<string, FirebaseFirestore.DocumentData>();
+    productSnaps.forEach((snap, i) => {
+      if (!snap.exists) throw new DomainError('product-not-found', `produit introuvable : ${uniqueIds[i]}`);
+      const data = snap.data()!;
+      if (data.available !== true) throw new DomainError('unavailable', `produit indisponible : ${data.name ?? uniqueIds[i]}`);
+      byId.set(uniqueIds[i], data);
+    });
+
+    // Stock : agrégé PAR PRODUIT (deux lignes peuvent viser le même produit à des montants différents).
+    const qtyByProduct = new Map<string, number>();
+    for (const l of p.lines) qtyByProduct.set(l.productId, (qtyByProduct.get(l.productId) ?? 0) + l.quantity);
+    for (const [id, needed] of qtyByProduct) {
+      const stock = (byId.get(id)!.stock as number) ?? 0;
+      if (!Number.isInteger(stock) || stock < needed) {
+        throw new DomainError('out-of-stock', `stock insuffisant : ${byId.get(id)!.name ?? id}`);
+      }
+    }
+
+    // — Prix : chaque ligne résolue SERVEUR —
+    const htgCentsPerUsd = fxSnap.exists ? (fxSnap.get('htgCentsPerUsd') as number) : null;
+    const lineTotals = p.lines.map((l) => {
+      const product = byId.get(l.productId)!;
+      const unit = dynamicUnitPriceCents(product, l.amountUsdCents, pricingSnap) ?? unitPriceCents(product, htgCentsPerUsd);
+      const lt = unit * l.quantity;
+      assertCents(lt, 'total de ligne');
+      return lt;
+    });
+    const totalCents = lineTotals.reduce((a, b) => a + b, 0);
+    assertCents(totalCents, 'totalCents');
+
+    const before: Cents = (userSnap.get('walletBalanceCents') as number) ?? 0;
+    assertCents(before, 'walletBalanceCents existant');
+    if (before < totalCents) throw new DomainError('insufficient-funds', 'solde insuffisant');
+    const after = subCents(before, totalCents);
+
+    const pointsEarned = pointsForOrder(totalCents);
+    const pointsBefore = (userSnap.get('thieThiePoints') as number) ?? 0;
+    const orderIds = p.lines.map((_l, i) => `${key}-${i}`);
+
+    // — Écritures : 1 débit, stock par produit, N commandes normales —
+    t.update(userRef, {
+      walletBalanceCents: after,
+      totalSpentCents: addCents((userSnap.get('totalSpentCents') as number) ?? 0, totalCents),
+      thieThiePoints: pointsBefore + pointsEarned,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    for (const [id, needed] of qtyByProduct) {
+      t.update(db.doc(`products/${id}`), { stock: ((byId.get(id)!.stock as number) ?? 0) - needed });
+    }
+    p.lines.forEach((l, i) => {
+      const product = byId.get(l.productId)!;
+      t.set(db.doc(`orders/${orderIds[i]}`), {
+        orderId: orderIds[i],
+        groupId: key,               // relie les commandes d'un même panier
+        userId: p.uid,
+        uid: p.uid,
+        productId: l.productId,
+        productName: product.name ?? '',
+        quantity: l.quantity,
+        priceCents: lineTotals[i],
+        balanceAfterCents: after,
+        pointsEarned: i === 0 ? pointsEarned : 0, // points comptés une fois pour le panier
+        status: 'completed',
+        playerId: l.playerId ?? null,
+        region: l.region ?? null,
+        optionLabel: l.optionLabel ?? null,
+        paymentMethod: 'wallet',
+        createdAt: FieldValue.serverTimestamp(),
+      });
+    });
+    t.set(ledgerRef, {
+      transactionId: ledgerRef.id,
+      uid: p.uid,
+      type: 'purchase',
+      direction: 'debit',
+      amountCents: totalCents,
+      balanceBeforeCents: before,
+      balanceAfterCents: after,
+      status: 'Completed',
+      actorUid: p.uid,
+      meta: { groupId: key, orderIds, pointsEarned, lines: p.lines.length },
+      createdAt: FieldValue.serverTimestamp(),
+    });
+    auditInTx(db, t, {
+      action: 'placeCartOrder',
+      actorUid: p.uid,
+      targetUid: p.uid,
+      amountCents: totalCents,
+      meta: { groupId: key, orderIds, lines: p.lines.length },
+    });
+
+    return { groupId: key, orderIds, totalCents, balanceAfterCents: after, pointsEarned, deduped: false };
+  });
+}
+
+/* =========================================================================
  * Rédemption de récompense fidélité (invariant 2/3) : dépense de points →
  * émission d'un coupon. Points et coupon sont serveur-only ; le client ne peut
  * NI débiter des points NI créer un coupon (firestore.rules les refuse).

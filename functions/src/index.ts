@@ -8,7 +8,7 @@ initializeApp();
 setGlobalOptions({ region: process.env.FUNCTIONS_REGION ?? 'us-central1', maxInstances: 10 });
 
 export { reviewDeposit } from './deposits';
-export { placeOrderCallable } from './orders';
+export { placeOrderCallable, placeCartOrderCallable } from './orders';
 export { setAdminRole } from './admin';
 export { seedProducts } from './products';
 export { ingestSms, ingestOxapayCallback } from './webhooks';

@@ -5,7 +5,7 @@ import { test, before, after, beforeEach, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { creditWallet, placeOrder, redeemReward, DomainError } from '../lib/lib/transactions.js';
+import { creditWallet, placeOrder, placeCartOrder, redeemReward, DomainError } from '../lib/lib/transactions.js';
 import { seedCatalog } from '../lib/lib/seed.js';
 import { CATALOG_VARIANTS } from '../lib/data/catalog.data.js';
 import { pointsForOrder } from '../lib/data/rewards.data.js';
@@ -252,6 +252,87 @@ describe('placeOrder — débit transactionnel, stock atomique, solde ≥ 0', ()
     );
     const p = await db.doc('products/rng1').get();
     assert.equal(p.get('stock'), 5);
+  });
+});
+
+describe('placeCartOrder — panier : 1 débit, N commandes groupées', () => {
+  async function seedCart() {
+    await db.doc(`users/${UID}`).set({ uid: UID, walletBalanceCents: 200000, thieThiePoints: 0, totalSpentCents: 0 });
+    await db.doc('products/c1').set({ name: 'Carte A', priceCents: 30000, stock: 5, available: true, currency: 'HTG' });
+    await db.doc('products/c2').set({ name: 'Carte B', priceCents: 20000, stock: 5, available: true, currency: 'HTG' });
+  }
+
+  test('2 articles différents → total débité UNE fois, 2 commandes avec groupId, stocks décrémentés', async () => {
+    await seedCart();
+    const r = await placeCartOrder(db, {
+      uid: UID, idempotencyKey: 'CART1',
+      lines: [{ productId: 'c1', quantity: 2 }, { productId: 'c2', quantity: 1 }],
+    });
+    assert.equal(r.totalCents, 80000);              // 30000×2 + 20000
+    assert.equal(r.balanceAfterCents, 120000);      // 200000 − 80000
+    assert.equal(r.orderIds.length, 2);
+    assert.equal(r.groupId, 'CART1');
+
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 120000); // UN SEUL débit
+    const o0 = await db.doc('orders/CART1-0').get();
+    const o1 = await db.doc('orders/CART1-1').get();
+    assert.equal(o0.get('groupId'), 'CART1');
+    assert.equal(o0.get('priceCents'), 60000);
+    assert.equal(o1.get('priceCents'), 20000);
+    assert.equal(o0.get('status'), 'completed');     // commande normale → auto-livraison inchangée
+    const p1 = await db.doc('products/c1').get();
+    const p2 = await db.doc('products/c2').get();
+    assert.equal(p1.get('stock'), 3);
+    assert.equal(p2.get('stock'), 4);
+  });
+
+  test('idempotent : rejouer la même clé de panier ne double-débite pas', async () => {
+    await seedCart();
+    await placeCartOrder(db, { uid: UID, idempotencyKey: 'CART2', lines: [{ productId: 'c1', quantity: 1 }] });
+    const r2 = await placeCartOrder(db, { uid: UID, idempotencyKey: 'CART2', lines: [{ productId: 'c1', quantity: 1 }] });
+    assert.equal(r2.deduped, true);
+    assert.equal(r2.totalCents, 30000);
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 170000); // un seul débit de 30000
+  });
+
+  test('solde insuffisant → RIEN débité, aucune commande créée', async () => {
+    await seedCart();
+    await db.doc(`users/${UID}`).update({ walletBalanceCents: 10000 });
+    await assert.rejects(
+      () => placeCartOrder(db, { uid: UID, idempotencyKey: 'CART3', lines: [{ productId: 'c1', quantity: 2 }] }),
+      (e) => e instanceof DomainError && e.code === 'insufficient-funds',
+    );
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 10000);
+    const o = await db.doc('orders/CART3-0').get();
+    assert.equal(o.exists, false);
+  });
+
+  test('une ligne en rupture → TOUT le panier refusé (atomique), aucun débit', async () => {
+    await seedCart();
+    await db.doc('products/c2').update({ stock: 0 });
+    await assert.rejects(
+      () => placeCartOrder(db, { uid: UID, idempotencyKey: 'CART4', lines: [{ productId: 'c1', quantity: 1 }, { productId: 'c2', quantity: 1 }] }),
+      (e) => e instanceof DomainError && e.code === 'out-of-stock',
+    );
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 200000); // intact
+    const p1 = await db.doc('products/c1').get();
+    assert.equal(p1.get('stock'), 5);                  // pas décrémenté non plus
+  });
+
+  test('même produit sur 2 lignes → stock agrégé et vérifié globalement', async () => {
+    await seedCart();
+    await db.doc('products/c1').update({ stock: 3 });
+    // 2 + 2 = 4 > stock 3 → refus
+    await assert.rejects(
+      () => placeCartOrder(db, { uid: UID, idempotencyKey: 'CART5', lines: [{ productId: 'c1', quantity: 2 }, { productId: 'c1', quantity: 2 }] }),
+      (e) => e instanceof DomainError && e.code === 'out-of-stock',
+    );
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 200000);
   });
 });
 

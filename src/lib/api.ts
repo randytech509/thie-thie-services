@@ -46,6 +46,30 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
   return (await fn(input)).data;
 }
 
+/** Une ligne de panier. Le client envoie produit + quantité + montant choisi ; JAMAIS un prix. */
+export interface CartLineInput {
+  productId: string;
+  quantity: number;
+  amountUsd?: number;
+  playerId?: string;
+  region?: string;
+  optionLabel?: string;
+}
+export interface PlaceCartOrderResult {
+  ok: boolean;
+  groupId: string;
+  orderIds: string[];
+  totalCents: number;
+  balanceAfterCents: number;
+  pointsEarned: number;
+  deduped: boolean;
+}
+/** Checkout panier : plusieurs articles, UN SEUL débit, N commandes livrées indépendamment. */
+export async function placeCartOrder(input: { lines: CartLineInput[]; idempotencyKey: string }): Promise<PlaceCartOrderResult> {
+  const fn = httpsCallable<typeof input, PlaceCartOrderResult>(functionsClient, 'placeCartOrderCallable');
+  return (await fn(input)).data;
+}
+
 export interface RedeemRewardInput {
   rewardId: string;
   /** ID idempotent du coupon (ex: crypto.randomUUID()) — dédupe la double-rédemption. */

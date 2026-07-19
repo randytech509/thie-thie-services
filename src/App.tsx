@@ -6,6 +6,7 @@ import {
   Search,
   Heart,
   ShoppingBag,
+  ShoppingCart,
   User,
   Globe,
   Menu,
@@ -71,7 +72,7 @@ import { BottomTabBar } from './components/BottomTabBar';
 
 // Firebase imports
 import { auth, db, storage, googleProvider, OperationType, handleFirestoreError } from './firebase';
-import { placeOrder, redeemReward as redeemRewardApi } from './lib/api';
+import { placeOrder, placeCartOrder, redeemReward as redeemRewardApi } from './lib/api';
 import { listenForForegroundPush } from './lib/push';
 import { 
   signInWithEmailAndPassword, 
@@ -160,6 +161,21 @@ const CATEGORIES = [
   { slug: 'cod-mobile', name: 'COD Mobile', count: 6, icon: ShieldCheck, gradient: 'from-[#78716c] to-[#44403c]' },
   { slug: 'gift-cards', name: 'Cartes cadeaux', count: 0, icon: Gift, gradient: 'from-[#a855f7] to-[#ec4899]' }
 ];
+
+/** Ligne de panier côté client. `unitCents` est INDICATIF (affichage) — le prix facturé est
+ *  recalculé serveur au checkout à partir du produit + montant choisi (invariant 3). */
+export interface CartLine {
+  key: string;          // identité de ligne : produit + montant + ID joueur
+  productId: string;
+  name: string;
+  image: string;
+  optionLabel: string;
+  amountUsd?: number;   // dénomination / montant libre choisi
+  unitCents: number;    // prix unitaire indicatif (HTG centimes)
+  qty: number;
+  playerId?: string;    // recharges de jeux : ID joueur PAR ligne
+  region?: string;
+}
 
 // Miroir CLIENT du moteur de tarification (functions/src/lib/pricing.ts) avec les défauts de config,
 // pour AFFICHER un prix estimé sur les cartes à MONTANT LIBRE. Le prix RÉEL est recalculé serveur
@@ -1960,6 +1976,100 @@ export default function App() {
     }
   };
 
+  /** Ajoute la sélection courante au panier (même validations que l'achat direct). */
+  const handleAddToCart = () => {
+    if (!selectedProduct) return;
+    const p = selectedProduct;
+    const optIndex = selectedAmountIndex;
+    const opt = p.options[optIndex] || p.options[0];
+    const region = p.regions[selectedRegionIndex] || 'Global';
+
+    // Recharges de jeux : ID de joueur obligatoire, propre à CETTE ligne.
+    const needsPlayerId = isGameCategoryRequiringPlayerId(p.categorySlug);
+    if (needsPlayerId && !validateFreeFirePlayerId(freeFirePlayerId, p.categorySlug)) {
+      const gameName = CATEGORIES.find((c) => c.slug === p.categorySlug)?.name || 'Game';
+      alert(lang === 'FR' ? `Veuillez entrer un ID de joueur ${gameName} valide.` : `Tanpri antre yon ID jwè ${gameName} ki valab.`);
+      return;
+    }
+
+    let amountUsd: number | undefined;
+    let unitCents: number;
+    let label = opt.amount;
+    if (p.fsRange) {
+      const amt = parseInt(rangeAmountUsd, 10);
+      const minU = p.fsRange.minUsdCents / 100, maxU = p.fsRange.maxUsdCents / 100;
+      if (isNaN(amt) || !Number.isInteger(amt) || amt < minU || amt > maxU) {
+        alert(lang === 'FR' ? `Montant en dollars entiers, entre $${minU} et $${maxU}.` : `Montan an dola antye, ant $${minU} ak $${maxU}.`);
+        return;
+      }
+      amountUsd = amt;
+      unitCents = estimateRetailHtgCents(amt * 100, p.fsRange);
+      label = `$${amt}`;
+    } else {
+      if (p.fsDenoms) {
+        amountUsd = (p.fsDenoms[optIndex] ?? p.fsDenoms[0]) / 100;
+        label = `$${amountUsd}`;
+      }
+      unitCents = centsOf(p, optIndex);
+    }
+
+    const productId = p.fsProductId ?? `${p.id}__${optIndex}`;
+    const playerId = needsPlayerId ? freeFirePlayerId : undefined;
+    const qty = Math.max(1, Math.min(20, (p.fsProductId ? cardQty : 1) || 1));
+    const key = `${productId}|${amountUsd ?? ''}|${playerId ?? ''}`;
+
+    setCart((c) => {
+      const i = c.findIndex((l) => l.key === key);
+      if (i >= 0) {
+        const copy = [...c];
+        copy[i] = { ...copy[i], qty: Math.min(20, copy[i].qty + qty) };
+        return copy;
+      }
+      return [...c, { key, productId, name: p.name, image: p.image, optionLabel: label, amountUsd, unitCents, qty, playerId, region }];
+    });
+    setSelectedProduct(null);
+    setCartOpen(true);
+  };
+
+  /** Checkout panier : UN SEUL débit, N commandes livrées indépendamment. */
+  const handleCartCheckout = async () => {
+    if (!user) { setAuthMode('login'); setAuthModalOpen(true); return; }
+    if (cart.length === 0) return;
+    setCartPaying(true);
+    try {
+      const res = await placeCartOrder({
+        idempotencyKey: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `cart-${Date.now()}`,
+        lines: cart.map((l) => ({
+          productId: l.productId, quantity: l.qty, amountUsd: l.amountUsd,
+          playerId: l.playerId, region: l.region, optionLabel: l.optionLabel,
+        })),
+      });
+      setWalletBalanceCents(res.balanceAfterCents);
+      if (res.pointsEarned > 0) {
+        setThieThiePoints((prev) => prev + res.pointsEarned);
+        setPointsToast({
+          show: true,
+          msg: lang === 'FR'
+            ? `Félicitations ! Vous avez gagné +${res.pointsEarned} Points Thie Thie !`
+            : `Félicitasyon ! Ou jwenn +${res.pointsEarned} Pwen Thie Thie !`,
+          points: res.pointsEarned,
+        });
+      }
+      if (user) await fetchUserOrders(user.uid);
+      setOrderToast({ show: true, orderId: res.groupId, productName: lang === 'FR' ? `${res.orderIds.length} article(s)` : `${res.orderIds.length} atik` });
+      setCart([]);
+      setCartOpen(false);
+    } catch (err: any) {
+      const msg = String(err?.message || err || '');
+      const insufficient = String(err?.code || '').includes('failed-precondition') || /insuffisant|insufficient/i.test(msg);
+      alert(insufficient
+        ? (lang === 'FR' ? "Solde wallet insuffisant. Rechargez votre wallet (dépôt), puis réessayez." : "Balans wallet ou pa ase. Rechaje wallet ou (depo), epi eseye ankò.")
+        : ((lang === 'FR' ? 'Échec du paiement : ' : 'Peman echwe : ') + msg));
+    } finally {
+      setCartPaying(false);
+    }
+  };
+
   const [categorySearchFocused, setCategorySearchFocused] = useState(false);
   
   // Detail Modal State
@@ -1968,6 +2078,27 @@ export default function App() {
   const [selectedAmountIndex, setSelectedAmountIndex] = useState<number>(2); // Default to middle-ish package
   const [rangeAmountUsd, setRangeAmountUsd] = useState<string>(''); // Carte à montant libre : montant saisi (USD)
   const [cardQty, setCardQty] = useState<number>(1); // Cartes cadeaux : nombre de cartes à commander
+
+  /* ---------------- PANIER ----------------
+   * Plusieurs articles → UN SEUL paiement (placeCartOrder). Le panier ne stocke que le
+   * CHOIX du client (produit, montant, quantité, ID joueur) ; le prix affiché est indicatif,
+   * le prix facturé est TOUJOURS recalculé serveur au checkout. Persisté en local.        */
+  const [cart, setCart] = useState<CartLine[]>(() => {
+    try { return JSON.parse(localStorage.getItem('tt_cart') || '[]'); } catch { return []; }
+  });
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartPaying, setCartPaying] = useState(false);
+
+  useEffect(() => {
+    try { localStorage.setItem('tt_cart', JSON.stringify(cart)); } catch { /* quota/private mode */ }
+  }, [cart]);
+
+  const cartCount = cart.reduce((n, l) => n + l.qty, 0);
+  const cartTotalCents = cart.reduce((n, l) => n + l.unitCents * l.qty, 0);
+
+  const cartSetQty = (key: string, qty: number) =>
+    setCart((c) => (qty <= 0 ? c.filter((l) => l.key !== key) : c.map((l) => (l.key === key ? { ...l, qty: Math.min(20, qty) } : l))));
+  const cartRemove = (key: string) => setCart((c) => c.filter((l) => l.key !== key));
   // Réinitialise la sélection à l'ouverture d'un produit (quantité, montant libre, 1re dénomination pour les cartes).
   useEffect(() => {
     setCardQty(1);
@@ -5101,6 +5232,15 @@ export default function App() {
                                         ? `Payer ${formatPrice(totalUsd)} avec mon wallet`
                                         : `Peye ${formatPrice(totalUsd)} ak wallet mwen`)}
                                 </button>
+                                <button
+                                  type="button"
+                                  disabled={!available || !validAmount}
+                                  onClick={handleAddToCart}
+                                  className="w-full mt-2 py-3 rounded-2xl font-black text-sm bg-white/[0.06] hover:bg-white/[0.1] text-white border border-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                                >
+                                  <ShoppingCart className="w-4 h-4" />
+                                  {lang === 'FR' ? 'Ajouter au panier' : 'Mete nan panye a'}
+                                </button>
                                 {!available ? (
                                   <p className="text-[11px] text-red-400 font-bold text-center leading-snug">
                                     {lang === 'FR'
@@ -5311,6 +5451,99 @@ export default function App() {
             </form>
 
           </div>
+          </div>
+        </div>
+      )}
+
+      {/* ---------------- PANIER : bouton flottant + tiroir ---------------- */}
+      {cartCount > 0 && !cartOpen && (
+        <button
+          type="button"
+          onClick={() => setCartOpen(true)}
+          aria-label={lang === 'FR' ? `Ouvrir le panier (${cartCount})` : `Louvri panye a (${cartCount})`}
+          className="fixed bottom-28 right-6 z-40 w-14 h-14 rounded-full bg-[#a855f7] text-[#0c0714] shadow-lg shadow-[#a855f7]/30 flex items-center justify-center hover:brightness-110 active:scale-95 transition-all"
+        >
+          <ShoppingCart className="w-6 h-6" />
+          <span className="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 rounded-full bg-[#0c0714] text-white text-[11px] font-black flex items-center justify-center border-2 border-[#a855f7] tabular-nums">
+            {cartCount}
+          </span>
+        </button>
+      )}
+
+      {cartOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4" onClick={() => setCartOpen(false)}>
+          <div
+            className="bg-[#150b28] border border-white/[0.08] w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-5 border-b border-white/[0.06]">
+              <h3 className="font-black text-lg flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5 text-[#a855f7]" />
+                {lang === 'FR' ? 'Mon panier' : 'Panye mwen'}
+                <span className="text-white/40 text-sm font-bold tabular-nums">({cartCount})</span>
+              </h3>
+              <button onClick={() => setCartOpen(false)} className="p-2 rounded-full bg-black/40 hover:bg-white/10" aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}>
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {cart.length === 0 ? (
+              <p className="p-8 text-center text-white/40 text-sm">{lang === 'FR' ? 'Votre panier est vide.' : 'Panye ou vid.'}</p>
+            ) : (
+              <>
+                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
+                  {cart.map((l) => (
+                    <div key={l.key} className="bg-black/25 rounded-2xl p-3 flex items-center gap-3">
+                      {l.image && <img src={l.image} alt="" className="w-12 h-12 rounded-lg object-cover bg-black/30 shrink-0" />}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold truncate">{l.name}</p>
+                        <p className="text-[11px] text-white/50 tabular-nums">
+                          {l.optionLabel}
+                          {l.playerId && <span className="text-white/30"> · ID {l.playerId}</span>}
+                        </p>
+                        <p className="text-[11px] text-[#a855f7] font-black tabular-nums mt-0.5">{formatPrice((l.unitCents * l.qty) / 14500)}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button onClick={() => cartSetQty(l.key, l.qty - 1)} className="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/10 font-black" aria-label="−">−</button>
+                        <span className="w-6 text-center font-black tabular-nums text-sm">{l.qty}</span>
+                        <button onClick={() => cartSetQty(l.key, l.qty + 1)} className="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/10 font-black" aria-label="+">+</button>
+                        <button onClick={() => cartRemove(l.key)} className="ml-1 text-white/30 hover:text-red-400 p-1" aria-label={lang === 'FR' ? 'Retirer' : 'Retire'}>
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="p-5 border-t border-white/[0.06] flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-white/60">{lang === 'FR' ? 'Total' : 'Total'}</span>
+                    <span className="text-xl font-black text-[#a855f7] tabular-nums">{formatPrice(cartTotalCents / 14500)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-white/40">
+                    <span>{lang === 'FR' ? 'Solde wallet' : 'Balans wallet'}</span>
+                    <span className="tabular-nums">{(walletBalanceCents / 100).toLocaleString('fr-FR')} HTG</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCartCheckout}
+                    disabled={cartPaying || walletBalanceCents < cartTotalCents}
+                    className="w-full py-3.5 rounded-2xl font-black text-sm bg-[#a855f7] text-[#0c0714] disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.99] transition-all"
+                  >
+                    {cartPaying
+                      ? (lang === 'FR' ? 'Paiement…' : 'N ap peye…')
+                      : walletBalanceCents < cartTotalCents
+                      ? (lang === 'FR' ? 'Solde insuffisant' : 'Balans pa ase')
+                      : (lang === 'FR' ? 'Payer avec mon wallet' : 'Peye ak wallet mwen')}
+                  </button>
+                  <p className="text-[10px] text-white/30 text-center">
+                    {lang === 'FR'
+                      ? 'Un seul paiement · chaque article est livré séparément par e-mail.'
+                      : 'Yon sèl peman · chak atik livre apa pa imel.'}
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
