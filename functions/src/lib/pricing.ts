@@ -45,8 +45,11 @@ export interface ProviderCostInput {
   faceUsdCents: number;
   /** Remise revendeur accordée par le fournisseur, en points de base. Ex : −2 % → 200. Défaut 0 (prix « fixe »). */
   discountBps?: number;
-  /** Frais fixes fournisseur par unité, en centimes USD. Défaut 0. */
+  /** Frais fixes fournisseur par unité, en centimes USD (Reloadly `senderFee`). Défaut 0. */
   fixedFeeUsdCents?: number;
+  /** Frais fournisseur EN POURCENTAGE de la face, en points de base (Reloadly `senderFeePercentage`).
+   *  Ex : Netflix 8 % → 800. AJOUTÉ au coût. Défaut 0. Ignorer ce champ sous-marge le produit. */
+  feeBps?: number;
 }
 
 export interface PriceBreakdown {
@@ -89,12 +92,18 @@ export function computePrice(cost: ProviderCostInput, cfg: PricingConfig): Price
 
   const discountBps = cost.discountBps ?? 0;
   const fixedFeeUsdCents = cost.fixedFeeUsdCents ?? 0;
+  const feeBps = cost.feeBps ?? 0;
   assertPositiveInt(discountBps, 'discountBps');
   assertPositiveInt(fixedFeeUsdCents, 'fixedFeeUsdCents');
+  assertPositiveInt(feeBps, 'feeBps');
   if (discountBps >= 10000) throw new PricingError('remise ≥ 100 % impossible');
 
-  // 1. Coût fournisseur (après remise revendeur + frais fixes).
-  const wholesaleUsdCents = (cost.faceUsdCents * (10000 - discountBps)) / 10000 + fixedFeeUsdCents;
+  // 1. Coût fournisseur = face − remise revendeur + frais fixes + frais en % (senderFeePercentage).
+  //    Ex Netflix US : face 5000 + 8 % (feeBps 800) = 5400. Ignorer feeBps sous-marge le produit.
+  const wholesaleUsdCents =
+    (cost.faceUsdCents * (10000 - discountBps)) / 10000 +
+    fixedFeeUsdCents +
+    (cost.faceUsdCents * feeBps) / 10000;
 
   // 2. Frais de dépôt crypto (USDT) pour recharger le solde fournisseur.
   const usdtSpentUsdCents = wholesaleUsdCents * (10000 + cfg.cryptoDepositBps) / 10000;

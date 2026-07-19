@@ -46,6 +46,17 @@ describe('computePrice — chaîne de coût', () => {
     assert.ok(avec.costHtgCents > sans.costHtgCents);
   });
 
+  test('frais EN % (senderFeePercentage) ajoutés au coût — ex. Netflix 8%', () => {
+    const sans = computePrice({ faceUsdCents: 5000 }, CFG);
+    const avec = computePrice({ faceUsdCents: 5000, feeBps: 800 }, CFG); // +8%
+    // Coût fournisseur passe de $50 à $54 → wholesale +8%.
+    assert.equal(avec.wholesaleUsdCents, 5400);
+    assert.equal(sans.wholesaleUsdCents, 5000);
+    assert.ok(avec.retailHtgCents > sans.retailHtgCents);
+    // La marge RÉELLE reste ~15% (les frais sont dans le coût, pas rognés sur la marge).
+    assert.ok(avec.effectiveMarginBps >= 1490 && avec.effectiveMarginBps <= 1520, `effBps=${avec.effectiveMarginBps}`);
+  });
+
   test('rejette une marge ≥ 100% en mode margin', () => {
     assert.throws(() => computePrice({ faceUsdCents: 1000 }, { ...CFG, marginBps: 10000 }), PricingError);
   });

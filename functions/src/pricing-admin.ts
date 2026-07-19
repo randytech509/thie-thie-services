@@ -59,6 +59,7 @@ function costOf(productData: Record<string, unknown>): ProviderCostInput | null 
     faceUsdCents: p.faceUsdCents,
     discountBps: typeof p.discountBps === 'number' ? p.discountBps : 0,
     fixedFeeUsdCents: typeof p.fixedFeeUsdCents === 'number' ? p.fixedFeeUsdCents : 0,
+    feeBps: typeof p.feeBps === 'number' ? p.feeBps : 0,
   };
 }
 
@@ -175,7 +176,10 @@ export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }
     // Seules les devises USD sont directement tarifables sans FX interne Reloadly.
     if (p.recipientCurrencyCode && p.recipientCurrencyCode !== 'USD') continue;
 
+    // Frais Reloadly RÉELS (sinon sous-marge) : remise revendeur, frais fixe, frais en %.
     const discountBps = Math.round((p.discountPercentage ?? 0) * 100);
+    const fixedFeeUsdCents = Math.round((p.senderFee ?? 0) * 100);
+    const feeBps = Math.round((p.senderFeePercentage ?? 0) * 100);
     const denoms: number[] =
       p.denominationType === 'FIXED' && Array.isArray(p.fixedRecipientDenominations)
         ? p.fixedRecipientDenominations
@@ -184,7 +188,7 @@ export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }
     for (const face of denoms) {
       const faceUsdCents = Math.round(Number(face) * 100);
       if (!Number.isInteger(faceUsdCents) || faceUsdCents <= 0) continue;
-      const cost: ProviderCostInput = { faceUsdCents, discountBps };
+      const cost: ProviderCostInput = { faceUsdCents, discountBps, fixedFeeUsdCents, feeBps };
       const b = computePrice(cost, cfg);
       const docId = `rl_${p.productId}_${faceUsdCents}`;
       batch.set(
@@ -204,7 +208,7 @@ export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }
           regions: country ? [country] : ['Global'],
           requiresPlayerId: false,
           deliveryTime: '1-5 Min',
-          pricing: { source: 'reloadly', faceUsdCents, discountBps, reloadlyProductId: p.productId, reloadlyCountryCode: country },
+          pricing: { source: 'reloadly', faceUsdCents, discountBps, fixedFeeUsdCents, feeBps, reloadlyProductId: p.productId, reloadlyCountryCode: country },
           reloadlyProductId: p.productId,
           reloadlyCountryCode: country,
           reloadlyUnitPrice: Number(face),
