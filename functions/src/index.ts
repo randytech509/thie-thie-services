@@ -22,4 +22,8 @@ export { passkeyStatus, passkeyRegisterOptions, passkeyRegisterVerify, passkeyAu
 export { sendBroadcastPush, savePromo, deletePromo } from './broadcast';
 export { autoFulfillOrder } from './auto-fulfillment';
 export { reloadlyBalance, reloadlyFindProducts, setProductSupplier } from './reloadly-admin';
-export { setPricingConfig, setProductCost, reloadlyImportCatalog, repriceAll, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts } from './pricing-admin';
+// NB : `repriceAll` retiré (2026-07-19). Depuis la restructuration du catalogue, les cartes
+// Reloadly n'ont plus de `pricing.faceUsdCents` (dénominations multiples / montant libre) :
+// il les ignorait toutes. La re-tarification correcte se fait via `reloadlyImportCatalog`,
+// qui recalcule tout avec la config courante. Retiré aussi car le quota CPU Cloud Run est saturé.
+export { setPricingConfig, setProductCost, reloadlyImportCatalog, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts } from './pricing-admin';

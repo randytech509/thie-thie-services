@@ -3,7 +3,7 @@ import type { User as FirebaseUser } from 'firebase/auth';
 import { collection, query, orderBy, onSnapshot, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
-import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, repriceAll, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts, type PricingConfig } from '../lib/api';
+import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts, type PricingConfig } from '../lib/api';
 import { getPasskeyStatus, enrollPasskey, verifyPasskey } from '../lib/passkey';
 import {
   LayoutDashboard, ShoppingBag, Wallet, ShieldCheck, Bell, Settings, KeyRound,
@@ -572,7 +572,6 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
   const [country, setCountry] = useState('');
   const [importing, setImporting] = useState(false);
   const [importMsg, setImportMsg] = useState('');
-  const [repricing, setRepricing] = useState(false);
 
   // Coût manuel
   const [mProd, setMProd] = useState('');
@@ -617,7 +616,7 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
         roundToHtgCents: Math.round(parseFloat(round) * 100),
       });
       applyCfg(r.config);
-      flash('Config de tarification enregistrée. Pense à « Recalculer les prix ».');
+      flash('Config enregistrée. Relance « Importer Reloadly » pour appliquer les nouveaux prix au catalogue.');
     } catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setSavingCfg(false); }
   };
 
@@ -633,12 +632,6 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
       }
       flash(`Import Reloadly terminé : ${total} variantes (${pages} pages), publiées (available:true) dans la catégorie Cartes cadeaux.`);
     } catch (e) { flash(`Import échoué : ${(e as Error).message}`); } finally { setImporting(false); }
-  };
-
-  const doReprice = async () => {
-    setRepricing(true);
-    try { const r = await repriceAll(); flash(`Prix recalculés : ${r.repriced} produits (${r.skipped} sans coût, ignorés).`); await refresh(); }
-    catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setRepricing(false); }
   };
 
   const [clearing, setClearing] = useState(false);
@@ -736,7 +729,6 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
         <div className="flex flex-wrap gap-2 items-center">
           <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Pays ISO (optionnel, ex. US)" className={`${inputCls} w-48`} />
           <button onClick={doImport} disabled={importing} className={btn}>{importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <DownloadCloud className="w-4 h-4" />}Importer Reloadly</button>
-          <button onClick={doReprice} disabled={repricing} className="bg-white/[0.06] hover:bg-white/10 disabled:opacity-40 text-white font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">{repricing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}Recalculer les prix</button>
           <button onClick={doClear} disabled={clearing} className="bg-red-500/15 hover:bg-red-500/25 disabled:opacity-40 text-red-300 font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">{clearing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}Vider Reloadly</button>
         </div>
         {importMsg && <p className="text-[11px] text-white/50 mt-2 tabular-nums">{importMsg}</p>}

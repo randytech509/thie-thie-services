@@ -220,10 +220,9 @@ export async function reloadlyImportCatalog(input: { page?: number; size?: numbe
   return (await httpsCallable<typeof input, any>(functionsClient, 'reloadlyImportCatalog')(input)).data;
 }
 
-/** Admin : recalcule le prix de tous les produits ayant un coût (après changement FX/marge). */
-export async function repriceAll(): Promise<{ ok: boolean; repriced: number; skipped: number }> {
-  return (await httpsCallable<Record<string, never>, any>(functionsClient, 'repriceAll')({})).data;
-}
+// `repriceAll` retiré : depuis la restructuration du catalogue, les cartes Reloadly n'ont plus
+// de `pricing.faceUsdCents` (dénominations multiples / montant libre) et étaient toutes ignorées.
+// La re-tarification correcte = relancer « Importer Reloadly » (recalcule avec la config courante).
 
 /** Admin : modifie stock / disponibilité / prix direct d'un produit (back-office). */
 export async function setProductInventory(input: { productId: string; stock?: number; available?: boolean; priceCents?: number }): Promise<{ ok: boolean }> {
