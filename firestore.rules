@@ -279,6 +279,11 @@ service cloud.firestore {
                        isValidId(requestId) &&
                        incoming().uid == request.auth.uid &&
                        incoming().status == 'Pending Verification' &&
+                       // Montant borné (défense serveur) : nombre fini 10..1 000 000 HTG.
+                       // Empêche un montant aberrant / injection de milliers de chiffres via la case dépôt.
+                       incoming().amount is number &&
+                       incoming().amount >= 10 &&
+                       incoming().amount <= 1000000 &&
                        incoming().keys().hasAll(['requestId', 'uid', 'amount', 'paymentMethod', 'transactionReference', 'screenshotURL', 'status', 'createdAt']);
 
       allow update, delete: if false;

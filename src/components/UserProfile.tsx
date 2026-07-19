@@ -604,7 +604,11 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const handleSubmitDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsedAmount = parseFloat(depositAmount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0) return;
+    // Bornes : évite un montant aberrant / injection de milliers de chiffres (10 HTG à 1 000 000 HTG).
+    if (isNaN(parsedAmount) || !Number.isFinite(parsedAmount) || parsedAmount < 10 || parsedAmount > 1000000) {
+      alert(lang === 'FR' ? 'Montant invalide (entre 10 et 1 000 000 HTG).' : 'Montan pa valab (ant 10 ak 1 000 000 HTG).');
+      return;
+    }
 
     setSubmittingDeposit(true);
     try {
@@ -757,7 +761,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   // --- Recharge crypto (OxaPay) — réservée à kycStatus === 'approved' (revérifié SERVEUR) ---
   const handleCreateCryptoInvoice = async () => {
     const amount = parseFloat(cryptoAmountUsd);
-    if (isNaN(amount) || amount <= 0) return;
+    if (isNaN(amount) || !Number.isFinite(amount) || amount < 5 || amount > 1000) {
+      setCryptoError(lang === 'FR' ? 'Montant invalide (entre 5 et 1000 USD).' : 'Montan pa valab (ant 5 ak 1000 USD).');
+      return;
+    }
     setCreatingCryptoInvoice(true);
     setCryptoError(null);
     try {
@@ -2463,10 +2470,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     <input
                       type="number"
                       value={depositAmount}
-                      onChange={(e) => setDepositAmount(e.target.value)}
+                      onChange={(e) => { const v = e.target.value; if (v === '' || /^\d{0,7}(\.\d{0,2})?$/.test(v)) setDepositAmount(v); }}
                       placeholder="Montant personnalisé"
                       required
                       min="10"
+                      max="1000000"
+                      inputMode="numeric"
                       className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none transition-all pr-12 font-bold"
                     />
                     <span className="text-white/40 absolute right-4 top-3.5 text-xs font-black">HTG</span>
@@ -2624,10 +2633,11 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                             <input
                               type="number"
                               value={cryptoAmountUsd}
-                              onChange={(e) => setCryptoAmountUsd(e.target.value)}
+                              onChange={(e) => { const v = e.target.value; if (v === '' || /^\d{0,4}(\.\d{0,2})?$/.test(v)) setCryptoAmountUsd(v); }}
                               placeholder="Montant personnalisé"
                               min="5"
                               max="1000"
+                              inputMode="numeric"
                               className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none transition-all pr-12 font-bold"
                             />
                             <span className="text-white/40 absolute right-4 top-3.5 text-xs font-black">USD</span>

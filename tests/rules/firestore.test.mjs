@@ -129,10 +129,16 @@ describe('config/depositAccounts — lecture publique, écriture serveur-only', 
     await assertFails(setDoc(doc(db, 'config', 'depositAccounts'), { moncashName: 'hack' }));
   });
 
-  test('REFUS: lecture de config/fx (autre doc de la même collection, hors scope de la rule)', async () => {
+  test('OK: lecture publique de config/fx (le taux de change EST une info publique affichée sur le site)', async () => {
     await seed('config/fx', { htgCentsPerUsd: 14500 });
     const db = authedDb(USER);
-    await assertFails(getDoc(doc(db, 'config', 'fx')));
+    await assertSucceeds(getDoc(doc(db, 'config', 'fx')));
+  });
+
+  test('REFUS: écriture de config/fx (serveur-only via callable setFxRate)', async () => {
+    await seed('config/fx', { htgCentsPerUsd: 14500 });
+    const db = authedDb(USER);
+    await assertFails(setDoc(doc(db, 'config', 'fx'), { htgCentsPerUsd: 1 }));
   });
 });
 
@@ -304,6 +310,26 @@ describe('wallet_requests — transitions serveur-only', () => {
       setDoc(doc(db, 'wallet_requests', 'REQ2'), {
         requestId: 'REQ2', uid: USER.uid, amount: 500, paymentMethod: 'MonCash',
         transactionReference: 'ref', screenshotURL: 'url', status: 'Completed', createdAt: 'x',
+      })
+    );
+  });
+
+  test('REFUS: montant aberrant (injection de milliers de chiffres > 1 000 000)', async () => {
+    const db = authedDb(USER);
+    await assertFails(
+      setDoc(doc(db, 'wallet_requests', 'REQBIG'), {
+        requestId: 'REQBIG', uid: USER.uid, amount: 99999999999, paymentMethod: 'MonCash',
+        transactionReference: 'ref', screenshotURL: 'url', status: 'Pending Verification', createdAt: 'x',
+      })
+    );
+  });
+
+  test('REFUS: montant sous le minimum (< 10 HTG)', async () => {
+    const db = authedDb(USER);
+    await assertFails(
+      setDoc(doc(db, 'wallet_requests', 'REQMIN'), {
+        requestId: 'REQMIN', uid: USER.uid, amount: 1, paymentMethod: 'MonCash',
+        transactionReference: 'ref', screenshotURL: 'url', status: 'Pending Verification', createdAt: 'x',
       })
     );
   });
