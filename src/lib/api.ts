@@ -30,6 +30,8 @@ export interface PlaceOrderInput {
   playerId?: string;
   region?: string;
   optionLabel?: string;
+  /** Cartes à MONTANT LIBRE : le client envoie le montant choisi (USD) ; le serveur recalcule le prix. */
+  amountUsd?: number;
 }
 export interface PlaceOrderResult {
   ok: boolean;

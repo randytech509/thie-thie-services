@@ -180,24 +180,46 @@ export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }
     const discountBps = Math.round((p.discountPercentage ?? 0) * 100);
     const fixedFeeUsdCents = Math.round((p.senderFee ?? 0) * 100);
     const feeBps = Math.round((p.senderFeePercentage ?? 0) * 100);
-    const denoms: number[] =
-      p.denominationType === 'FIXED' && Array.isArray(p.fixedRecipientDenominations)
+    // Entrées à écrire : une carte à MONTANT LIBRE si RANGE ; sinon une carte par dénomination FIXE.
+    type Entry = { docId: string; faceUsdCents: number; optionLabel: string; pricing: Record<string, unknown> };
+    const baseFees = { discountBps, fixedFeeUsdCents, feeBps, reloadlyProductId: p.productId, reloadlyCountryCode: country };
+    const entries: Entry[] = [];
+    if (p.denominationType === 'RANGE') {
+      const minC = Math.round(Number(p.minRecipientDenomination) * 100);
+      const maxC = Math.round(Number(p.maxRecipientDenomination) * 100);
+      if (Number.isInteger(minC) && minC > 0 && Number.isInteger(maxC) && maxC >= minC) {
+        entries.push({
+          docId: `rl_${p.productId}_range`,
+          faceUsdCents: minC, // le prix AFFICHÉ est celui du minimum ; le client choisit ensuite son montant
+          optionLabel: `Montant libre $${(minC / 100).toFixed(0)}–$${(maxC / 100).toFixed(0)}`,
+          pricing: { source: 'reloadly', type: 'range', minUsdCents: minC, maxUsdCents: maxC, ...baseFees },
+        });
+      }
+    } else {
+      const denoms = Array.isArray(p.fixedRecipientDenominations)
         ? p.fixedRecipientDenominations
         : rangeDenoms(p.minRecipientDenomination, p.maxRecipientDenomination);
+      for (const face of denoms) {
+        const faceUsdCents = Math.round(Number(face) * 100);
+        if (!Number.isInteger(faceUsdCents) || faceUsdCents <= 0) continue;
+        entries.push({
+          docId: `rl_${p.productId}_${faceUsdCents}`,
+          faceUsdCents,
+          optionLabel: `$${(faceUsdCents / 100).toFixed(2)}`,
+          pricing: { source: 'reloadly', faceUsdCents, ...baseFees },
+        });
+      }
+    }
 
-    for (const face of denoms) {
-      const faceUsdCents = Math.round(Number(face) * 100);
-      if (!Number.isInteger(faceUsdCents) || faceUsdCents <= 0) continue;
-      const cost: ProviderCostInput = { faceUsdCents, discountBps, fixedFeeUsdCents, feeBps };
-      const b = computePrice(cost, cfg);
-      const docId = `rl_${p.productId}_${faceUsdCents}`;
+    for (const e of entries) {
+      const b = computePrice({ faceUsdCents: e.faceUsdCents, discountBps, fixedFeeUsdCents, feeBps }, cfg);
       batch.set(
-        db.doc(`products/${docId}`),
+        db.doc(`products/${e.docId}`),
         {
-          productId: docId,
+          productId: e.docId,
           name: p.productName,
           category: 'gift-cards',
-          optionLabel: `$${(faceUsdCents / 100).toFixed(2)}`,
+          optionLabel: e.optionLabel,
           currency: 'HTG',
           priceCents: b.retailHtgCents,
           costHtgCents: b.costHtgCents,
@@ -208,10 +230,10 @@ export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }
           regions: country ? [country] : ['Global'],
           requiresPlayerId: false,
           deliveryTime: '1-5 Min',
-          pricing: { source: 'reloadly', faceUsdCents, discountBps, fixedFeeUsdCents, feeBps, reloadlyProductId: p.productId, reloadlyCountryCode: country },
+          pricing: e.pricing,
           reloadlyProductId: p.productId,
           reloadlyCountryCode: country,
-          reloadlyUnitPrice: Number(face),
+          reloadlyUnitPrice: e.faceUsdCents / 100,
           pricedAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },

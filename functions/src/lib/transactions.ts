@@ -2,6 +2,24 @@ import { Firestore, FieldValue } from 'firebase-admin/firestore';
 import { addCents, subCents, assertCents, usdCentsToHtgCents, Cents } from './money';
 import { auditInTx } from './audit';
 import { REWARD_BY_ID, pointsForOrder } from '../data/rewards.data';
+import { computePrice, PricingConfig, MarginMode } from './pricing';
+
+// Défauts de tarification (dupliqués depuis pricing-admin pour éviter un import circulaire
+// guards→transactions ; garder en phase). Utilisés pour les produits à MONTANT LIBRE (range).
+const DEFAULT_PRICING: PricingConfig = {
+  acquisitionHtgCentsPerUsd: 14200, cryptoDepositBps: 100, marginBps: 1500, marginMode: 'margin', roundToHtgCents: 500,
+};
+function pricingCfgFrom(snap: FirebaseFirestore.DocumentSnapshot): PricingConfig {
+  const d = (snap.exists ? snap.data() : {}) ?? {};
+  const intOr = (v: unknown, f: number) => (typeof v === 'number' && Number.isInteger(v) && v >= 0 ? v : f);
+  return {
+    acquisitionHtgCentsPerUsd: intOr(d.acquisitionHtgCentsPerUsd, DEFAULT_PRICING.acquisitionHtgCentsPerUsd),
+    cryptoDepositBps: intOr(d.cryptoDepositBps, DEFAULT_PRICING.cryptoDepositBps),
+    marginBps: intOr(d.marginBps, DEFAULT_PRICING.marginBps),
+    marginMode: (d.marginMode === 'markup' ? 'markup' : 'margin') as MarginMode,
+    roundToHtgCents: intOr(d.roundToHtgCents, DEFAULT_PRICING.roundToHtgCents),
+  };
+}
 
 /**
  * Cœur financier — SEUL chemin d'écriture des soldes (invariant 3).
@@ -97,6 +115,9 @@ export interface PlaceOrderParams {
   playerId?: string;         // ID de joueur pour les recharges de jeux (Free Fire, etc.)
   region?: string;           // région choisie (affichage/livraison)
   optionLabel?: string;      // libellé de l'option choisie (ex: "100 +10 Diamonds")
+  // MONTANT LIBRE (cartes à plage) : le client envoie le MONTANT choisi en centimes USD,
+  // JAMAIS le prix. Le serveur recalcule le prix HTG (invariant 3 : prix résolu serveur).
+  amountUsdCents?: number;
 }
 
 export interface PlaceOrderResult {
@@ -121,6 +142,42 @@ function unitPriceCents(productData: FirebaseFirestore.DocumentData, htgCentsPer
   return priceCents;
 }
 
+/**
+ * Prix unitaire HTG pour un produit à MONTANT LIBRE (`pricing.type === 'range'`), calculé
+ * SERVEUR à partir du montant choisi par le client (invariant 3 : le client fournit le MONTANT,
+ * jamais le prix). Renvoie null si le produit n'est pas à plage (→ tarification fixe normale).
+ */
+function rangeUnitPriceCents(
+  product: FirebaseFirestore.DocumentData,
+  amountUsdCents: number | undefined,
+  pricingSnap: FirebaseFirestore.DocumentSnapshot,
+): Cents | null {
+  const pricing = product.pricing as Record<string, unknown> | undefined;
+  if (!pricing || pricing.type !== 'range') return null;
+  const min = pricing.minUsdCents as number;
+  const max = pricing.maxUsdCents as number;
+  if (typeof amountUsdCents !== 'number' || !Number.isInteger(amountUsdCents)) {
+    throw new DomainError('invalid-amount', 'montant requis pour une carte à montant libre');
+  }
+  // Montant contraint aux DOLLARS ENTIERS (pas de $25,10) — la valeur doit être un multiple de 100 cents.
+  if (amountUsdCents % 100 !== 0) {
+    throw new DomainError('invalid-amount', 'montant en dollars entiers uniquement');
+  }
+  if (amountUsdCents < min || amountUsdCents > max) {
+    throw new DomainError('invalid-amount', `montant hors plage (${min / 100}–${max / 100} USD)`);
+  }
+  const b = computePrice(
+    {
+      faceUsdCents: amountUsdCents,
+      discountBps: (pricing.discountBps as number) ?? 0,
+      fixedFeeUsdCents: (pricing.fixedFeeUsdCents as number) ?? 0,
+      feeBps: (pricing.feeBps as number) ?? 0,
+    },
+    pricingCfgFrom(pricingSnap),
+  );
+  return b.retailHtgCents;
+}
+
 export async function placeOrder(db: Firestore, p: PlaceOrderParams): Promise<PlaceOrderResult> {
   if (!p.uid) throw new DomainError('invalid-arg', 'uid manquant');
   if (!p.productId) throw new DomainError('invalid-arg', 'productId manquant');
@@ -133,6 +190,7 @@ export async function placeOrder(db: Firestore, p: PlaceOrderParams): Promise<Pl
   const orderRef = db.doc(`orders/${p.idempotencyKey}`);
   const ledgerRef = db.doc(`wallet_transactions/${p.idempotencyKey}-debit`);
   const fxRef = db.doc('config/fx');
+  const pricingRef = db.doc('config/pricing');
 
   return db.runTransaction(async (t) => {
     // — Lectures (toutes avant écritures) —
@@ -154,8 +212,8 @@ export async function placeOrder(db: Firestore, p: PlaceOrderParams): Promise<Pl
         deduped: true,
       };
     }
-    const [userSnap, productSnap, fxSnap] = await Promise.all([
-      t.get(userRef), t.get(productRef), t.get(fxRef),
+    const [userSnap, productSnap, fxSnap, pricingSnap] = await Promise.all([
+      t.get(userRef), t.get(productRef), t.get(fxRef), t.get(pricingRef),
     ]);
     if (!userSnap.exists) throw new DomainError('user-not-found', 'utilisateur introuvable');
     if (!productSnap.exists) throw new DomainError('product-not-found', 'produit introuvable');
@@ -166,7 +224,8 @@ export async function placeOrder(db: Firestore, p: PlaceOrderParams): Promise<Pl
     if (!Number.isInteger(stock) || stock < qty) throw new DomainError('out-of-stock', 'stock insuffisant');
 
     const htgCentsPerUsd = fxSnap.exists ? (fxSnap.get('htgCentsPerUsd') as number) : null;
-    const totalCents = unitPriceCents(product, htgCentsPerUsd) * qty;
+    const unit = rangeUnitPriceCents(product, p.amountUsdCents, pricingSnap) ?? unitPriceCents(product, htgCentsPerUsd);
+    const totalCents = unit * qty;
     assertCents(totalCents, 'totalCents');
 
     const before: Cents = (userSnap.get('walletBalanceCents') as number) ?? 0;

@@ -16,6 +16,16 @@ export const placeOrderCallable = onCall(callOpts, async (req) => {
   if (!productId) throw new HttpsError('invalid-argument', 'productId requis');
   if (!idempotencyKey) throw new HttpsError('invalid-argument', 'idempotencyKey requis');
 
+  // Montant libre (cartes à plage) : le client fournit le MONTANT en USD (jamais le prix).
+  // Converti en centimes entiers ; le serveur recalcule le prix (placeOrder / rangeUnitPriceCents).
+  const amountUsdRaw = req.data?.amountUsd;
+  const amountUsdCents = amountUsdRaw !== undefined && amountUsdRaw !== null && amountUsdRaw !== ''
+    ? Math.round(Number(amountUsdRaw) * 100)
+    : undefined;
+  if (amountUsdCents !== undefined && (!Number.isInteger(amountUsdCents) || amountUsdCents <= 0 || amountUsdCents > 100000000)) {
+    throw new HttpsError('invalid-argument', 'montant USD invalide');
+  }
+
   // Métadonnées de livraison optionnelles (bornées ; sans effet sur le prix)
   const trimOpt = (v: unknown, max = 120) => {
     const s = String(v ?? '').trim();
@@ -31,6 +41,7 @@ export const placeOrderCallable = onCall(callOpts, async (req) => {
       playerId: trimOpt(req.data?.playerId, 64),
       region: trimOpt(req.data?.region, 40),
       optionLabel: trimOpt(req.data?.optionLabel, 120),
+      amountUsdCents,
     });
     return { ok: true, ...result };
   } catch (e) {

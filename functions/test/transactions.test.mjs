@@ -176,6 +176,57 @@ describe('placeOrder — débit transactionnel, stock atomique, solde ≥ 0', ()
     assert.equal(o.get('optionLabel'), '100 +10 Diamonds');
     assert.equal(o.get('paymentMethod'), 'wallet');
   });
+
+  // MONTANT LIBRE (cartes à plage) : le prix est recalculé SERVEUR depuis le montant client.
+  async function seedRange(over = {}) {
+    await db.doc('products/rng1').set({
+      name: 'Visa', priceCents: 900, stock: 5, available: true, currency: 'HTG',
+      pricing: { type: 'range', minUsdCents: 100, maxUsdCents: 15000, discountBps: 0, fixedFeeUsdCents: 0, feeBps: 0 },
+      ...over,
+    });
+  }
+
+  test('montant libre : prix recalculé serveur ($25 → 4220 HTG, marge 15%, défauts de config)', async () => {
+    await seedUser(1000000);
+    await seedRange();
+    const r = await placeOrder(db, { uid: UID, productId: 'rng1', idempotencyKey: 'RNG1', amountUsdCents: 2500 });
+    // $25 → wholesale 2500 → ×1.01 → ×142 → ÷0.85 → arrondi 5 HTG = 422000 centimes.
+    assert.equal(r.totalCents, 422000);
+    assert.equal(r.balanceAfterCents, 578000);
+  });
+
+  test('montant libre : montant absent → refus (invalid-amount), aucun débit', async () => {
+    await seedUser(1000000);
+    await seedRange();
+    await assert.rejects(
+      () => placeOrder(db, { uid: UID, productId: 'rng1', idempotencyKey: 'RNG2' }),
+      (e) => e instanceof DomainError && e.code === 'invalid-amount',
+    );
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 1000000);
+  });
+
+  test('montant libre : montant non entier ($25,10 = 2510c) → refus (dollars entiers)', async () => {
+    await seedUser(1000000);
+    await seedRange();
+    await assert.rejects(
+      () => placeOrder(db, { uid: UID, productId: 'rng1', idempotencyKey: 'RNG4', amountUsdCents: 2510 }),
+      (e) => e instanceof DomainError && e.code === 'invalid-amount',
+    );
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 1000000);
+  });
+
+  test('montant libre : montant hors plage (> max) → refus, aucun débit', async () => {
+    await seedUser(1000000);
+    await seedRange();
+    await assert.rejects(
+      () => placeOrder(db, { uid: UID, productId: 'rng1', idempotencyKey: 'RNG3', amountUsdCents: 20000 }),
+      (e) => e instanceof DomainError && e.code === 'invalid-amount',
+    );
+    const p = await db.doc('products/rng1').get();
+    assert.equal(p.get('stock'), 5);
+  });
 });
 
 describe('seedCatalog — produits Firestore (source de vérité prix/stock)', () => {
