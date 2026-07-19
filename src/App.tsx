@@ -192,6 +192,32 @@ export interface CartLine {
   region?: string;
 }
 
+/**
+ * Facteur de l'unité de prix interne de la SPA. Les prix circulent ici en `priceCents / 14500`,
+ * c'est-à-dire en gourdes ÷ 145 — un héritage du catalogue codé en dur (`priceUSD: 175/145`).
+ * Ce n'est PAS le taux de change : le taux du jour vit dans `exchangeRate` et ne sert qu'à
+ * l'affichage en USD. Les deux valaient 145 à l'origine, d'où la confusion d'origine.
+ */
+const HTG_PER_PRICE_UNIT = 145;
+
+/** Étiquette USD d'un montant en centimes ($14.99 reste $14.99, $25 reste $25). */
+function fmtUsdCents(cents: number): string {
+  return cents % 100 === 0 ? `$${cents / 100}` : `$${(cents / 100).toFixed(2)}`;
+}
+
+/**
+ * Montant saisi sur une carte à MONTANT LIBRE → centimes USD, ou null si invalide.
+ * Les centimes sont acceptés (2 décimales max) : les cartes réelles valent $14.99 ou $9.25.
+ * Virgule décimale tolérée (clavier francophone).
+ */
+function parseRangeAmountCents(raw: string, r: { minUsdCents: number; maxUsdCents: number }): number | null {
+  const normalized = raw.replace(',', '.').trim();
+  if (!/^\d+(\.\d{1,2})?$/.test(normalized)) return null;
+  const cents = Math.round(parseFloat(normalized) * 100);
+  if (cents < r.minUsdCents || cents > r.maxUsdCents) return null;
+  return cents;
+}
+
 // Miroir CLIENT du moteur de tarification (functions/src/lib/pricing.ts) avec les défauts de config,
 // pour AFFICHER un prix estimé sur les cartes à MONTANT LIBRE. Le prix RÉEL est recalculé serveur
 // dans placeOrder (seule autorité). Garder en phase avec DEFAULT_PRICING backend (142/1%/15%/5 HTG).
@@ -1285,11 +1311,22 @@ export default function App() {
   // Standalone Currency Calculator State & Handlers
   const [calcMode, setCalcMode] = useState<'USD' | 'HTG'>('USD');
   const [calcUSD, setCalcUSD] = useState<string>('10');
-  const [calcHTG, setCalcHTG] = useState<string>('1450');
+  const [calcHTG, setCalcHTG] = useState<string>(() => String(10 * 145));
 
   useEffect(() => {
     setCalcMode(currency);
   }, [currency]);
+
+  // Le taux réel arrive en ASYNCHRONE (onSnapshot sur config/fx) et peut changer à tout
+  // moment depuis le back-office : sans ce recalcul, le convertisseur restait figé sur la
+  // valeur initiale (10 USD = 1450 HTG) alors que le bandeau annonçait déjà un autre taux.
+  // On recalcule depuis le montant USD ; volontairement pas de dépendance sur calcUSD/calcHTG
+  // (les saisies sont déjà converties par leurs propres handlers).
+  useEffect(() => {
+    const parsed = parseFloat(calcUSD);
+    if (!isNaN(parsed)) setCalcHTG(Math.round(parsed * exchangeRate).toString());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exchangeRate]);
 
   const handleUSDCalcChange = (val: string) => {
     // allow digits, single dot/comma
@@ -1932,14 +1969,14 @@ export default function App() {
     // Montant/dénomination envoyé au serveur (le client fournit le MONTANT, jamais le prix — invariant 3).
     let amountUsd: number | undefined;
     if (selectedProduct.fsRange) {
-      // Montant LIBRE : dollars entiers dans la plage.
-      const amt = parseInt(rangeAmountUsd, 10);
-      const minU = selectedProduct.fsRange.minUsdCents / 100, maxU = selectedProduct.fsRange.maxUsdCents / 100;
-      if (isNaN(amt) || !Number.isInteger(amt) || amt < minU || amt > maxU) {
-        alert(lang === 'FR' ? `Montant en dollars entiers, entre $${minU} et $${maxU}.` : `Montan an dola antye, ant $${minU} ak $${maxU}.`);
+      // Montant LIBRE dans la plage (centimes autorisés).
+      const cents = parseRangeAmountCents(rangeAmountUsd, selectedProduct.fsRange);
+      if (cents == null) {
+        const min = fmtUsdCents(selectedProduct.fsRange.minUsdCents), max = fmtUsdCents(selectedProduct.fsRange.maxUsdCents);
+        alert(lang === 'FR' ? `Montant entre ${min} et ${max}.` : `Montan ant ${min} ak ${max}.`);
         return;
       }
-      amountUsd = amt;
+      amountUsd = cents / 100;
     } else if (selectedProduct.fsDenoms) {
       // DÉNOMINATION FIXE choisie (Netflix $20/$25/…) : la face de l'option sélectionnée.
       amountUsd = (selectedProduct.fsDenoms[optIndex] ?? selectedProduct.fsDenoms[0]) / 100;
@@ -2011,19 +2048,20 @@ export default function App() {
     let unitCents: number;
     let label = opt.amount;
     if (p.fsRange) {
-      const amt = parseInt(rangeAmountUsd, 10);
-      const minU = p.fsRange.minUsdCents / 100, maxU = p.fsRange.maxUsdCents / 100;
-      if (isNaN(amt) || !Number.isInteger(amt) || amt < minU || amt > maxU) {
-        alert(lang === 'FR' ? `Montant en dollars entiers, entre $${minU} et $${maxU}.` : `Montan an dola antye, ant $${minU} ak $${maxU}.`);
+      const cents = parseRangeAmountCents(rangeAmountUsd, p.fsRange);
+      if (cents == null) {
+        const min = fmtUsdCents(p.fsRange.minUsdCents), max = fmtUsdCents(p.fsRange.maxUsdCents);
+        alert(lang === 'FR' ? `Montant entre ${min} et ${max}.` : `Montan ant ${min} ak ${max}.`);
         return;
       }
-      amountUsd = amt;
-      unitCents = estimateRetailHtgCents(amt * 100, p.fsRange);
-      label = `$${amt}`;
+      amountUsd = cents / 100;
+      unitCents = estimateRetailHtgCents(cents, p.fsRange);
+      label = fmtUsdCents(cents);
     } else {
       if (p.fsDenoms) {
-        amountUsd = (p.fsDenoms[optIndex] ?? p.fsDenoms[0]) / 100;
-        label = `$${amountUsd}`;
+        const denomCents = p.fsDenoms[optIndex] ?? p.fsDenoms[0];
+        amountUsd = denomCents / 100;
+        label = fmtUsdCents(denomCents);
       }
       unitCents = centsOf(p, optIndex);
     }
@@ -2454,14 +2492,20 @@ export default function App() {
     return DICTIONARY[lang]?.[key] || key;
   };
 
-  // Pricing helper
-  const formatPrice = (usd: number): string => {
+  /* Pricing helper
+   * ⚠️ L'unité de prix qui circule dans la SPA n'est PAS des dollars : c'est
+   * `priceCents / 14500`, soit le prix RÉEL en gourdes divisé par 145 (les `priceUSD`
+   * du catalogue codé en dur suivent la même convention). On revient donc d'abord au
+   * prix réel en HTG (× 145), et le taux du jour ne sert QU'À dériver l'affichage USD.
+   * Avant : on multipliait cette pseudo-devise par le taux courant → dès que le taux
+   * quittait 145, tous les prix affichés dérivaient (à 160 : +10 % vs le montant
+   * réellement débité par le serveur). */
+  const formatPrice = (priceUnit: number): string => {
+    const htg = priceUnit * HTG_PER_PRICE_UNIT;
     if (currency === 'USD') {
-      return `$${usd.toFixed(2)}`;
-    } else {
-      const htg = usd * exchangeRate;
-      return `${Math.round(htg).toLocaleString('en-US')} HTG`;
+      return `$${(htg / exchangeRate).toFixed(2)}`;
     }
+    return `${Math.round(htg).toLocaleString('en-US')} HTG`;
   };
 
   /* --- Catalogue Firestore (source de vérité prix/dispo/stock) --------------
@@ -2497,7 +2541,7 @@ export default function App() {
             const hasDenoms = pr.type === 'fixed' && denomPrices.length > 0;
             // Options : une par dénomination (fixe) → sélecteur de montant natif ; sinon une seule.
             const options = hasDenoms
-              ? denomPrices.map((dp) => ({ amount: `$${(dp.usdCents / 100).toFixed(0)}`, priceUSD: dp.priceCents / 14500 }))
+              ? denomPrices.map((dp) => ({ amount: fmtUsdCents(dp.usdCents), priceUSD: dp.priceCents / 14500 }))
               : [{ amount: String(v.optionLabel ?? ''), priceUSD: v.priceCents / 14500 }];
             cards.push({
               id: d.id,
@@ -5190,33 +5234,33 @@ export default function App() {
                             const range = selectedProduct.fsRange;
                             const isCard = !!selectedProduct.fsProductId;
                             const qty = isCard ? Math.max(1, Math.min(20, cardQty || 1)) : 1;
-                            const minU = range ? range.minUsdCents / 100 : 0;
-                            const maxU = range ? range.maxUsdCents / 100 : 0;
-                            const amt = range ? parseInt(rangeAmountUsd, 10) : NaN;
-                            const validAmount = range ? (!isNaN(amt) && Number.isInteger(amt) && amt >= minU && amt <= maxU) : true;
+                            const amountCents = range ? parseRangeAmountCents(rangeAmountUsd, range) : null;
+                            const validAmount = range ? amountCents != null : true;
                             const unitCents = range
-                              ? (validAmount ? estimateRetailHtgCents(Math.round(amt * 100), range) : 0)
+                              ? (amountCents != null ? estimateRetailHtgCents(amountCents, range) : 0)
                               : centsOf(selectedProduct, selectedAmountIndex);
                             const totalCents = unitCents * qty;
                             const totalUsd = totalCents / 14500;
                             const available = range ? true : availOf(selectedProduct, selectedAmountIndex);
-                            const enough = validAmount && walletBalanceCents >= totalCents;
+                            const enough = walletBalanceCents >= totalCents;
                             return (
                               <>
                                 {range && (
                                   <div className="mb-3">
                                     <label className="text-[11px] font-bold text-white/50 mb-1.5 block">
-                                      {lang === 'FR' ? `Montant de la carte ($${minU} – $${maxU})` : `Montan kat la ($${minU} – $${maxU})`}
+                                      {lang === 'FR'
+                                        ? `Montant de la carte (${fmtUsdCents(range.minUsdCents)} – ${fmtUsdCents(range.maxUsdCents)})`
+                                        : `Montan kat la (${fmtUsdCents(range.minUsdCents)} – ${fmtUsdCents(range.maxUsdCents)})`}
                                     </label>
                                     <input
                                       type="number"
-                                      inputMode="numeric"
+                                      inputMode="decimal"
                                       value={rangeAmountUsd}
-                                      onChange={(e) => { const v = e.target.value; if (v === '' || /^\d{0,6}$/.test(v)) setRangeAmountUsd(v); }}
-                                      min={minU}
-                                      max={maxU}
-                                      step={1}
-                                      placeholder={`ex. 25 (dollars entiers)`}
+                                      onChange={(e) => { const v = e.target.value; if (v === '' || /^\d{0,6}([.,]\d{0,2})?$/.test(v)) setRangeAmountUsd(v); }}
+                                      min={range.minUsdCents / 100}
+                                      max={range.maxUsdCents / 100}
+                                      step={0.01}
+                                      placeholder={`ex. 25 ou 14.99`}
                                       className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none font-bold tabular-nums"
                                     />
                                   </div>
@@ -5268,7 +5312,7 @@ export default function App() {
                                       ? 'Cet article est momentanément indisponible.'
                                       : 'Atik sa a pa disponib pou kounye a.'}
                                   </p>
-                                ) : !enough ? (
+                                ) : validAmount && !enough ? (
                                   <p className="text-[11px] text-red-400 font-bold text-center leading-snug">
                                     {lang === 'FR'
                                       ? 'Solde insuffisant — rechargez votre wallet via un dépôt.'

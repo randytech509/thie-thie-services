@@ -148,7 +148,8 @@ function unitPriceCents(productData: FirebaseFirestore.DocumentData, htgCentsPer
  * JAMAIS le prix). Deux formes :
  *   - `pricing.type === 'fixed'` : dénominations imposées (`denominations` en centimes USD) —
  *     le montant DOIT être l'une d'elles (ex. Netflix US : $20/$25/…/$100 dans une seule carte).
- *   - `pricing.type === 'range'` : montant LIBRE en dollars entiers dans [min, max] (ex. Visa).
+ *   - `pricing.type === 'range'` : montant LIBRE dans [min, max] (ex. Visa). Les centimes sont
+ *     autorisés : de vraies cartes valent $14.99 ou $0.99, et Reloadly les facture au centime.
  * Renvoie null pour un produit à prix fixe simple (→ `unitPriceCents` lit `priceCents`).
  */
 function dynamicUnitPriceCents(
@@ -163,9 +164,8 @@ function dynamicUnitPriceCents(
   if (typeof amountUsdCents !== 'number' || !Number.isInteger(amountUsdCents)) {
     throw new DomainError('invalid-amount', 'montant (dénomination) requis pour ce produit');
   }
-  // Montant contraint aux DOLLARS ENTIERS (pas de $25,10) — multiple de 100 centimes.
-  if (amountUsdCents % 100 !== 0) {
-    throw new DomainError('invalid-amount', 'montant en dollars entiers uniquement');
+  if (amountUsdCents <= 0) {
+    throw new DomainError('invalid-amount', 'montant doit être > 0');
   }
   if (type === 'range') {
     const min = pricing.minUsdCents as number;

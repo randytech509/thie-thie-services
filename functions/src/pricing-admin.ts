@@ -24,6 +24,15 @@ import {
  * Manuel   : `faceUsdCents` = coût d'achat réel saisi par l'admin (remise déjà incluse).
  */
 
+/**
+ * Étiquette USD d'un montant en centimes. Les dénominations réelles ne sont PAS toujours
+ * rondes ($14.99, $0.99, $9.25) : arrondir à l'entier affichait « $15 » pour une carte à
+ * $14.99 et « $0 » pour une carte à $0.20.
+ */
+export function fmtUsdCents(cents: number): string {
+  return cents % 100 === 0 ? `$${cents / 100}` : `$${(cents / 100).toFixed(2)}`;
+}
+
 /** Paramètres par défaut (config/pricing absent) — cf. décisions produit 2026-07-18. */
 const DEFAULT_PRICING: PricingConfig = {
   acquisitionHtgCentsPerUsd: 14200, // 142,00 HTG pour acquérir 1 USDT
@@ -258,7 +267,7 @@ export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }
       const maxC = Math.round(Number(p.maxRecipientDenomination) * 100);
       if (!(Number.isInteger(minC) && minC > 0 && Number.isInteger(maxC) && maxC >= minC)) continue;
       displayFaceCents = minC;
-      optionLabel = `Montant libre $${(minC / 100).toFixed(0)}–$${(maxC / 100).toFixed(0)}`;
+      optionLabel = `Montant libre ${fmtUsdCents(minC)}–${fmtUsdCents(maxC)}`;
       pricing = { source: 'reloadly', type: 'range', minUsdCents: minC, maxUsdCents: maxC, ...fees, reloadlyProductId: p.productId, reloadlyCountryCode: country };
     } else {
       const raw = Array.isArray(p.fixedRecipientDenominations)
@@ -271,8 +280,8 @@ export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }
       denomPrices = denomsCents.map((c) => ({ usdCents: c, priceCents: priceFor(c) }));
       displayFaceCents = denomsCents[0];
       optionLabel = denomsCents.length === 1
-        ? `$${(denomsCents[0] / 100).toFixed(0)}`
-        : `$${(denomsCents[0] / 100).toFixed(0)} – $${(denomsCents[denomsCents.length - 1] / 100).toFixed(0)}`;
+        ? fmtUsdCents(denomsCents[0])
+        : `${fmtUsdCents(denomsCents[0])} – ${fmtUsdCents(denomsCents[denomsCents.length - 1])}`;
       pricing = { source: 'reloadly', type: 'fixed', denominations: denomsCents, ...fees, reloadlyProductId: p.productId, reloadlyCountryCode: country };
     }
 

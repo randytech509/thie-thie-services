@@ -232,11 +232,22 @@ describe('placeOrder — débit transactionnel, stock atomique, solde ≥ 0', ()
     assert.equal(u.get('walletBalanceCents'), 1000000);
   });
 
-  test('montant libre : montant non entier ($25,10 = 2510c) → refus (dollars entiers)', async () => {
+  test('montant libre : montant avec centimes ($25,10 = 2510c) → ACCEPTÉ et débité', async () => {
+    // De vraies cartes valent $14.99 / $0.99 : refuser les centimes rendait 11 produits
+    // du catalogue invendables (échec au paiement APRÈS ajout au panier).
+    await seedUser(1000000);
+    await seedRange();
+    const res = await placeOrder(db, { uid: UID, productId: 'rng1', idempotencyKey: 'RNG4', amountUsdCents: 2510 });
+    assert.ok(res.totalCents > 0, 'un prix doit être calculé pour un montant en centimes');
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 1000000 - res.totalCents);
+  });
+
+  test('montant libre : montant nul ou négatif → refus', async () => {
     await seedUser(1000000);
     await seedRange();
     await assert.rejects(
-      () => placeOrder(db, { uid: UID, productId: 'rng1', idempotencyKey: 'RNG4', amountUsdCents: 2510 }),
+      () => placeOrder(db, { uid: UID, productId: 'rng1', idempotencyKey: 'RNG5', amountUsdCents: 0 }),
       (e) => e instanceof DomainError && e.code === 'invalid-amount',
     );
     const u = await db.doc(`users/${UID}`).get();
