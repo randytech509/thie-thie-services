@@ -132,6 +132,9 @@ export interface Product {
   descriptionFR: string;
   descriptionHT: string;
   stockStatus: 'instock' | 'outofstock';
+  /** Produits issus de Firestore (import Reloadly) : achat via ce doc id, prix exact en centimes. */
+  fsProductId?: string;
+  fsPriceCents?: number;
 }
 
 // 14 Premium Categories
@@ -149,7 +152,8 @@ const CATEGORIES = [
   { slug: 'valorant', name: 'Valorant Points', count: 4, icon: ShieldCheck, gradient: 'from-[#f43f5e] to-[#991b1b]' },
   { slug: 'mobile-legends', name: 'Mobile Legends', count: 4, icon: Gamepad2, gradient: 'from-[#06b6d4] to-[#4f46e5]' },
   { slug: 'efootball', name: 'eFootball', count: 6, icon: Gamepad2, gradient: 'from-[#0ea5e9] to-[#0369a1]' },
-  { slug: 'cod-mobile', name: 'COD Mobile', count: 6, icon: ShieldCheck, gradient: 'from-[#78716c] to-[#44403c]' }
+  { slug: 'cod-mobile', name: 'COD Mobile', count: 6, icon: ShieldCheck, gradient: 'from-[#78716c] to-[#44403c]' },
+  { slug: 'gift-cards', name: 'Cartes cadeaux', count: 0, icon: Gift, gradient: 'from-[#a855f7] to-[#ec4899]' }
 ];
 
 const isGameCategoryRequiringPlayerId = (categorySlug: string): boolean => {
@@ -1873,7 +1877,8 @@ export default function App() {
 
     const optIndex = selectedAmountIndex;
     const opt = selectedProduct.options[optIndex] || selectedProduct.options[0];
-    const variantId = `${selectedProduct.id}__${optIndex}`;
+    // Cartes cadeaux Firestore : achat via leur doc id réel ; sinon convention variante `id__index`.
+    const variantId = selectedProduct.fsProductId ?? `${selectedProduct.id}__${optIndex}`;
     const region = selectedProduct.regions[selectedRegionIndex] || 'Global';
 
     setWalletPaying(true);
@@ -2276,13 +2281,17 @@ export default function App() {
    * serveur → le prix affiché == le prix facturé. Fallback sur le codé-en-dur.
    * ------------------------------------------------------------------------ */
   const [fsCatalog, setFsCatalog] = useState<Record<string, { priceCents: number; available: boolean; stock: number }>>({});
+  // Cartes cadeaux importées de Reloadly (catégorie 'gift-cards') : docs Firestore convertis en Product,
+  // achat via leur doc id réel (fsProductId), prix exact en centimes (fsPriceCents).
+  const [giftCardProducts, setGiftCardProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     getDocs(collection(db, 'products'))
       .then((snap) => {
         const map: Record<string, { priceCents: number; available: boolean; stock: number }> = {};
+        const cards: Product[] = [];
         snap.forEach((d) => {
-          const v = d.data() as { priceCents?: number; available?: boolean; stock?: number };
+          const v = d.data() as any;
           if (typeof v.priceCents === 'number') {
             map[d.id] = {
               priceCents: v.priceCents,
@@ -2290,8 +2299,28 @@ export default function App() {
               stock: typeof v.stock === 'number' ? v.stock : 999,
             };
           }
+          // Produits Firestore autonomes (import Reloadly) → catégorie Cartes cadeaux.
+          if (v.category === 'gift-cards' && v.available !== false && (v.stock ?? 0) > 0 && typeof v.priceCents === 'number') {
+            cards.push({
+              id: d.id,
+              name: String(v.name ?? 'Carte cadeau'),
+              categorySlug: 'gift-cards',
+              image: String(v.image ?? ''),
+              rating: 5,
+              deliveryTime: String(v.deliveryTime ?? '1-5 Min'),
+              regions: Array.isArray(v.regions) && v.regions.length ? v.regions : ['Global'],
+              options: [{ amount: String(v.optionLabel ?? ''), priceUSD: v.priceCents / 14500 }],
+              descriptionFR: `Carte cadeau ${v.name ?? ''} — livraison par e-mail.`,
+              descriptionHT: `Kat kado ${v.name ?? ''} — livrezon pa imel.`,
+              stockStatus: 'instock',
+              fsProductId: d.id,
+              fsPriceCents: v.priceCents,
+            });
+          }
         });
+        cards.sort((a, b) => (a.fsPriceCents ?? 0) - (b.fsPriceCents ?? 0));
         setFsCatalog(map);
+        setGiftCardProducts(cards);
       })
       .catch(() => { /* échec de lecture → on conserve le catalogue codé en dur */ });
   }, []);
@@ -2299,16 +2328,19 @@ export default function App() {
   const _variant = (product: Product, optIndex: number) => fsCatalog[`${product.id}__${optIndex}`];
   // Prix effectif d'une option en USD (Firestore sinon codé-en-dur).
   const priceOf = (product: Product, optIndex: number): number => {
+    if (product.fsPriceCents != null) return product.fsPriceCents / 14500;
     const v = _variant(product, optIndex);
     return v ? v.priceCents / 14500 : (product.options[optIndex] ?? product.options[0]).priceUSD;
   };
   // Prix effectif en centimes HTG (exact, aligné sur placeOrder).
   const centsOf = (product: Product, optIndex: number): number => {
+    if (product.fsPriceCents != null) return product.fsPriceCents;
     const v = _variant(product, optIndex);
     return v ? v.priceCents : Math.round((product.options[optIndex] ?? product.options[0]).priceUSD * 14500);
   };
   // Disponibilité effective (Firestore) — true par défaut si absent.
   const availOf = (product: Product, optIndex: number): boolean => {
+    if (product.fsProductId) return true; // cartes Firestore déjà filtrées (available && stock>0)
     const v = _variant(product, optIndex);
     return v ? (v.available && v.stock > 0) : true;
   };
@@ -2322,11 +2354,16 @@ export default function App() {
 
   // Dynamic products list matching query or category
   const filteredProducts = useMemo(() => {
-    let result = PRODUCTS;
-    
-    // Category slug filter
-    if (currentPage === 'category' && selectedCategorySlug) {
-      result = result.filter((p) => p.categorySlug === selectedCategorySlug);
+    let result: Product[];
+
+    // Category slug filter — la catégorie Cartes cadeaux est alimentée par Firestore.
+    if (currentPage === 'category' && selectedCategorySlug === 'gift-cards') {
+      result = giftCardProducts;
+    } else {
+      result = PRODUCTS;
+      if (currentPage === 'category' && selectedCategorySlug) {
+        result = result.filter((p) => p.categorySlug === selectedCategorySlug);
+      }
     }
 
     // Search query filter
@@ -2371,8 +2408,13 @@ export default function App() {
       }
     }
 
+    // Masque les produits épuisés/indisponibles : un produit codé en dur marqué 'outofstock'
+    // (ou rendu indisponible via Firestore) est retiré de la vitrine — il est remplacé par
+    // l'équivalent Reloadly dans la catégorie Cartes cadeaux. Les cartes Firestore sont déjà filtrées.
+    result = result.filter((p) => (p.fsProductId ? true : (availOf(p, 0) && p.stockStatus !== 'outofstock')));
+
     return result;
-  }, [currentPage, selectedCategorySlug, searchQuery, filterRegion, filterSort, quickFilter]);
+  }, [currentPage, selectedCategorySlug, searchQuery, filterRegion, filterSort, quickFilter, giftCardProducts, fsCatalog]);
 
   // Suggested search queries
   const searchSuggestions = useMemo(() => {

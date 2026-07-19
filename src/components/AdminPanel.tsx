@@ -628,7 +628,7 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
         setImportMsg(`Page ${r.page}/${r.totalPages} — ${total} variantes importées…`);
         page = r.nextPage;
       }
-      flash(`Import Reloadly terminé : ${total} variantes (${pages} pages). Elles sont masquées (available:false) — à activer.`);
+      flash(`Import Reloadly terminé : ${total} variantes (${pages} pages), publiées (available:true) dans la catégorie Cartes cadeaux.`);
     } catch (e) { flash(`Import échoué : ${(e as Error).message}`); } finally { setImporting(false); }
   };
 
