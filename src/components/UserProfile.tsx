@@ -22,8 +22,9 @@ import { reviewDeposit, reviewKyc, createCryptoInvoice, fulfillOrder } from '../
 import { enablePushNotifications } from '../lib/push';
 import { SkeletonList } from './Skeleton';
 import { db, auth, storage } from '../firebase';
-import freeFireCategoryBanner from '../assets/images/free_fire_category_banner_1782736851764.jpg';
-import pubgOvergrownHelmet from '../assets/images/pubg_mobile_helmet_overgrown.jpg';
+import freeFireCategoryBanner from '../assets/images/free-fire-banner.webp';
+// `pubg_mobile_helmet_overgrown.jpg` supprimé (fichier irrécupérable, ne s'affichait jamais).
+const pubgOvergrownHelmet = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=600';
 import { 
   User, 
   Phone, 

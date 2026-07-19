@@ -105,10 +105,15 @@ import {
   getDownloadURL 
 } from 'firebase/storage';
 
-import freeFire3DHero from './assets/images/free_fire_3d_gamer_hero_1782735072162.jpg';
-import freeFireCategoryBanner from './assets/images/free_fire_category_banner_1782736851764.jpg';
-import pubgOvergrownHelmet from './assets/images/pubg_mobile_helmet_overgrown.jpg';
-import meruOgImage from './assets/images/meru_og_image.png';
+// Images optimisées en WebP (héros 752→97 KB, bannière 944→88 KB).
+import freeFire3DHero from './assets/images/hero-free-fire.webp';
+import freeFireCategoryBanner from './assets/images/free-fire-banner.webp';
+// ⚠️ `pubg_mobile_helmet_overgrown.jpg` et `meru_og_image.png` ont été SUPPRIMÉS : irrécupérables
+// (détruits par un passage en encodage texte — 212k et 71k octets remplacés par U+FFFD). Ils ne
+// s'affichaient jamais et pesaient 1,2 Mo. Remplacés par des URL valides en attendant de vrais
+// visuels de marque à déposer dans ce dossier.
+const pubgOvergrownHelmet = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=600';
+const meruOgImage = 'https://images.unsplash.com/photo-1580048915913-4f8f5cb481c4?auto=format&fit=crop&q=80&w=600';
 
 // ==========================================
 // DATA & TYPES
