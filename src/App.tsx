@@ -135,6 +135,9 @@ export interface Product {
   /** Produits issus de Firestore (import Reloadly) : achat via ce doc id, prix exact en centimes. */
   fsProductId?: string;
   fsPriceCents?: number;
+  /** Carte à DÉNOMINATIONS FIXES (Netflix $20/$25/…) : face en centimes USD + prix HTG par option. */
+  fsDenoms?: number[];
+  fsDenomPrices?: number[];
   /** Carte à MONTANT LIBRE : le client choisit un montant entre min et max (USD). */
   fsRange?: { minUsdCents: number; maxUsdCents: number; discountBps: number; fixedFeeUsdCents: number; feeBps: number };
 }
@@ -1895,9 +1898,10 @@ export default function App() {
     const variantId = selectedProduct.fsProductId ?? `${selectedProduct.id}__${optIndex}`;
     const region = selectedProduct.regions[selectedRegionIndex] || 'Global';
 
-    // Carte à MONTANT LIBRE : valide le montant côté client (le serveur revalide et recalcule le prix).
+    // Montant/dénomination envoyé au serveur (le client fournit le MONTANT, jamais le prix — invariant 3).
     let amountUsd: number | undefined;
     if (selectedProduct.fsRange) {
+      // Montant LIBRE : dollars entiers dans la plage.
       const amt = parseInt(rangeAmountUsd, 10);
       const minU = selectedProduct.fsRange.minUsdCents / 100, maxU = selectedProduct.fsRange.maxUsdCents / 100;
       if (isNaN(amt) || !Number.isInteger(amt) || amt < minU || amt > maxU) {
@@ -1905,19 +1909,24 @@ export default function App() {
         return;
       }
       amountUsd = amt;
+    } else if (selectedProduct.fsDenoms) {
+      // DÉNOMINATION FIXE choisie (Netflix $20/$25/…) : la face de l'option sélectionnée.
+      amountUsd = (selectedProduct.fsDenoms[optIndex] ?? selectedProduct.fsDenoms[0]) / 100;
     }
+    // Quantité de cartes (cartes cadeaux Firestore uniquement ; les autres produits restent à 1).
+    const qty = selectedProduct.fsProductId ? Math.max(1, Math.min(20, cardQty || 1)) : 1;
 
     setWalletPaying(true);
     try {
       const res = await placeOrder({
         productId: variantId,
-        quantity: 1,
+        quantity: qty,
         idempotencyKey: (typeof crypto !== 'undefined' && crypto.randomUUID)
           ? crypto.randomUUID()
           : `${variantId}-${Date.now()}`,
         playerId: isGameCategoryRequiringPlayerId(selectedProduct.categorySlug) ? freeFirePlayerId : undefined,
         region,
-        optionLabel: amountUsd ? `$${amountUsd}` : opt.amount,
+        optionLabel: amountUsd ? `$${amountUsd}${qty > 1 ? ` ×${qty}` : ''}` : opt.amount,
         amountUsd,
       });
 
@@ -1958,6 +1967,13 @@ export default function App() {
   const [selectedRegionIndex, setSelectedRegionIndex] = useState<number>(0);
   const [selectedAmountIndex, setSelectedAmountIndex] = useState<number>(2); // Default to middle-ish package
   const [rangeAmountUsd, setRangeAmountUsd] = useState<string>(''); // Carte à montant libre : montant saisi (USD)
+  const [cardQty, setCardQty] = useState<number>(1); // Cartes cadeaux : nombre de cartes à commander
+  // Réinitialise la sélection à l'ouverture d'un produit (quantité, montant libre, 1re dénomination pour les cartes).
+  useEffect(() => {
+    setCardQty(1);
+    setRangeAmountUsd('');
+    if (selectedProduct?.fsProductId) setSelectedAmountIndex(0);
+  }, [selectedProduct?.id]);
   // « Tout sur le site » : le wallet est le seul mode de paiement des commandes (rien en externe).
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'wallet'>('wallet'); // wallet = seul mode de paiement
 
@@ -2331,6 +2347,12 @@ export default function App() {
           if (v.category === 'gift-cards' && v.available !== false && (v.stock ?? 0) > 0 && typeof v.priceCents === 'number') {
             const pr = v.pricing || {};
             const isRange = pr.type === 'range' && typeof pr.minUsdCents === 'number' && typeof pr.maxUsdCents === 'number';
+            const denomPrices: { usdCents: number; priceCents: number }[] = Array.isArray(v.denomPrices) ? v.denomPrices : [];
+            const hasDenoms = pr.type === 'fixed' && denomPrices.length > 0;
+            // Options : une par dénomination (fixe) → sélecteur de montant natif ; sinon une seule.
+            const options = hasDenoms
+              ? denomPrices.map((dp) => ({ amount: `$${(dp.usdCents / 100).toFixed(0)}`, priceUSD: dp.priceCents / 14500 }))
+              : [{ amount: String(v.optionLabel ?? ''), priceUSD: v.priceCents / 14500 }];
             cards.push({
               id: d.id,
               name: String(v.name ?? 'Carte cadeau'),
@@ -2339,12 +2361,14 @@ export default function App() {
               rating: 5,
               deliveryTime: String(v.deliveryTime ?? '1-5 Min'),
               regions: Array.isArray(v.regions) && v.regions.length ? v.regions : ['Global'],
-              options: [{ amount: String(v.optionLabel ?? ''), priceUSD: v.priceCents / 14500 }],
+              options,
               descriptionFR: `Carte cadeau ${v.name ?? ''} — livraison par e-mail.`,
               descriptionHT: `Kat kado ${v.name ?? ''} — livrezon pa imel.`,
               stockStatus: 'instock',
               fsProductId: d.id,
               fsPriceCents: v.priceCents,
+              fsDenoms: hasDenoms ? denomPrices.map((dp) => dp.usdCents) : undefined,
+              fsDenomPrices: hasDenoms ? denomPrices.map((dp) => dp.priceCents) : undefined,
               fsRange: isRange ? {
                 minUsdCents: pr.minUsdCents, maxUsdCents: pr.maxUsdCents,
                 discountBps: pr.discountBps ?? 0, fixedFeeUsdCents: pr.fixedFeeUsdCents ?? 0, feeBps: pr.feeBps ?? 0,
@@ -2362,12 +2386,14 @@ export default function App() {
   const _variant = (product: Product, optIndex: number) => fsCatalog[`${product.id}__${optIndex}`];
   // Prix effectif d'une option en USD (Firestore sinon codé-en-dur).
   const priceOf = (product: Product, optIndex: number): number => {
+    if (product.fsDenomPrices) return (product.fsDenomPrices[optIndex] ?? product.fsDenomPrices[0]) / 14500;
     if (product.fsPriceCents != null) return product.fsPriceCents / 14500;
     const v = _variant(product, optIndex);
     return v ? v.priceCents / 14500 : (product.options[optIndex] ?? product.options[0]).priceUSD;
   };
   // Prix effectif en centimes HTG (exact, aligné sur placeOrder).
   const centsOf = (product: Product, optIndex: number): number => {
+    if (product.fsDenomPrices) return product.fsDenomPrices[optIndex] ?? product.fsDenomPrices[0];
     if (product.fsPriceCents != null) return product.fsPriceCents;
     const v = _variant(product, optIndex);
     return v ? v.priceCents : Math.round((product.options[optIndex] ?? product.options[0]).priceUSD * 14500);
@@ -5001,16 +5027,19 @@ export default function App() {
 
                           {(() => {
                             const range = selectedProduct.fsRange;
+                            const isCard = !!selectedProduct.fsProductId;
+                            const qty = isCard ? Math.max(1, Math.min(20, cardQty || 1)) : 1;
                             const minU = range ? range.minUsdCents / 100 : 0;
                             const maxU = range ? range.maxUsdCents / 100 : 0;
                             const amt = range ? parseInt(rangeAmountUsd, 10) : NaN;
                             const validAmount = range ? (!isNaN(amt) && Number.isInteger(amt) && amt >= minU && amt <= maxU) : true;
-                            const priceCents = range
+                            const unitCents = range
                               ? (validAmount ? estimateRetailHtgCents(Math.round(amt * 100), range) : 0)
                               : centsOf(selectedProduct, selectedAmountIndex);
-                            const displayUsd = range ? priceCents / 14500 : priceOf(selectedProduct, selectedAmountIndex);
+                            const totalCents = unitCents * qty;
+                            const totalUsd = totalCents / 14500;
                             const available = range ? true : availOf(selectedProduct, selectedAmountIndex);
-                            const enough = validAmount && walletBalanceCents >= priceCents;
+                            const enough = validAmount && walletBalanceCents >= totalCents;
                             return (
                               <>
                                 {range && (
@@ -5029,13 +5058,23 @@ export default function App() {
                                       placeholder={`ex. 25 (dollars entiers)`}
                                       className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none font-bold tabular-nums"
                                     />
-                                    {validAmount && (
-                                      <p className="text-[11px] text-white/50 mt-1.5 tabular-nums">
-                                        {lang === 'FR' ? 'Prix estimé : ' : 'Pri estime : '}
-                                        <span className="text-[#a855f7] font-black">{formatPrice(displayUsd)}</span>
-                                      </p>
-                                    )}
                                   </div>
+                                )}
+                                {isCard && (
+                                  <div className="mb-3 flex items-center justify-between gap-3">
+                                    <span className="text-[11px] font-bold text-white/50">{lang === 'FR' ? 'Nombre de cartes' : 'Kantite kat'}</span>
+                                    <div className="flex items-center gap-2">
+                                      <button type="button" onClick={() => setCardQty((q) => Math.max(1, (q || 1) - 1))} className="w-8 h-8 rounded-lg bg-white/[0.06] hover:bg-white/10 font-black text-white">−</button>
+                                      <span className="w-8 text-center font-black tabular-nums">{qty}</span>
+                                      <button type="button" onClick={() => setCardQty((q) => Math.min(20, (q || 1) + 1))} className="w-8 h-8 rounded-lg bg-white/[0.06] hover:bg-white/10 font-black text-white">+</button>
+                                    </div>
+                                  </div>
+                                )}
+                                {isCard && validAmount && unitCents > 0 && (
+                                  <p className="text-[11px] text-white/50 mb-2 tabular-nums flex items-center justify-between">
+                                    <span>{qty > 1 ? `${formatPrice(unitCents / 14500)} × ${qty}` : (lang === 'FR' ? 'Prix' : 'Pri')}</span>
+                                    <span className="text-[#a855f7] font-black">{formatPrice(totalUsd)}</span>
+                                  </p>
                                 )}
                                 <button
                                   type="button"
@@ -5050,8 +5089,8 @@ export default function App() {
                                     : (range && !validAmount)
                                     ? (lang === 'FR' ? 'Entrez un montant valide' : 'Antre yon montan valab')
                                     : (lang === 'FR'
-                                        ? `Payer ${formatPrice(displayUsd)} avec mon wallet`
-                                        : `Peye ${formatPrice(displayUsd)} ak wallet mwen`)}
+                                        ? `Payer ${formatPrice(totalUsd)} avec mon wallet`
+                                        : `Peye ${formatPrice(totalUsd)} ak wallet mwen`)}
                                 </button>
                                 {!available ? (
                                   <p className="text-[11px] text-red-400 font-bold text-center leading-snug">

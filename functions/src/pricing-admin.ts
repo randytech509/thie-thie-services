@@ -168,6 +168,28 @@ export const setProductInventory = onCall(callOpts, async (req) => {
   return { ok: true };
 });
 
+/** Supprime TOUS les produits importés de Reloadly (pricing.source==='reloadly'). Permet un
+ *  ré-import propre après un changement de modèle (évite les docs orphelins). Admin + step-up. */
+export const clearImportedProducts = onCall({ ...callOpts, timeoutSeconds: 300 }, async (req) => {
+  const admin = requireAdmin(req);
+  const db = getFirestore();
+  await requireStepUp(db, admin.uid);
+  const snap = await db.collection('products').get();
+  let batch = db.batch();
+  let ops = 0;
+  let deleted = 0;
+  for (const d of snap.docs) {
+    if ((d.data() as { pricing?: { source?: string } })?.pricing?.source === 'reloadly') {
+      batch.delete(d.ref);
+      deleted++;
+      if (++ops >= 450) { await batch.commit(); batch = db.batch(); ops = 0; }
+    }
+  }
+  if (ops > 0) await batch.commit();
+  await audit(db, { action: 'clearImportedProducts', actorUid: admin.uid, meta: { deleted } });
+  return { ok: true, deleted };
+});
+
 /** Supprime un produit du catalogue (back-office). Réservé admin + step-up. */
 export const deleteProduct = onCall(callOpts, async (req) => {
   const admin = requireAdmin(req);
@@ -220,71 +242,69 @@ export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }
     const discountBps = Math.round((p.discountPercentage ?? 0) * 100);
     const fixedFeeUsdCents = Math.round((p.senderFee ?? 0) * 100);
     const feeBps = Math.round((p.senderFeePercentage ?? 0) * 100);
-    // Entrées à écrire : une carte à MONTANT LIBRE si RANGE ; sinon une carte par dénomination FIXE.
-    type Entry = { docId: string; faceUsdCents: number; optionLabel: string; pricing: Record<string, unknown> };
-    const baseFees = { discountBps, fixedFeeUsdCents, feeBps, reloadlyProductId: p.productId, reloadlyCountryCode: country };
-    const entries: Entry[] = [];
+    const fees = { discountBps, fixedFeeUsdCents, feeBps };
+    const priceFor = (faceUsdCents: number) => computePrice({ faceUsdCents, ...fees }, cfg).retailHtgCents;
+
+    // UN SEUL doc par produit (`rl_{productId}`). FIXED → liste de dénominations (le client
+    // choisit laquelle + la quantité). RANGE → montant libre en dollars entiers dans [min,max].
+    const docId = `rl_${p.productId}`;
+    let pricing: Record<string, unknown>;
+    let optionLabel: string;
+    let displayFaceCents: number; // dénomination servant de prix « à partir de » affiché sur la carte
+    let denomPrices: { usdCents: number; priceCents: number }[] = [];
+
     if (p.denominationType === 'RANGE') {
       const minC = Math.round(Number(p.minRecipientDenomination) * 100);
       const maxC = Math.round(Number(p.maxRecipientDenomination) * 100);
-      if (Number.isInteger(minC) && minC > 0 && Number.isInteger(maxC) && maxC >= minC) {
-        entries.push({
-          docId: `rl_${p.productId}_range`,
-          faceUsdCents: minC, // le prix AFFICHÉ est celui du minimum ; le client choisit ensuite son montant
-          optionLabel: `Montant libre $${(minC / 100).toFixed(0)}–$${(maxC / 100).toFixed(0)}`,
-          pricing: { source: 'reloadly', type: 'range', minUsdCents: minC, maxUsdCents: maxC, ...baseFees },
-        });
-      }
+      if (!(Number.isInteger(minC) && minC > 0 && Number.isInteger(maxC) && maxC >= minC)) continue;
+      displayFaceCents = minC;
+      optionLabel = `Montant libre $${(minC / 100).toFixed(0)}–$${(maxC / 100).toFixed(0)}`;
+      pricing = { source: 'reloadly', type: 'range', minUsdCents: minC, maxUsdCents: maxC, ...fees, reloadlyProductId: p.productId, reloadlyCountryCode: country };
     } else {
-      const denoms = Array.isArray(p.fixedRecipientDenominations)
+      const raw = Array.isArray(p.fixedRecipientDenominations)
         ? p.fixedRecipientDenominations
         : rangeDenoms(p.minRecipientDenomination, p.maxRecipientDenomination);
-      for (const face of denoms) {
-        const faceUsdCents = Math.round(Number(face) * 100);
-        if (!Number.isInteger(faceUsdCents) || faceUsdCents <= 0) continue;
-        entries.push({
-          docId: `rl_${p.productId}_${faceUsdCents}`,
-          faceUsdCents,
-          optionLabel: `$${(faceUsdCents / 100).toFixed(2)}`,
-          pricing: { source: 'reloadly', faceUsdCents, ...baseFees },
-        });
-      }
+      const denomsCents = Array.from(new Set(raw.map((d: number) => Math.round(Number(d) * 100))))
+        .filter((c) => Number.isInteger(c) && (c as number) > 0)
+        .sort((a, b) => (a as number) - (b as number)) as number[];
+      if (denomsCents.length === 0) continue;
+      denomPrices = denomsCents.map((c) => ({ usdCents: c, priceCents: priceFor(c) }));
+      displayFaceCents = denomsCents[0];
+      optionLabel = denomsCents.length === 1
+        ? `$${(denomsCents[0] / 100).toFixed(0)}`
+        : `$${(denomsCents[0] / 100).toFixed(0)} – $${(denomsCents[denomsCents.length - 1] / 100).toFixed(0)}`;
+      pricing = { source: 'reloadly', type: 'fixed', denominations: denomsCents, ...fees, reloadlyProductId: p.productId, reloadlyCountryCode: country };
     }
 
-    for (const e of entries) {
-      const b = computePrice({ faceUsdCents: e.faceUsdCents, discountBps, fixedFeeUsdCents, feeBps }, cfg);
-      batch.set(
-        db.doc(`products/${e.docId}`),
-        {
-          productId: e.docId,
-          name: p.productName,
-          category: 'gift-cards',
-          optionLabel: e.optionLabel,
-          currency: 'HTG',
-          priceCents: b.retailHtgCents,
-          costHtgCents: b.costHtgCents,
-          marginHtgCents: b.marginHtgCents,
-          stock: 999,
-          available: true, // US/Global catalogué directement sur le site (retirable au cas par cas)
-          image: p.logoUrls?.[0] ?? '',
-          regions: country ? [country] : ['Global'],
-          requiresPlayerId: false,
-          deliveryTime: '1-5 Min',
-          pricing: e.pricing,
-          reloadlyProductId: p.productId,
-          reloadlyCountryCode: country,
-          reloadlyUnitPrice: e.faceUsdCents / 100,
-          pricedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        { merge: true },
-      );
-      imported++;
-      if (++ops >= 450) {
-        await batch.commit();
-        batch = db.batch();
-        ops = 0;
-      }
+    batch.set(
+      db.doc(`products/${docId}`),
+      {
+        productId: docId,
+        name: p.productName,
+        category: 'gift-cards',
+        optionLabel,
+        currency: 'HTG',
+        priceCents: priceFor(displayFaceCents), // prix « à partir de » (plus petite dénomination)
+        stock: 999,
+        available: true, // US/Global catalogué directement sur le site (retirable au cas par cas)
+        image: p.logoUrls?.[0] ?? '',
+        regions: country ? [country] : ['Global'],
+        requiresPlayerId: false,
+        deliveryTime: '1-5 Min',
+        pricing,
+        denomPrices, // [{usdCents, priceCents}] pour un affichage EXACT par dénomination (fixe)
+        reloadlyProductId: p.productId,
+        reloadlyCountryCode: country,
+        pricedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      { merge: true },
+    );
+    imported++;
+    if (++ops >= 450) {
+      await batch.commit();
+      batch = db.batch();
+      ops = 0;
     }
   }
   if (ops > 0) await batch.commit();

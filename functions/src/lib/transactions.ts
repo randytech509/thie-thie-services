@@ -143,28 +143,41 @@ function unitPriceCents(productData: FirebaseFirestore.DocumentData, htgCentsPer
 }
 
 /**
- * Prix unitaire HTG pour un produit à MONTANT LIBRE (`pricing.type === 'range'`), calculé
- * SERVEUR à partir du montant choisi par le client (invariant 3 : le client fournit le MONTANT,
- * jamais le prix). Renvoie null si le produit n'est pas à plage (→ tarification fixe normale).
+ * Prix unitaire HTG pour un produit à PRIX DYNAMIQUE, calculé SERVEUR à partir de la
+ * dénomination/montant choisi par le client (invariant 3 : le client fournit le MONTANT USD,
+ * JAMAIS le prix). Deux formes :
+ *   - `pricing.type === 'fixed'` : dénominations imposées (`denominations` en centimes USD) —
+ *     le montant DOIT être l'une d'elles (ex. Netflix US : $20/$25/…/$100 dans une seule carte).
+ *   - `pricing.type === 'range'` : montant LIBRE en dollars entiers dans [min, max] (ex. Visa).
+ * Renvoie null pour un produit à prix fixe simple (→ `unitPriceCents` lit `priceCents`).
  */
-function rangeUnitPriceCents(
+function dynamicUnitPriceCents(
   product: FirebaseFirestore.DocumentData,
   amountUsdCents: number | undefined,
   pricingSnap: FirebaseFirestore.DocumentSnapshot,
 ): Cents | null {
   const pricing = product.pricing as Record<string, unknown> | undefined;
-  if (!pricing || pricing.type !== 'range') return null;
-  const min = pricing.minUsdCents as number;
-  const max = pricing.maxUsdCents as number;
+  const type = pricing?.type;
+  if (!pricing || (type !== 'range' && type !== 'fixed')) return null;
+
   if (typeof amountUsdCents !== 'number' || !Number.isInteger(amountUsdCents)) {
-    throw new DomainError('invalid-amount', 'montant requis pour une carte à montant libre');
+    throw new DomainError('invalid-amount', 'montant (dénomination) requis pour ce produit');
   }
-  // Montant contraint aux DOLLARS ENTIERS (pas de $25,10) — la valeur doit être un multiple de 100 cents.
+  // Montant contraint aux DOLLARS ENTIERS (pas de $25,10) — multiple de 100 centimes.
   if (amountUsdCents % 100 !== 0) {
     throw new DomainError('invalid-amount', 'montant en dollars entiers uniquement');
   }
-  if (amountUsdCents < min || amountUsdCents > max) {
-    throw new DomainError('invalid-amount', `montant hors plage (${min / 100}–${max / 100} USD)`);
+  if (type === 'range') {
+    const min = pricing.minUsdCents as number;
+    const max = pricing.maxUsdCents as number;
+    if (amountUsdCents < min || amountUsdCents > max) {
+      throw new DomainError('invalid-amount', `montant hors plage (${min / 100}–${max / 100} USD)`);
+    }
+  } else {
+    const denoms = pricing.denominations as number[] | undefined;
+    if (!Array.isArray(denoms) || !denoms.includes(amountUsdCents)) {
+      throw new DomainError('invalid-amount', 'dénomination non disponible pour ce produit');
+    }
   }
   const b = computePrice(
     {
@@ -224,7 +237,7 @@ export async function placeOrder(db: Firestore, p: PlaceOrderParams): Promise<Pl
     if (!Number.isInteger(stock) || stock < qty) throw new DomainError('out-of-stock', 'stock insuffisant');
 
     const htgCentsPerUsd = fxSnap.exists ? (fxSnap.get('htgCentsPerUsd') as number) : null;
-    const unit = rangeUnitPriceCents(product, p.amountUsdCents, pricingSnap) ?? unitPriceCents(product, htgCentsPerUsd);
+    const unit = dynamicUnitPriceCents(product, p.amountUsdCents, pricingSnap) ?? unitPriceCents(product, htgCentsPerUsd);
     const totalCents = unit * qty;
     assertCents(totalCents, 'totalCents');
 

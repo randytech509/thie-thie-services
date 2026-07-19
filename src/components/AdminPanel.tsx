@@ -3,7 +3,7 @@ import type { User as FirebaseUser } from 'firebase/auth';
 import { collection, query, orderBy, onSnapshot, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
-import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, repriceAll, estimateFunding, setProductInventory, deleteProduct, type PricingConfig } from '../lib/api';
+import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, repriceAll, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts, type PricingConfig } from '../lib/api';
 import { getPasskeyStatus, enrollPasskey, verifyPasskey } from '../lib/passkey';
 import {
   LayoutDashboard, ShoppingBag, Wallet, ShieldCheck, Bell, Settings, KeyRound,
@@ -641,6 +641,14 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
     catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setRepricing(false); }
   };
 
+  const [clearing, setClearing] = useState(false);
+  const doClear = async () => {
+    if (!window.confirm('Supprimer TOUS les produits importés de Reloadly ? (pour un ré-import propre)')) return;
+    setClearing(true);
+    try { const r = await clearImportedProducts(); flash(`${r.deleted} produits Reloadly supprimés. Relance « Importer Reloadly ».`); await refresh(); }
+    catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setClearing(false); }
+  };
+
   const saveManual = async () => {
     if (!mProd.trim() || !mFace) { flash('ID produit et coût requis.'); return; }
     setMBusy(true);
@@ -729,6 +737,7 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
           <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Pays ISO (optionnel, ex. US)" className={`${inputCls} w-48`} />
           <button onClick={doImport} disabled={importing} className={btn}>{importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <DownloadCloud className="w-4 h-4" />}Importer Reloadly</button>
           <button onClick={doReprice} disabled={repricing} className="bg-white/[0.06] hover:bg-white/10 disabled:opacity-40 text-white font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">{repricing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}Recalculer les prix</button>
+          <button onClick={doClear} disabled={clearing} className="bg-red-500/15 hover:bg-red-500/25 disabled:opacity-40 text-red-300 font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">{clearing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}Vider Reloadly</button>
         </div>
         {importMsg && <p className="text-[11px] text-white/50 mt-2 tabular-nums">{importMsg}</p>}
       </div>

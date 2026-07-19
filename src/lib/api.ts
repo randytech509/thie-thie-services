@@ -211,6 +211,11 @@ export async function deleteProduct(input: { productId: string }): Promise<{ ok:
   return (await httpsCallable<typeof input, any>(functionsClient, 'deleteProduct')(input)).data;
 }
 
+/** Admin : supprime TOUS les produits importés de Reloadly (avant un ré-import propre). */
+export async function clearImportedProducts(): Promise<{ ok: boolean; deleted: number }> {
+  return (await httpsCallable<Record<string, never>, any>(functionsClient, 'clearImportedProducts')({})).data;
+}
+
 /** Admin : estime le float USDT à déposer + capital HTG + CA/marge potentiels. */
 export async function estimateFunding(input: { qtyPerProduct?: number; availableOnly?: boolean }): Promise<{ ok: boolean; qtyPerProduct: number; config: PricingConfig; perProvider: Record<string, any>; total: any; human: { usdtToDeposit: string; htgCapital: number; potentialRevenueHtg: number; projectedMarginHtg: number } }> {
   return (await httpsCallable<typeof input, any>(functionsClient, 'estimateFunding')(input)).data;

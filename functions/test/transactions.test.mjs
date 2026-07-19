@@ -206,6 +206,32 @@ describe('placeOrder — débit transactionnel, stock atomique, solde ≥ 0', ()
     assert.equal(u.get('walletBalanceCents'), 1000000);
   });
 
+  test('dénominations fixes (Netflix) : le client choisit $50 dans une carte multi-montants → prix serveur', async () => {
+    await seedUser(5000000);
+    await db.doc('products/nfx').set({
+      name: 'Netflix US', priceCents: 100, stock: 5, available: true, currency: 'HTG',
+      pricing: { type: 'fixed', denominations: [2000, 2500, 5000, 10000], discountBps: 0, fixedFeeUsdCents: 0, feeBps: 800 },
+    });
+    // $50 face + 8% fee = $54 → ×1.01 → ×142 → ÷0.85 → arrondi 5 HTG = 9115 HTG (911500 c) l'unité.
+    const r = await placeOrder(db, { uid: UID, productId: 'nfx', idempotencyKey: 'NFX1', amountUsdCents: 5000, quantity: 2 });
+    assert.equal(r.totalCents, 1823000); // 911500 × 2
+    assert.equal(r.balanceAfterCents, 3177000);
+  });
+
+  test('dénominations fixes : dénomination non listée ($30) → refus, aucun débit', async () => {
+    await seedUser(1000000);
+    await db.doc('products/nfx2').set({
+      name: 'Netflix US', priceCents: 100, stock: 5, available: true, currency: 'HTG',
+      pricing: { type: 'fixed', denominations: [2000, 2500, 5000], discountBps: 0, fixedFeeUsdCents: 0, feeBps: 0 },
+    });
+    await assert.rejects(
+      () => placeOrder(db, { uid: UID, productId: 'nfx2', idempotencyKey: 'NFX2', amountUsdCents: 3000 }),
+      (e) => e instanceof DomainError && e.code === 'invalid-amount',
+    );
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 1000000);
+  });
+
   test('montant libre : montant non entier ($25,10 = 2510c) → refus (dollars entiers)', async () => {
     await seedUser(1000000);
     await seedRange();
