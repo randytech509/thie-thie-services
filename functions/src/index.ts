@@ -5,12 +5,20 @@ initializeApp();
 
 // ⚠️ Région IMMUABLE une fois en prod (CLAUDE.md J1 : choisir par mesure de latence).
 // Défaut us-central1 ; surcharger via FUNCTIONS_REGION avant le 1er déploiement.
-setGlobalOptions({ region: process.env.FUNCTIONS_REGION ?? 'us-central1', maxInstances: 10 });
+//
+// ⚠️ QUOTA CPU CLOUD RUN : « Total CPU allocation per project per region » est plafonné à
+// 20 000 milli vCPU sur ce projet et N'EST PAS augmentable en self-service (refus console).
+// Une fois saturé, toute CRÉATION de nouvelle fonction échoue (healthcheck / timeout).
+// → maxInstances réduit à 3 (largement suffisant avant lancement) pour limiter la réservation.
+// → Déployer par PETITS LOTS (`--only functions:a,functions:b`), jamais tout d'un coup.
+setGlobalOptions({ region: process.env.FUNCTIONS_REGION ?? 'us-central1', maxInstances: 3 });
 
 export { reviewDeposit } from './deposits';
 export { placeOrderCallable, placeCartOrderCallable } from './orders';
 export { setAdminRole } from './admin';
-export { seedProducts } from './products';
+// `seedProducts` retiré du déploiement (2026-07-19) : semait le catalogue codé en dur, déjà
+// fait en prod, et jamais appelé par l'app (scripts émulateur uniquement). Libère du quota CPU.
+// Le code reste dans ./products si un re-seed devenait nécessaire.
 export { ingestSms, ingestOxapayCallback } from './webhooks';
 export { redeemReward } from './points';
 export { reviewKyc } from './kyc';
