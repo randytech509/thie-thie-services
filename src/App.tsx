@@ -1404,6 +1404,17 @@ export default function App() {
     }
   }, [orderToast]);
 
+  // Confirmation d'ajout au panier. L'ajout n'ouvre plus le panier par-dessus la boutique
+  // (il fallait alors trouver le petit X ou cliquer dans le vide pour continuer ses achats) :
+  // on confirme par ce bandeau, qui propose d'ouvrir le panier sans l'imposer.
+  const [cartToast, setCartToast] = useState<{ name: string } | null>(null);
+  useEffect(() => {
+    if (!cartToast) return;
+    const timer = setTimeout(() => setCartToast(null), 4000);
+    return () => clearTimeout(timer);
+  }, [cartToast]);
+
+
   // Real-time listener for user orders & status transition checking
   useEffect(() => {
     if (!user) {
@@ -2081,7 +2092,7 @@ export default function App() {
       return [...c, { key, productId, name: p.name, image: p.image, optionLabel: label, amountUsd, unitCents, qty, playerId, region }];
     });
     setSelectedProduct(null);
-    setCartOpen(true);
+    setCartToast({ name: p.name });
   };
 
   /** Checkout panier : UN SEUL débit, N commandes livrées indépendamment. */
@@ -2140,6 +2151,18 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem('tt_cart') || '[]'); } catch { return []; }
   });
   const [cartOpen, setCartOpen] = useState(false);
+
+  // Échap ferme la surcouche du dessus (panier avant fiche produit) : aucune des deux ne
+  // réagissait à la touche, il fallait viser le X ou cliquer dans le fond.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (cartOpen) setCartOpen(false);
+      else if (selectedProduct) setSelectedProduct(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [cartOpen, selectedProduct]);
   const [cartPaying, setCartPaying] = useState(false);
 
   useEffect(() => {
@@ -5521,20 +5544,6 @@ export default function App() {
       )}
 
       {/* ---------------- PANIER : bouton flottant + tiroir ---------------- */}
-      {cartCount > 0 && !cartOpen && (
-        <button
-          type="button"
-          onClick={() => setCartOpen(true)}
-          aria-label={lang === 'FR' ? `Ouvrir le panier (${cartCount})` : `Louvri panye a (${cartCount})`}
-          className="fixed bottom-28 right-6 z-40 w-14 h-14 rounded-full bg-[#a855f7] text-[#0c0714] shadow-lg shadow-[#a855f7]/30 flex items-center justify-center hover:brightness-110 active:scale-95 transition-all"
-        >
-          <ShoppingCart className="w-6 h-6" />
-          <span className="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 rounded-full bg-[#0c0714] text-white text-[11px] font-black flex items-center justify-center border-2 border-[#a855f7] tabular-nums">
-            {cartCount}
-          </span>
-        </button>
-      )}
-
       {cartOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4" onClick={() => setCartOpen(false)}>
           <div
@@ -5685,8 +5694,56 @@ export default function App() {
         </div>
       )}
 
-      {/* FLOAT ACTIONS (SCROLL TO TOP & WHATSAPP) */}
+      {/* CONFIRMATION D'AJOUT AU PANIER — laisse le client sur la boutique */}
+      {cartToast && (
+        <div
+          role="status"
+          className="fixed left-1/2 -translate-x-1/2 bottom-6 z-50 flex items-center gap-3 bg-[#150b28] border border-[#a855f7]/40 rounded-2xl shadow-2xl shadow-black/50 px-4 py-3 max-w-[92vw]"
+        >
+          <span className="w-8 h-8 rounded-full bg-[#a855f7]/15 border border-[#a855f7]/30 flex items-center justify-center shrink-0">
+            <Check className="w-4 h-4 text-[#a855f7]" />
+          </span>
+          <p className="text-[12px] font-bold text-white truncate">
+            {lang === 'FR' ? 'Ajouté au panier' : 'Mete nan panye a'}
+            <span className="text-white/40 font-medium"> · {cartToast.name}</span>
+          </p>
+          <button
+            type="button"
+            onClick={() => { setCartToast(null); setCartOpen(true); }}
+            className="shrink-0 text-[11px] font-black uppercase tracking-wider text-[#a855f7] hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-white/[0.06]"
+          >
+            {lang === 'FR' ? 'Voir le panier' : 'Wè panye a'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setCartToast(null)}
+            className="shrink-0 text-white/30 hover:text-white transition-colors p-1"
+            aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* FLOAT ACTIONS (PANIER, SCROLL TO TOP & WHATSAPP) */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3 items-end">
+        {/* Le panier vit DANS cette pile : en position fixe indépendante (bottom-28) il était
+            recouvert par le bouton « remonter en haut » — même z-index, rendu après, donc c'est
+            le scroll-top qui recevait le clic sur la zone commune. */}
+        {cartCount > 0 && !cartOpen && (
+          <button
+            type="button"
+            onClick={() => setCartOpen(true)}
+            aria-label={lang === 'FR' ? `Ouvrir le panier (${cartCount})` : `Louvri panye a (${cartCount})`}
+            className="relative w-14 h-14 rounded-full bg-[#a855f7] text-[#0c0714] shadow-lg shadow-[#a855f7]/30 flex items-center justify-center hover:brightness-110 active:scale-95 transition-all"
+          >
+            <ShoppingCart className="w-6 h-6" />
+            <span className="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 rounded-full bg-[#0c0714] text-white text-[11px] font-black flex items-center justify-center border-2 border-[#a855f7] tabular-nums">
+              {cartCount}
+            </span>
+          </button>
+        )}
+
         {showScrollTop && (
           <button
             id="scroll-to-top-button"
