@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import { motion } from 'motion/react';
 import {
   Gamepad2,
@@ -63,9 +63,19 @@ import {
 } from 'lucide-react';
 
 // Components
-import { UserProfile } from './components/UserProfile';
-import { AdminPanel } from './components/AdminPanel';
-import { PromoPage } from './components/PromoPage';
+// Écrans lourds chargés à la DEMANDE (code-splitting) : ils ne concernent qu'une fraction des
+// visiteurs (profil = connectés, back-office = admins, promo = lien dédié) et représentaient
+// l'essentiel du bundle initial. Le visiteur qui arrive sur la boutique ne les télécharge plus.
+const UserProfile = lazy(() => import('./components/UserProfile').then((m) => ({ default: m.UserProfile })));
+const AdminPanel = lazy(() => import('./components/AdminPanel').then((m) => ({ default: m.AdminPanel })));
+const PromoPage = lazy(() => import('./components/PromoPage').then((m) => ({ default: m.PromoPage })));
+
+/** Écran d'attente pendant le chargement d'un module différé. */
+const LazyFallback = () => (
+  <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="w-8 h-8 rounded-full border-2 border-[#a855f7] border-t-transparent animate-spin" role="status" aria-label="Chargement" />
+  </div>
+);
 import { ThieThieLogo } from './components/ThieThieLogo';
 import { Sidebar } from './components/Sidebar';
 import { BottomTabBar } from './components/BottomTabBar';
@@ -2700,13 +2710,17 @@ export default function App() {
   // Page promo publique (?promo=<id>) — rendue avant tout gate d'auth (accessible à tous).
   const promoId = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('promo') : null;
   if (promoId) {
-    return <PromoPage id={promoId} />;
+    return <Suspense fallback={<LazyFallback />}><PromoPage id={promoId} /></Suspense>;
   }
 
   // Back-office admin plein écran (gate serveur = custom claim ; ce garde client évite juste
   // l'affichage — toute action passe par des callables qui revérifient requireAdmin).
   if (user && isAdmin && currentPage === 'admin') {
-    return <AdminPanel user={user} navigateToPage={navigateToPage} formatPrice={formatPrice} />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#0a0510] flex items-center justify-center"><LazyFallback /></div>}>
+        <AdminPanel user={user} navigateToPage={navigateToPage} formatPrice={formatPrice} />
+      </Suspense>
+    );
   }
 
   if (!user && isAuthPage) {
@@ -4742,6 +4756,7 @@ export default function App() {
             8. USER PROFILE PAGE (FIREBASE INTEGRATED)
             ========================================== */}
         {currentPage === 'profile' && user && (
+          <Suspense fallback={<LazyFallback />}>
           <UserProfile
             user={user}
             profilePhone={profilePhone}
@@ -4756,6 +4771,7 @@ export default function App() {
             navigateToPage={navigateToPage}
             formatPrice={formatPrice}
           />
+          </Suspense>
         )}
 
       </main>
