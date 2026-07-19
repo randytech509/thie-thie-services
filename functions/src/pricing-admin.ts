@@ -4,7 +4,6 @@ import { requireAdmin, callOpts } from './lib/guards';
 import { requireStepUp } from './lib/stepup';
 import { audit } from './lib/audit';
 import * as reloadly from './lib/reloadly';
-import { RELOADLY_SECRETS } from './lib/secrets';
 import {
   computePrice,
   estimateFunding as estimateFundingCore,
@@ -132,7 +131,7 @@ export const setProductCost = onCall(callOpts, async (req) => {
  * on ne veut pas 5000+ cartes de tous pays visibles d'un coup. Idempotent : doc id déterministe
  * `rl_{productId}_{denominationCents}`.
  */
-export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300, secrets: RELOADLY_SECRETS }, async (req) => {
+export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }, async (req) => {
   const admin = requireAdmin(req);
   if (!reloadly.isConfigured()) throw new HttpsError('failed-precondition', 'Reloadly non configuré');
   const db = getFirestore();

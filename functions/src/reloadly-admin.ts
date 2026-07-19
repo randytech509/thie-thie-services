@@ -4,10 +4,9 @@ import { requireAdmin, callOpts } from './lib/guards';
 import { requireStepUp } from './lib/stepup';
 import { audit } from './lib/audit';
 import * as reloadly from './lib/reloadly';
-import { RELOADLY_SECRETS } from './lib/secrets';
 
 /** Solde du compte fournisseur Reloadly (back-office). */
-export const reloadlyBalance = onCall({ ...callOpts, secrets: RELOADLY_SECRETS }, async (req) => {
+export const reloadlyBalance = onCall(callOpts, async (req) => {
   requireAdmin(req);
   if (!reloadly.isConfigured()) return { configured: false };
   const b = await reloadly.getBalance();
@@ -15,7 +14,7 @@ export const reloadlyBalance = onCall({ ...callOpts, secrets: RELOADLY_SECRETS }
 });
 
 /** Recherche de produits Reloadly (pour mapper à un produit du catalogue). */
-export const reloadlyFindProducts = onCall({ ...callOpts, secrets: RELOADLY_SECRETS }, async (req) => {
+export const reloadlyFindProducts = onCall(callOpts, async (req) => {
   requireAdmin(req);
   if (!reloadly.isConfigured()) throw new HttpsError('failed-precondition', 'Reloadly non configuré');
   const query = String(req.data?.query ?? '').trim();
