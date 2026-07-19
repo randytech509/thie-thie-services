@@ -1,6 +1,7 @@
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import * as reloadly from './lib/reloadly';
+import { RELOADLY_SECRETS } from './lib/secrets';
 import { sendEmail, orderDeliveryHtml } from './lib/email';
 
 /**
@@ -10,7 +11,7 @@ import { sendEmail, orderDeliveryHtml } from './lib/email';
  * e-mail automatiquement. SINON (non mappé, non configuré, ou ÉCHEC) → on ne touche pas à la
  * commande : elle reste « à livrer » dans le back-office = FALLBACK MANUEL (bouton existant).
  */
-export const autoFulfillOrder = onDocumentCreated('orders/{orderId}', async (event) => {
+export const autoFulfillOrder = onDocumentCreated({ document: 'orders/{orderId}', secrets: RELOADLY_SECRETS }, async (event) => {
   const snap = event.data;
   if (!snap) return;
   const order = snap.data() as Record<string, any>;

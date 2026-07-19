@@ -11,4 +11,5 @@ coverage/
 *.log
 .env*
 !.env.example
+.secret*
 scripts/deposit-accounts.json

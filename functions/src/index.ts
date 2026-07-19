@@ -22,3 +22,4 @@ export { passkeyStatus, passkeyRegisterOptions, passkeyRegisterVerify, passkeyAu
 export { sendBroadcastPush, savePromo, deletePromo } from './broadcast';
 export { autoFulfillOrder } from './auto-fulfillment';
 export { reloadlyBalance, reloadlyFindProducts, setProductSupplier } from './reloadly-admin';
+export { setPricingConfig, setProductCost, reloadlyImportCatalog, repriceAll, estimateFunding } from './pricing-admin';
