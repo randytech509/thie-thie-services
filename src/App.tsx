@@ -2405,6 +2405,15 @@ export default function App() {
     return v ? (v.available && v.stock > 0) : true;
   };
 
+  // Libellé de prix pour une VIGNETTE : « Dès X » pour les cartes à montant libre ou à plusieurs
+  // dénominations (le prix affiché est le minimum) ; sinon le prix simple. Évite qu'une carte
+  // « $1–$100 » paraisse bloquée à 1$ sur la grille.
+  const priceLabel = (product: Product): string => {
+    const base = formatPrice(priceOf(product, 0));
+    const multi = !!product.fsRange || (!!product.fsDenoms && product.fsDenoms.length > 1);
+    return multi ? `${lang === 'FR' ? 'Dès' : 'Depi'} ${base}` : base;
+  };
+
   const toggleWishlist = (productId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setWishlist((prev) =>
@@ -3117,7 +3126,7 @@ export default function App() {
                           <img src={p.image} className="w-8 h-8 rounded object-cover" alt="" referrerPolicy="no-referrer" />
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-bold truncate text-white">{p.name}</p>
-                            <p className="text-[10px] text-white/50">{formatPrice(priceOf(p, 0))}</p>
+                            <p className="text-[10px] text-white/50">{priceLabel(p)}</p>
                           </div>
                         </div>
                       ))
@@ -3591,7 +3600,7 @@ export default function App() {
                       {/* Pricing Display */}
                       <div className="mt-3 flex items-baseline gap-2">
                         <span className="text-base font-black text-white tabular-nums">
-                          {formatPrice(priceOf(p, 0))}
+                          {priceLabel(p)}
                         </span>
                         <span className="text-xs text-white/40 line-through tabular-nums">
                           {formatPrice(priceOf(p, 0) * 1.2)}
@@ -3666,7 +3675,7 @@ export default function App() {
                         {p.name}
                       </h4>
                       <div className="mt-2 text-xs font-bold text-[#10b981] tabular-nums">
-                        {formatPrice(priceOf(p, 0))}
+                        {priceLabel(p)}
                       </div>
                     </div>
                   </div>
@@ -3934,7 +3943,7 @@ export default function App() {
                               <p className="text-[9px] text-white/40 font-bold uppercase tracking-wide">
                                 {lang === 'FR' ? 'À partir de' : 'Kòmanse nan'}
                               </p>
-                              <p className="text-sm font-black text-white tabular-nums">{formatPrice(priceOf(p, 0))}</p>
+                              <p className="text-sm font-black text-white tabular-nums">{priceLabel(p)}</p>
                             </div>
                           </div>
 
@@ -4274,7 +4283,7 @@ export default function App() {
                           <div className="mt-4 border-t border-white/[0.05] pt-3 flex items-center justify-between">
                             <div>
                               <p className="text-[9px] text-white/40 font-bold uppercase">{lang === 'FR' ? 'À partir de' : 'Kòmanse nan'}</p>
-                              <p className="text-sm font-black text-white tabular-nums">{formatPrice(priceOf(p, 0))}</p>
+                              <p className="text-sm font-black text-white tabular-nums">{priceLabel(p)}</p>
                             </div>
                             <span className="text-[10px] text-[#a855f7] font-black group-hover:underline flex items-center gap-0.5">
                               {lang === 'FR' ? 'Commander' : 'Achte'}
