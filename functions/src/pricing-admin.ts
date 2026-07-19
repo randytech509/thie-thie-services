@@ -151,7 +151,11 @@ export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }
 
   for (const p of content) {
     const country = p.country?.isoName ?? null;
-    if (countryFilter && country !== countryFilter) continue;
+    const isGlobal = p.global === true || country === null;
+    // Par défaut : on ne catalogue que le US + les cartes Global (marché haïtien, réglées en USD).
+    // Un countryFilter explicite (ex. 'US') restreint à ce seul pays.
+    const keep = countryFilter ? country === countryFilter : (country === 'US' || isGlobal);
+    if (!keep) continue;
     // Seules les devises USD sont directement tarifables sans FX interne Reloadly.
     if (p.recipientCurrencyCode && p.recipientCurrencyCode !== 'USD') continue;
 
@@ -179,7 +183,7 @@ export const reloadlyImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }
           costHtgCents: b.costHtgCents,
           marginHtgCents: b.marginHtgCents,
           stock: 999,
-          available: false, // à curer avant publication
+          available: true, // US/Global catalogué directement sur le site (retirable au cas par cas)
           image: p.logoUrls?.[0] ?? '',
           regions: country ? [country] : ['Global'],
           requiresPlayerId: false,
