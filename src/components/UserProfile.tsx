@@ -1310,19 +1310,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               ADMIN WORKFLOW: PENDING DEPOSIT REQUESTS
               ========================================== */}
           {/* Les panneaux « Validation Portefeuille » et « Validation KYC » vivaient ici.
-              Ils sont RETIRÉS : ces actions exigent une vérification passkey récente côté
-              serveur, et l'interface qui permet de la faire n'existe que dans le back-office.
-              Exposées ici, elles échouaient donc systématiquement dès qu'un passkey était
-              enrôlé. Le back-office les couvre déjà toutes les deux — aucune capacité n'est
-              perdue, seule la duplication disparaît. */}
-          {isAdminClaim && (
-            <button
-              onClick={() => navigateToPage('admin')}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl border border-[var(--tt-accent)]/30 bg-[var(--tt-accent-soft)] px-4 py-3 text-xs font-black uppercase tracking-wider text-[var(--tt-accent)] transition-colors hover:bg-[var(--tt-accent)]/20"
-            >
-              Validations dépôts &amp; KYC — ouvrir le back-office
-            </button>
-          )}
+              RETIRÉS : ces actions exigent une vérification passkey récente côté serveur, et
+              l'interface qui permet de la faire n'existe que dans le back-office — exposées
+              ici, elles échouaient systématiquement dès qu'un passkey était enrôlé.
+              Aucun renvoi ajouté à cet endroit : le bouton de la carte de profil plus haut y
+              mène déjà, et c'est le SEUL accès sur mobile. En doubler un second n'aurait fait
+              qu'encombrer. */}
 
           {/* ==========================================
               ADMIN WORKFLOW: PENDING KYC REQUESTS
