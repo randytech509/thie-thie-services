@@ -35,3 +35,4 @@ export { reloadlyBalance, reloadlyFindProducts, setProductSupplier } from './rel
 // il les ignorait toutes. La re-tarification correcte se fait via `reloadlyImportCatalog`,
 // qui recalcule tout avec la config courante. Retiré aussi car le quota CPU Cloud Run est saturé.
 export { setPricingConfig, setProductCost, reloadlyImportCatalog, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts } from './pricing-admin';
+export { depositChainHeartbeat } from './heartbeat';
