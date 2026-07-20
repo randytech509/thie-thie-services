@@ -1,5 +1,5 @@
 import { onRequest } from 'firebase-functions/v2/https';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue, Firestore } from 'firebase-admin/firestore';
 import { timingSafeEqual } from 'node:crypto';
 import { parseSms, SmsProvider } from './lib/sms';
 import { reconcileSms } from './lib/deposit-reconcile';
@@ -7,6 +7,9 @@ import { parseCallback, verifyCallbackSignature } from './lib/oxapay';
 import { reconcileOxapayCallback } from './lib/oxapay-reconcile';
 import { DomainError } from './lib/transactions';
 import { audit } from './lib/audit';
+import {
+  clientIp, consumeRateLimit, WEBHOOK_IP_RULE, WEBHOOK_AUTH_FAIL_RULE, RateLimitRule,
+} from './lib/rate-limit';
 
 /**
  * « SMS hook » MonCash / NatCash : une app sur le téléphone marchand lit le SMS de confirmation
@@ -16,17 +19,25 @@ import { audit } from './lib/audit';
  * SÉCURITÉ : endpoint public → protégé par un secret partagé `SMS_HOOK_SECRET` (Secret Manager).
  * Pas d'App Check possible sur un onRequest ; le secret + le rapprochement strict (txId+montant)
  * limitent les abus. Ne JAMAIS créditer sur un SMS non concordant.
+ * Rate-limit par IP (flood) + compteur strict sur les secrets erronés (brute-force) — cf.
+ * `lib/rate-limit.ts`. Le limiteur est fail-open : il ne doit jamais bloquer un vrai dépôt.
  *
  * Corps attendu (JSON) : { secret, provider: 'MonCash'|'NatCash', text: '<SMS brut>', from?: '<n°>' }
  */
 export const ingestSms = onRequest({ cors: false }, async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ ok: false, error: 'POST requis' }); return; }
 
+  const db = getFirestore();
+  const ip = clientIp(req);
+  if (await rejectIfRateLimited(db, res, `sms:ip:${ip}`, WEBHOOK_IP_RULE)) return;
+
   const secret = process.env.SMS_HOOK_SECRET;
   if (!secret) { res.status(503).json({ ok: false, error: 'SMS_HOOK_SECRET non configuré' }); return; }
 
   const body = (typeof req.body === 'string' ? safeJson(req.body) : req.body) ?? {};
   if (typeof body.secret !== 'string' || !safeEqualSecret(body.secret, secret)) {
+    // Un secret erroné consomme le quota d'échecs : 10 essais / 15 min et par IP.
+    if (await rejectIfRateLimited(db, res, `sms:authfail:${ip}`, WEBHOOK_AUTH_FAIL_RULE)) return;
     res.status(401).json({ ok: false, error: 'secret invalide' }); return;
   }
 
@@ -37,7 +48,6 @@ export const ingestSms = onRequest({ cors: false }, async (req, res) => {
   const rawText = String(body.text ?? body.message ?? '');
   if (!rawText.trim()) { res.status(400).json({ ok: false, error: 'text (SMS) manquant' }); return; }
 
-  const db = getFirestore();
   const parsed = parseSms(provider, rawText);
 
   // Journal / idempotence du SMS : clé = txId si dispo, sinon horodatage.
@@ -97,9 +107,15 @@ export const ingestSms = onRequest({ cors: false }, async (req, res) => {
  * (invariant 3, comme reconcileSms : jamais de crédit sur un statut intermédiaire/ambigu).
  * Idempotent via creditWallet(idempotencyKey=requestId) — un même paiement (retries OxaPay,
  * webhook rejoué) ne peut créditer deux fois.
+ * Rate-limit par IP + compteur strict sur les signatures invalides (cf. `lib/rate-limit.ts`).
+ * Un 429 sur un vrai callback n'est pas une perte : OxaPay réessaie et le crédit est idempotent.
  */
 export const ingestOxapayCallback = onRequest({ cors: false }, async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ ok: false, error: 'POST requis' }); return; }
+
+  const db = getFirestore();
+  const ip = clientIp(req);
+  if (await rejectIfRateLimited(db, res, `oxapay:ip:${ip}`, WEBHOOK_IP_RULE)) return;
 
   const apiKey = process.env.OXAPAY_MERCHANT_API_KEY;
   if (!apiKey) { res.status(503).json({ ok: false, error: 'OXAPAY_MERCHANT_API_KEY non configuré' }); return; }
@@ -107,13 +123,13 @@ export const ingestOxapayCallback = onRequest({ cors: false }, async (req, res) 
   const rawBody: Buffer | string = (req as unknown as { rawBody?: Buffer }).rawBody ?? JSON.stringify(req.body ?? {});
   const signature = req.header('HMAC');
   if (!verifyCallbackSignature(rawBody, signature, apiKey)) {
+    if (await rejectIfRateLimited(db, res, `oxapay:authfail:${ip}`, WEBHOOK_AUTH_FAIL_RULE)) return;
     res.status(401).json({ ok: false, error: 'signature HMAC invalide' }); return;
   }
 
   const body = (typeof req.body === 'string' ? safeJson(req.body) : req.body) ?? {};
   const cb = parseCallback(body as Record<string, unknown>);
 
-  const db = getFirestore();
   try {
     const result = await reconcileOxapayCallback(db, cb);
     if (result.credited) {
@@ -129,6 +145,23 @@ export const ingestOxapayCallback = onRequest({ cors: false }, async (req, res) 
     res.status(500).json({ ok: false, error: reason });
   }
 });
+
+/**
+ * Consomme un jeton et, si la fenêtre est saturée, répond 429 + `Retry-After`.
+ * Renvoie `true` quand la réponse a déjà été envoyée — l'appelant doit alors sortir.
+ */
+async function rejectIfRateLimited(
+  db: Firestore,
+  res: { status(c: number): { json(b: unknown): void }; set(k: string, v: string): void },
+  key: string,
+  rule: RateLimitRule,
+): Promise<boolean> {
+  const verdict = await consumeRateLimit(db, key, rule);
+  if (verdict.allowed) return false;
+  res.set('Retry-After', String(verdict.retryAfterSec));
+  res.status(429).json({ ok: false, error: 'trop de requêtes' });
+  return true;
+}
 
 function safeJson(s: string): Record<string, unknown> | null {
   try { return JSON.parse(s); } catch { return null; }
