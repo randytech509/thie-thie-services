@@ -78,9 +78,32 @@ que l'erreur humaine, pas la perte de compte, qui est le scénario visé.
 2. un bucket de destination chez R2 ou S3, et ses clés ;
 3. ces deux jeux d'identifiants déposés en secrets GitHub Actions.
 
-**À vérifier une fois en place** : qu'une restauration fonctionne. Une sauvegarde jamais
-restaurée est une hypothèse, pas une sauvegarde. Prévoir une restauration d'essai vers le
-projet `thie-thie-dev`.
+**Implémentation** : `.github/workflows/firestore-backup.yml` (quotidien 03:30 UTC + déclenchement
+manuel). Il n'écrit jamais dans la base — il exporte et recopie, il ne peut donc pas dégrader la
+production. Une étape vérifie que la copie distante n'est pas vide : un `rclone copy` réussit sans
+rien transférer si la source l'est, et on croirait sauvegarder pendant des mois pour rien.
+
+### Restaurer (à répéter au moins une fois par trimestre)
+
+Une sauvegarde jamais restaurée est une hypothèse, pas une sauvegarde. La restauration d'essai
+se fait vers **`thie-thie-dev`**, jamais vers la production.
+
+```bash
+# 1. Rapatrier un instantané depuis le tiers vers un bucket GCS accessible au projet de test
+rclone copy r2:<BUCKET>/firestore/<AAAA-MM-JJ_HHMMSS> \
+            gcs:<BUCKET_TEST>/restore/<AAAA-MM-JJ_HHMMSS>
+
+# 2. Importer dans le projet de DÉVELOPPEMENT
+gcloud firestore import gs://<BUCKET_TEST>/restore/<AAAA-MM-JJ_HHMMSS> \
+  --project=thie-thie-dev
+```
+
+Puis contrôler que les collections critiques sont présentes et cohérentes : `users`,
+`wallet_transactions`, `orders`, `wallet_requests`. Un import ne signale pas une collection
+manquante — c'est à la vérification de le faire.
+
+⚠️ `gcloud firestore import` **écrase** les documents de même identifiant. Ne jamais viser la
+production pour un essai : vérifier deux fois la valeur de `--project`.
 
 ---
 

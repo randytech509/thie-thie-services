@@ -1,0 +1,161 @@
+# Sauvegarde Firestore hors-site.
+#
+# Chaîne : export Firestore → bucket GCS de transit → recopie chez un TIERS (Cloudflare R2 / S3).
+#
+# Le second saut est le cœur du dispositif. Un export qui reste dans le même compte Google
+# disparaît avec lui : il ne couvre alors que l'erreur humaine, pas la perte d'accès au compte,
+# qui est précisément le scénario redouté. La copie hors-site doit vivre chez un autre
+# fournisseur, avec des identifiants distincts.
+#
+# Ce workflow ne fait AUCUNE écriture sur la base : il lit et exporte. Il ne peut pas dégrader
+# la production.
+#
+# ─── Secrets à créer (Settings → Secrets and variables → Actions) ────────────────────────
+#   GCP_SA_KEY            JSON du compte de service (voir « moindre privilège » ci-dessous)
+#   GCP_PROJECT_ID        ex. thie-thie-services
+#   GCS_BACKUP_BUCKET     bucket GCS de transit, SANS le préfixe gs://
+#   R2_ENDPOINT           ex. https://<accountid>.r2.cloudflarestorage.com
+#   R2_ACCESS_KEY_ID
+#   R2_SECRET_ACCESS_KEY
+#   R2_BUCKET             bucket de destination chez le tiers
+#
+# ─── Moindre privilège ───────────────────────────────────────────────────────────────────
+# Le compte de service n'a besoin que de deux rôles, et surtout PAS de « Editor » :
+#   • roles/datastore.importExportAdmin   (déclencher l'export)
+#   • roles/storage.objectAdmin           SUR LE SEUL bucket de transit
+# Une clé de compte de service est un identifiant à durée illimitée. À terme, préférer
+# Workload Identity Federation (google-github-actions/auth avec workload_identity_provider),
+# qui remplace la clé par des jetons courts.
+
+name: Sauvegarde Firestore hors-site
+
+on:
+  schedule:
+    # 03:30 UTC chaque jour (~22:30 en Haïti) — hors des heures d'achat.
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Motif du déclenchement manuel (tracé dans le récapitulatif)'
+        required: false
+        default: 'sauvegarde à la demande'
+
+# Deux exports simultanés sur la même base se gênent : on sérialise.
+concurrency:
+  group: firestore-backup
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # Horodatage PLAT (pas de sous-dossiers année/mois) : un seul niveau se liste et se purge
+  # sans ambiguïté. Avec une arborescence, une purge « au jour » viserait un préfixe qui
+  # n'existe pas réellement et ne supprimerait rien en silence.
+  RETENTION_TRANSIT_DAYS: '7'
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Horodatage de la sauvegarde
+        id: stamp
+        run: echo "name=$(date -u +'%Y-%m-%d_%H%M%S')" >> "$GITHUB_OUTPUT"
+
+      - name: Authentification Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Installer gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Exporter Firestore vers le bucket de transit
+        # Sans --async, gcloud ATTEND la fin de l'opération : si l'export échoue, l'étape
+        # échoue aussi. En --async on recopierait un dossier incomplet sans le savoir.
+        run: |
+          set -euo pipefail
+          gcloud firestore export \
+            "gs://${{ secrets.GCS_BACKUP_BUCKET }}/firestore/${{ steps.stamp.outputs.name }}" \
+            --project="${{ secrets.GCP_PROJECT_ID }}"
+
+      - name: Installer rclone
+        run: |
+          set -euo pipefail
+          curl -fsSL https://rclone.org/install.sh | sudo bash
+
+      - name: Recopier chez le tiers (hors du périmètre Google)
+        env:
+          # rclone lit sa configuration depuis l'environnement : aucun fichier de config écrit
+          # sur le disque du runner, donc aucun secret laissé derrière.
+          # env_auth=true fait reprendre à rclone les identifiants posés par l'étape d'auth
+          # (GOOGLE_APPLICATION_CREDENTIALS) ; sans ça il chercherait un compte inexistant.
+          RCLONE_CONFIG_GCS_TYPE: 'google cloud storage'
+          RCLONE_CONFIG_GCS_ENV_AUTH: 'true'
+          RCLONE_CONFIG_GCS_BUCKET_POLICY_ONLY: 'true'
+          RCLONE_CONFIG_R2_TYPE: 's3'
+          RCLONE_CONFIG_R2_PROVIDER: 'Cloudflare'
+          RCLONE_CONFIG_R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          set -euo pipefail
+          rclone copy \
+            "gcs:${{ secrets.GCS_BACKUP_BUCKET }}/firestore/${{ steps.stamp.outputs.name }}" \
+            "r2:${{ secrets.R2_BUCKET }}/firestore/${{ steps.stamp.outputs.name }}" \
+            --transfers=8 --checkers=16 --retries=3 --stats=30s --stats-one-line
+
+      - name: Vérifier que la copie distante n'est pas vide
+        # Un `rclone copy` réussit sans rien transférer si la source est vide. Sans ce
+        # contrôle, on croirait sauvegarder pendant des mois pour rien.
+        env:
+          RCLONE_CONFIG_R2_TYPE: 's3'
+          RCLONE_CONFIG_R2_PROVIDER: 'Cloudflare'
+          RCLONE_CONFIG_R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          set -euo pipefail
+          COUNT=$(rclone size --json \
+            "r2:${{ secrets.R2_BUCKET }}/firestore/${{ steps.stamp.outputs.name }}" \
+            | python3 -c 'import json,sys; print(json.load(sys.stdin)["count"])')
+          echo "Objets copiés hors-site : $COUNT"
+          if [ "$COUNT" -lt 1 ]; then
+            echo "::error::La copie hors-site est vide — sauvegarde considérée comme échouée."
+            exit 1
+          fi
+
+      - name: Purger les exports de transit expirés
+        # Le bucket GCS n'est qu'un relais : la conservation longue se fait chez le tiers.
+        # Y laisser les exports ferait grimper la facture Google sans rien apporter.
+        run: |
+          set -euo pipefail
+          CUTOFF=$(date -u -d "${RETENTION_TRANSIT_DAYS} days ago" +%Y-%m-%d)
+          echo "Suppression des exports de transit antérieurs à $CUTOFF"
+          gcloud storage ls "gs://${{ secrets.GCS_BACKUP_BUCKET }}/firestore/" 2>/dev/null \
+            | while read -r prefix; do
+                # prefix ressemble à gs://bucket/firestore/2026-07-20_033000/
+                name=$(basename "${prefix%/}")
+                day="${name%%_*}"
+                [[ "$day" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || continue
+                if [[ "$day" < "$CUTOFF" ]]; then
+                  echo "  suppression de $name"
+                  gcloud storage rm -r "$prefix" || true
+                fi
+              done
+
+      - name: Récapitulatif
+        if: always()
+        run: |
+          {
+            echo "### Sauvegarde Firestore"
+            echo ""
+            echo "- Instantané : \`firestore/${{ steps.stamp.outputs.name }}\`"
+            echo "- Destination hors-site : \`${{ secrets.R2_BUCKET }}\`"
+            echo "- Motif : ${{ github.event.inputs.reason || 'planifiée' }}"
+            echo "- Résultat : **${{ job.status }}**"
+          } >> "$GITHUB_STEP_SUMMARY"
