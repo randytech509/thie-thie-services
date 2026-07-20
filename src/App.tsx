@@ -77,6 +77,7 @@ const LazyFallback = () => (
   </div>
 );
 import { ThieThieLogo } from './components/ThieThieLogo';
+import { AppInfoSection } from './components/AppInfoSection';
 import { Sidebar } from './components/Sidebar';
 import { BottomTabBar } from './components/BottomTabBar';
 
@@ -4601,6 +4602,8 @@ export default function App() {
                 </li>
               </ul>
             </div>
+
+            <AppInfoSection lang={lang} />
           </div>
         )}
 
