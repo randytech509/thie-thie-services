@@ -23,6 +23,15 @@ import { enablePushNotifications } from '../lib/push';
 import { SkeletonList } from './Skeleton';
 import { AdminShieldIcon, VerifiedSealIcon, PendingClockIcon, RejectedIcon, UnverifiedIcon } from './BadgeIcons';
 import { db, auth, storage } from '../firebase';
+import moncashLogo from '../assets/images/moncash.png';
+import natcashLogo from '../assets/images/natcash.png';
+
+/** Logos des opérateurs, pour une reconnaissance immédiate : sur mobile, le marchand
+ *  haïtien identifie MonCash ou NatCash à la forme et à la couleur bien avant de lire. */
+const METHOD_LOGOS: Partial<Record<string, string>> = {
+  MonCash: moncashLogo,
+  NatCash: natcashLogo,
+};
 import freeFireCategoryBanner from '../assets/images/free-fire-banner.webp';
 // `pubg_mobile_helmet_overgrown.jpg` supprimé (fichier irrécupérable, ne s'affichait jamais).
 const pubgOvergrownHelmet = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=600';
@@ -2390,6 +2399,15 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                           }`}
                         >
                           {locked && <Lock className="w-3 h-3" />}
+                          {METHOD_LOGOS[method] && !locked && (
+                            <img
+                              src={METHOD_LOGOS[method]}
+                              alt=""
+                              aria-hidden="true"
+                              className="w-6 h-6 rounded-md object-contain"
+                              loading="lazy"
+                            />
+                          )}
                           <span className="text-[9px] font-black">{method === 'Binance Pay' ? 'Binance' : method}</span>
                         </button>
                       );
