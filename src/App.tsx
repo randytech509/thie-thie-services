@@ -943,7 +943,7 @@ function ProductImageWithSkeleton({
   const [error, setError] = useState(false);
 
   return (
-    <div className={`relative overflow-hidden w-full h-full bg-[#1e293b]/50 ${className}`}>
+    <div className={`relative overflow-hidden w-full h-full bg-[var(--tt-surface-2)] ${className}`}>
       {/* Skeleton overlay */}
       {!loaded && (
         <div className="absolute inset-0 z-10 bg-[#0c0714] flex flex-col items-center justify-center">
@@ -2754,7 +2754,7 @@ export default function App() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen bg-[#070310] flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-[var(--tt-bg)] flex flex-col items-center justify-center p-6 text-center">
         <div className="relative flex items-center justify-center w-28 h-28 mb-4">
           <ThieThieLogo variant="icon" size={110} animated={true} />
         </div>
@@ -2784,7 +2784,7 @@ export default function App() {
   // l'affichage — toute action passe par des callables qui revérifient requireAdmin).
   if (user && isAdmin && currentPage === 'admin') {
     return (
-      <Suspense fallback={<div className="min-h-screen bg-[#0a0510] flex items-center justify-center"><LazyFallback /></div>}>
+      <Suspense fallback={<div className="min-h-screen bg-[var(--tt-bg)] flex items-center justify-center"><LazyFallback /></div>}>
         <AdminPanel user={user} navigateToPage={navigateToPage} formatPrice={formatPrice} />
       </Suspense>
     );
@@ -2792,7 +2792,7 @@ export default function App() {
 
   if (!user && isAuthPage) {
     return (
-      <div className="min-h-screen bg-[#070310] text-white flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
+      <div className="min-h-screen bg-[var(--tt-bg)] text-white flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
         {/* Ambient background glows */}
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#a855f7]/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#7c3aed]/5 rounded-full blur-[120px] pointer-events-none"></div>
@@ -2853,7 +2853,7 @@ export default function App() {
                   id="welcome-google-btn"
                   onClick={handleGoogleSignIn}
                   disabled={authLoading}
-                  className="w-full bg-[#1e2a3e] hover:bg-[#25354e] border border-white/[0.08] hover:border-white/15 text-white font-bold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer"
+                  className="w-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-surface-3)] border border-white/[0.08] hover:border-white/15 text-white font-bold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {authLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -2994,7 +2994,7 @@ export default function App() {
               <button
                 onClick={handleGoogleSignIn}
                 disabled={authLoading}
-                className="w-full bg-[#1e2a3e] hover:bg-[#25354e] border border-white/[0.08] hover:border-white/15 text-white font-bold text-sm py-3.5 rounded-xl text-center flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer"
+                className="w-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-surface-3)] border border-white/[0.08] hover:border-white/15 text-white font-bold text-sm py-3.5 rounded-xl text-center flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                   <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -3901,7 +3901,7 @@ export default function App() {
             </section>
 
             {/* WHY CHOOSE US & ANIMATED STATS */}
-            <section id="why-choose-us-section" className="bg-[#1c1030]/40 border-y border-white/[0.04] mt-24 py-20">
+            <section id="why-choose-us-section" className="bg-[var(--tt-surface-2)] border-y border-white/[0.04] mt-24 py-20">
               <div className="max-w-7xl mx-auto px-4">
                 
                 <div className="text-center max-w-2xl mx-auto mb-16">
@@ -4564,7 +4564,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="bg-[#1c1030]/40 border border-white/[0.06] rounded-2xl p-6 md:p-8 text-left">
+            <div className="bg-[var(--tt-surface-2)] border border-white/[0.06] rounded-2xl p-6 md:p-8 text-left">
               <h3 className="text-lg font-bold text-white mb-4">Nos Valeurs Clés</h3>
               <ul className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-white/70">
                 <li className="flex gap-2.5 items-start">
@@ -5547,7 +5547,7 @@ export default function App() {
       {cartOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4" onClick={() => setCartOpen(false)}>
           <div
-            className="bg-[#150b28] border border-white/[0.08] w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
+            className="bg-[var(--tt-surface)] border border-white/[0.08] w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-5 border-b border-white/[0.06]">
@@ -5700,7 +5700,7 @@ export default function App() {
           role="status"
           // sous lg, BottomTabBar (fixed bottom-0, ~51 px) occupe le bas de l'écran : ancré à
           // bottom-6 le bandeau passait dessous, « Voir le panier » à moitié masqué.
-          className="fixed left-1/2 -translate-x-1/2 bottom-16 lg:bottom-6 z-50 flex items-center gap-3 bg-[#150b28] border border-[#a855f7]/40 rounded-2xl shadow-2xl shadow-black/50 px-4 py-3 max-w-[92vw]"
+          className="fixed left-1/2 -translate-x-1/2 bottom-16 lg:bottom-6 z-50 flex items-center gap-3 bg-[var(--tt-surface)] border border-[#a855f7]/40 rounded-2xl shadow-2xl shadow-black/50 px-4 py-3 max-w-[92vw]"
         >
           <span className="w-8 h-8 rounded-full bg-[#a855f7]/15 border border-[#a855f7]/30 flex items-center justify-center shrink-0">
             <Check className="w-4 h-4 text-[#a855f7]" />
@@ -5879,7 +5879,7 @@ export default function App() {
           </div>
 
           {/* Standalone Currency Converter */}
-          <div className="flex flex-col gap-3 bg-[#131a26]/90 border border-white/[0.08] p-4 rounded-2xl shadow-xl">
+          <div className="flex flex-col gap-3 bg-[var(--tt-surface)] border border-white/[0.08] p-4 rounded-2xl shadow-xl">
             <div className="flex items-center justify-between">
               <h4 className="text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <Coins className="w-3.5 h-3.5 text-[#a855f7]" />

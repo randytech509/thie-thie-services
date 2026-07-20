@@ -115,12 +115,12 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
   // Écran de step-up : un passkey est enregistré mais pas encore vérifié cette session.
   // (Le serveur applique de toute façon requireStepUp sur les actions sensibles.)
   if (hasPasskey === null) {
-    return <div className="min-h-screen bg-[#0a0510] text-white flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-[#a855f7]" /></div>;
+    return <div className="min-h-screen bg-[var(--tt-bg)] text-white flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-[#a855f7]" /></div>;
   }
   if (hasPasskey && !stepUpOk) {
     return (
-      <div className="min-h-screen bg-[#0a0510] text-white flex items-center justify-center p-4">
-        <div className="bg-[#150b28] border border-white/10 rounded-3xl w-full max-w-sm p-8 text-center flex flex-col items-center gap-4">
+      <div className="min-h-screen bg-[var(--tt-bg)] text-white flex items-center justify-center p-4">
+        <div className="bg-[var(--tt-surface)] border border-white/10 rounded-3xl w-full max-w-sm p-8 text-center flex flex-col items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-[#a855f7]/15 flex items-center justify-center"><Fingerprint className="w-7 h-7 text-[#a855f7]" /></div>
           <div>
             <h1 className="text-xl font-black">Back-office protégé</h1>
@@ -137,9 +137,9 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0510] text-white flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[var(--tt-bg)] text-white flex flex-col lg:flex-row">
       {/* Nav onglets */}
-      <aside className="lg:w-60 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.06] bg-[#150b28] lg:h-screen lg:sticky lg:top-0 p-3">
+      <aside className="lg:w-60 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.06] bg-[var(--tt-surface)] lg:h-screen lg:sticky lg:top-0 p-3">
         <button onClick={() => navigateToPage('home')} className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white mb-3 px-2 py-1">
           <ChevronLeft className="w-4 h-4" /> Retour au site
         </button>
@@ -172,7 +172,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                 { label: 'KYC en attente', value: kycPending.length, c: '#a78bfa' },
                 { label: 'Total commandes', value: orders.length, c: '#10b981' },
               ].map((s) => (
-                <div key={s.label} className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5">
+                <div key={s.label} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5">
                   <p className="text-3xl font-black tabular-nums" style={{ color: s.c }}>{s.value}</p>
                   <p className="text-xs text-white/50 font-bold mt-1">{s.label}</p>
                 </div>
@@ -187,7 +187,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
             <div className="flex flex-col gap-3">
               {orders.length === 0 && <p className="text-white/40 text-sm">Aucune commande.</p>}
               {orders.map((o) => (
-                <div key={o.id} className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div key={o.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-bold text-sm truncate">{o.productName || 'Produit'}{o.optionLabel ? ` — ${o.optionLabel}` : ''}</p>
                     <p className="text-[11px] text-white/40 font-mono">{o.orderId || o.id} · {htg(o.priceCents)}{o.playerId ? ` · Player ${o.playerId}` : ''}</p>
@@ -209,7 +209,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
             <div className="flex flex-col gap-3">
               {depositsPending.length === 0 && <p className="text-white/40 text-sm">Aucun dépôt en attente.</p>}
               {depositsPending.map((d) => (
-                <div key={d.id} className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div key={d.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-bold text-sm">{d.amountCents ? htg(d.amountCents) : (d.amount || '—')} · {d.paymentMethod || d.provider || '—'}</p>
                     <p className="text-[11px] text-white/40 font-mono truncate">{d.id}{d.txId ? ` · Tx ${d.txId}` : ''}</p>
@@ -230,7 +230,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
             <div className="flex flex-col gap-3">
               {kycPending.length === 0 && <p className="text-white/40 text-sm">Aucune demande KYC en attente.</p>}
               {kycPending.map((k) => (
-                <div key={k.id} className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div key={k.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-bold text-sm truncate">{k.fullName || k.name || 'Sans nom'}</p>
                     <p className="text-[11px] text-white/40 font-mono truncate">{k.id}</p>
@@ -255,7 +255,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         {tab === 'security' && (
           <div className="max-w-lg">
             <h2 className="text-2xl font-black mb-4">Sécurité</h2>
-            <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5">
+            <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-[#a855f7]/15 flex items-center justify-center"><Fingerprint className="w-5 h-5 text-[#a855f7]" /></div>
                 <div>
@@ -277,7 +277,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
       {/* Modal livraison */}
       {fx && (
         <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50 backdrop-blur-md">
-          <div className="bg-[#150b28] border border-white/10 rounded-3xl w-full max-w-md p-6 flex flex-col gap-4">
+          <div className="bg-[var(--tt-surface)] border border-white/10 rounded-3xl w-full max-w-md p-6 flex flex-col gap-4">
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-black flex items-center gap-2"><Mail className="w-4 h-4 text-[#a855f7]" />Livrer la commande</h3>
@@ -317,7 +317,7 @@ function AdminSettings({ flash }: { flash: (m: string) => void }) {
     <div className="max-w-lg flex flex-col gap-8">
       <div>
         <h2 className="text-2xl font-black mb-4">Paramètres</h2>
-        <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5">
+        <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5">
           <h3 className="font-black text-sm mb-1">Taux de change (HTG pour 1 USD)</h3>
           <p className="text-[11px] text-white/40 mb-3">Utilisé pour convertir les prix. Doit rester cohérent avec le catalogue.</p>
           <div className="flex gap-2">
@@ -326,7 +326,7 @@ function AdminSettings({ flash }: { flash: (m: string) => void }) {
           </div>
         </div>
       </div>
-      <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5">
+      <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5">
         <h3 className="font-black text-sm mb-3">Coordonnées de dépôt (affichées aux clients)</h3>
         <div className="grid grid-cols-2 gap-2">
           {[
@@ -410,7 +410,7 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
       {/* Composer push */}
       <div>
         <h2 className="text-2xl font-black mb-4 flex items-center gap-2"><Bell className="w-5 h-5 text-[#a855f7]" />Envoyer un push</h2>
-        <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
+        <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre" maxLength={60} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
           <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message" rows={2} maxLength={160} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm resize-none focus:border-[#a855f7] outline-none" />
           {/* Image d'aperçu : upload direct (Storage public) OU coller une URL */}
@@ -437,7 +437,7 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
           <h2 className="text-2xl font-black">Pages promo</h2>
           <button onClick={newPromo} className="text-xs font-black bg-white/[0.06] hover:bg-white/10 rounded-lg px-3 py-1.5">+ Nouvelle</button>
         </div>
-        <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
+        <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
           <input value={pTitle} onChange={(e) => setPTitle(e.target.value)} placeholder="Titre de la page" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
           <textarea value={pHtml} onChange={(e) => setPHtml(e.target.value)} placeholder="<h1>Ma promo</h1><p>Contenu HTML…</p>" rows={7} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono resize-y focus:border-[#a855f7] outline-none" />
           <label className="flex items-center gap-2 text-xs font-bold"><input type="checkbox" checked={pPub} onChange={(e) => setPPub(e.target.checked)} /> Publiée (visible publiquement)</label>
@@ -446,7 +446,7 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
         {promos.length > 0 && (
           <div className="mt-3 flex flex-col gap-2">
             {promos.map((p) => (
-              <div key={p.id} className="bg-[#150b28] border border-white/[0.06] rounded-xl p-3 flex items-center justify-between gap-2">
+              <div key={p.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-xl p-3 flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <p className="text-sm font-bold truncate">{p.title} {p.published ? <span className="text-[9px] text-emerald-400">● publiée</span> : <span className="text-[9px] text-white/30">brouillon</span>}</p>
                   <a href={promoLink(p.id)} target="_blank" rel="noreferrer" className="text-[10px] text-[#a855f7] hover:underline flex items-center gap-1"><ExternalLink className="w-2.5 h-2.5" />{promoLink(p.id)}</a>
@@ -504,7 +504,7 @@ function AdminSupplier({ flash }: { flash: (m: string) => void }) {
       <h2 className="text-2xl font-black mb-4 flex items-center gap-2"><Boxes className="w-5 h-5 text-[#a855f7]" />Fournisseur (Reloadly)</h2>
 
       {/* Solde */}
-      <div className={`rounded-2xl p-5 mb-6 border ${lowBal ? 'border-red-500/40 bg-red-500/5' : 'border-white/[0.06] bg-[#150b28]'}`}>
+      <div className={`rounded-2xl p-5 mb-6 border ${lowBal ? 'border-red-500/40 bg-red-500/5' : 'border-white/[0.06] bg-[var(--tt-surface)]'}`}>
         {!bal ? <Loader2 className="w-4 h-4 animate-spin" /> : !bal.configured ? (
           <p className="text-sm text-white/50">Reloadly non configuré (clés absentes).</p>
         ) : (
@@ -520,7 +520,7 @@ function AdminSupplier({ flash }: { flash: (m: string) => void }) {
 
       {/* Mapping produit */}
       <h3 className="font-black text-sm mb-2">Mapper un produit du catalogue → Reloadly</h3>
-      <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
+      <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
         <div className="flex gap-2">
           <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && search()} placeholder="Chercher un produit Reloadly (ex. Steam, Google Play, App Store)" className="flex-1 bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
           <button onClick={search} disabled={searching} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4">{searching ? '…' : 'Chercher'}</button>
@@ -662,7 +662,7 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
   };
 
   const inputCls = 'bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none';
-  const card = 'bg-[#150b28] border border-white/[0.06] rounded-2xl p-5';
+  const card = 'bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5';
   const btn = 'bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5 flex items-center justify-center gap-2';
 
   return (
@@ -811,7 +811,7 @@ function AdminManualProducts({ flash }: { flash: (m: string) => void }) {
   const inputCls = 'bg-black/30 border border-white/10 rounded-lg px-2 py-1.5 text-xs focus:border-[#a855f7] outline-none w-24 tabular-nums';
 
   return (
-    <div className="bg-[#150b28] border border-white/[0.06] rounded-2xl p-5">
+    <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5">
       <div className="flex items-center justify-between mb-1">
         <h3 className="font-black text-sm flex items-center gap-2"><Boxes className="w-4 h-4 text-[#a855f7]" />Produits manuels — stock & prix</h3>
         <button onClick={load} className="text-[11px] font-bold text-white/50 hover:text-white flex items-center gap-1"><RefreshCw className="w-3 h-3" />Rafraîchir</button>

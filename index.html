@@ -38,7 +38,10 @@
       }
     </style>
   </head>
-  <body class="bg-[#0d1117] text-white overflow-x-hidden antialiased">
+  <!-- Couleurs pilotées par les tokens (src/index.css) : body.light les redéfinit, donc le
+       mode jour suit sans surcharge. En dur (bg-[#0d1117] text-white), le fond et le texte
+       restaient sombres même en mode clair et écrasaient tout le reste. -->
+  <body class="bg-[var(--tt-bg)] text-[var(--tt-text)] overflow-x-hidden antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

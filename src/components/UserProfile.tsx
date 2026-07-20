@@ -1578,7 +1578,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             </div>
 
             {filteredTransactions.length === 0 ? (
-              <div className="py-10 border border-white/[0.04] rounded-2xl flex flex-col items-center text-center px-4 bg-[#0c0714]/30">
+              <div className="py-10 border border-white/[0.04] rounded-2xl flex flex-col items-center text-center px-4 bg-[var(--tt-bg)]">
                 <TrendingUp className="w-8 h-8 text-white/10 mb-3" />
                 <p className="text-xs text-white/50 leading-relaxed max-w-sm">
                   Aucune transaction ne correspond à vos filtres.
@@ -1686,7 +1686,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             {ordersLoading ? (
               <SkeletonList rows={3} />
             ) : orders.length === 0 ? (
-              <div className="py-12 border border-white/[0.04] rounded-2xl flex flex-col items-center text-center px-4 bg-[#0c0714]/30">
+              <div className="py-12 border border-white/[0.04] rounded-2xl flex flex-col items-center text-center px-4 bg-[var(--tt-bg)]">
                 <ShoppingBag className="w-8 h-8 text-white/10 mb-3" />
                 <p className="text-xs text-white/50 leading-relaxed max-w-sm">
                   {t.noOrders}
@@ -1848,7 +1848,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                                 textClass = 'text-red-400';
                                 iconClass = 'text-red-400';
                               } else {
-                                bgClass = 'bg-[#101524]';
+                                bgClass = 'bg-[var(--tt-surface)]';
                                 borderClass = 'border-white/[0.06]';
                                 textClass = 'text-white/40';
                                 iconClass = 'text-white/20';
@@ -1875,7 +1875,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
                     {/* DEMO SIMULATOR INTERACTIVE BAR */}
                     {order.orderId?.startsWith('DEMO-') && (
-                      <div className="mt-3.5 p-2 bg-[#0c0714]/60 rounded-2xl border border-white/[0.04] flex flex-col gap-2">
+                      <div className="mt-3.5 p-2 bg-[var(--tt-bg)] rounded-2xl border border-white/[0.04] flex flex-col gap-2">
                         <div className="flex items-center justify-between text-[8px] font-bold text-white/40 uppercase tracking-widest">
                           <span className="flex items-center gap-1">
                             <Sparkles className="w-2.5 h-2.5 text-[#a855f7]" />
@@ -2119,7 +2119,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       <AnimatePresence>
         {fulfillTarget && (
           <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50 animate-fadeIn backdrop-blur-md">
-            <div className="bg-[#150b28] border border-white/10 rounded-3xl w-full max-w-md p-6 flex flex-col gap-4">
+            <div className="bg-[var(--tt-surface)] border border-white/10 rounded-3xl w-full max-w-md p-6 flex flex-col gap-4">
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-lg font-black text-white">Livrer la commande</h3>
