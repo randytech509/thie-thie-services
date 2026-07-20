@@ -3296,10 +3296,12 @@ export default function App() {
               <ThieThieLogo variant="icon" size={44} />
             </div>
             <div className="whitespace-nowrap">
-              <span className="block font-extrabold text-base md:text-lg tracking-wider leading-none bg-gradient-to-r from-white via-white to-[#a855f7] bg-clip-text text-transparent">
+              {/* from-white rendait le logo invisible en mode jour (blanc sur fond clair).
+                  --tt-text suit le thème, comme le logo de la Sidebar. */}
+              <span className="block font-extrabold text-base md:text-lg tracking-wider leading-none bg-gradient-to-r from-[var(--tt-text)] via-[var(--tt-text)] to-[var(--tt-accent)] bg-clip-text text-transparent">
                 THIE THIE
               </span>
-              <span className="block text-[10px] font-bold tracking-widest text-white/60 mt-0.5 uppercase">
+              <span className="block text-[10px] font-bold tracking-widest text-[var(--tt-text-muted)] mt-0.5 uppercase">
                 Services
               </span>
             </div>
@@ -4342,7 +4344,7 @@ export default function App() {
 
               {/* Quick Filters Chip Bar */}
               <div className="flex flex-col gap-2">
-                <span className="text-[10px] uppercase tracking-wider font-extrabold text-white/35">
+                <span className="text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)]">
                   {lang === 'FR' ? "Filtres rapides" : "Filtrage rapid"}
                 </span>
                 <div className="flex flex-wrap gap-2.5">
@@ -4379,24 +4381,24 @@ export default function App() {
             <div className="flex flex-col lg:flex-row gap-8">
               
               {/* Sidebar Filters */}
-              <aside className="w-full lg:w-64 shrink-0 bg-[#1c1030] border border-white/[0.08] rounded-2xl p-5 h-fit">
-                <div className="flex items-center gap-2 pb-4 border-b border-white/[0.06] mb-5">
+              <aside className="w-full lg:w-64 shrink-0 bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 h-fit">
+                <div className="flex items-center gap-2 pb-4 border-b border-[var(--tt-border)] mb-5">
                   <Filter className="w-4 h-4 text-[#a855f7]" />
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-white">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--tt-text)]">
                     {t('filters')}
                   </h4>
                 </div>
 
                 {/* Categories filter menu */}
                 <div className="mb-6">
-                  <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-2">
+                  <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-2">
                     {t('products')}
                   </label>
                   <div className="flex flex-col gap-1">
                     <button
                       onClick={() => { setSelectedCategorySlug(null); setFilterRegion('ALL'); }}
                       className={`text-left w-full px-3 py-2 text-xs rounded-xl font-semibold transition-all ${
-                        !selectedCategorySlug ? 'bg-[#a855f7] text-black' : 'text-white/75 hover:bg-white/[0.03]'
+                        !selectedCategorySlug ? 'bg-[#a855f7] text-black' : 'text-white/75 hover:bg-[var(--tt-surface-2)]'
                       }`}
                     >
                       {t('allProducts')}
@@ -4406,11 +4408,11 @@ export default function App() {
                         key={c.slug}
                         onClick={() => navigateToCategory(c.slug)}
                         className={`text-left w-full px-3 py-2 text-xs rounded-xl font-semibold transition-all flex justify-between items-center ${
-                          selectedCategorySlug === c.slug ? 'bg-[#a855f7] text-black' : 'text-white/75 hover:bg-white/[0.03]'
+                          selectedCategorySlug === c.slug ? 'bg-[#a855f7] text-black' : 'text-white/75 hover:bg-[var(--tt-surface-2)]'
                         }`}
                       >
                         <span>{c.name}</span>
-                        <span className={`text-[9px] px-2 py-0.5 rounded-full ${selectedCategorySlug === c.slug ? 'bg-black/10 text-black/60' : 'bg-white/[0.05] text-white/40'}`}>{c.count}</span>
+                        <span className={`text-[9px] px-2 py-0.5 rounded-full ${selectedCategorySlug === c.slug ? 'bg-black/10 text-black/60' : 'bg-[var(--tt-surface-2)] text-[var(--tt-text-faint)]'}`}>{c.count}</span>
                       </button>
                     ))}
                   </div>
@@ -4418,13 +4420,13 @@ export default function App() {
 
                 {/* Region filter */}
                 <div className="mb-6">
-                  <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-2">
+                  <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-2">
                     {t('region')}
                   </label>
                   <select
                     value={filterRegion}
                     onChange={(e) => setFilterRegion(e.target.value)}
-                    className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-3 py-2.5 rounded-xl text-white focus:outline-none"
+                    className="w-full bg-[#0c0714] border border-[var(--tt-border)] text-xs px-3 py-2.5 rounded-xl text-[var(--tt-text)] focus:outline-none"
                   >
                     <option value="ALL">Toutes les régions</option>
                     <option value="Global">Global</option>
@@ -4436,13 +4438,13 @@ export default function App() {
 
                 {/* Sorting options */}
                 <div>
-                  <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-2">
+                  <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-2">
                     Tri
                   </label>
                   <select
                     value={filterSort}
                     onChange={(e) => setFilterSort(e.target.value)}
-                    className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-3 py-2.5 rounded-xl text-white focus:outline-none"
+                    className="w-full bg-[#0c0714] border border-[var(--tt-border)] text-xs px-3 py-2.5 rounded-xl text-[var(--tt-text)] focus:outline-none"
                   >
                     <option value="DEFAULT">Défaut</option>
                     <option value="PRICE_ASC">{t('sortPriceAsc')}</option>
@@ -4471,7 +4473,7 @@ export default function App() {
                           setSelectedRegionIndex(0);
                           setSelectedAmountIndex(Math.floor(p.options.length / 2));
                         }}
-                        className="group bg-[#1c1030] border border-white/[0.08] hover:border-[#a855f7]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col justify-between"
+                        className="group bg-[var(--tt-surface)] border border-[var(--tt-border)] hover:border-[#a855f7]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col justify-between"
                         whileHover={{ scale: 1.03, y: -4, transition: { duration: 0.2 } }}
                       >
                         <div className="relative aspect-square overflow-hidden bg-slate-900">
@@ -4482,9 +4484,9 @@ export default function App() {
                           />
                           <button
                             onClick={(e) => toggleWishlist(p.id, e)}
-                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-colors"
+                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/40 text-[var(--tt-text)] backdrop-blur-sm hover:bg-black/60 transition-colors"
                           >
-                            <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[#a855f7]' : 'text-white'}`} />
+                            <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[#a855f7]' : 'text-[var(--tt-text)]'}`} />
                           </button>
                           {p.isPromo && (
                             <span className="absolute top-2 left-2 bg-[#a855f7] text-black font-black text-[9px] uppercase px-2 py-0.5 rounded">
@@ -4498,18 +4500,18 @@ export default function App() {
                             <span className="text-[9px] font-bold text-[#8b5cf6] uppercase tracking-wider bg-[#8b5cf6]/10 px-2 py-0.5 rounded">
                               {p.regions[0] || 'Global'}
                             </span>
-                            <h3 className="text-xs md:text-sm font-extrabold text-white mt-2 group-hover:text-[#a855f7] transition-colors truncate">
+                            <h3 className="text-xs md:text-sm font-extrabold text-[var(--tt-text)] mt-2 group-hover:text-[#a855f7] transition-colors truncate">
                               {p.name}
                             </h3>
-                            <p className="text-[10px] text-white/50 mt-1 line-clamp-2">
+                            <p className="text-[10px] text-[var(--tt-text-muted)] mt-1 line-clamp-2">
                               {lang === 'FR' ? p.descriptionFR : p.descriptionHT}
                             </p>
                           </div>
 
-                          <div className="mt-4 border-t border-white/[0.05] pt-3 flex items-center justify-between">
+                          <div className="mt-4 border-t border-[var(--tt-border)] pt-3 flex items-center justify-between">
                             <div>
-                              <p className="text-[9px] text-white/40 font-bold uppercase">{lang === 'FR' ? 'À partir de' : 'Kòmanse nan'}</p>
-                              <p className="text-sm font-black text-white tabular-nums">{priceLabel(p)}</p>
+                              <p className="text-[9px] text-[var(--tt-text-faint)] font-bold uppercase">{lang === 'FR' ? 'À partir de' : 'Kòmanse nan'}</p>
+                              <p className="text-sm font-black text-[var(--tt-text)] tabular-nums">{priceLabel(p)}</p>
                             </div>
                             <span className="text-[10px] text-[#a855f7] font-black group-hover:underline flex items-center gap-0.5">
                               {lang === 'FR' ? 'Commander' : 'Achte'}
@@ -4520,9 +4522,9 @@ export default function App() {
                     ))}
                   </motion.div>
                 ) : (
-                  <div className="text-center py-20 bg-[#1c1030]/50 border border-white/[0.08] rounded-2xl">
-                    <Gamepad2 className="w-12 h-12 text-white/20 mx-auto mb-4" />
-                    <p className="text-sm text-white/60 font-semibold">{t('noResults')}</p>
+                  <div className="text-center py-20 bg-[var(--tt-surface)]/50 border border-[var(--tt-border)] rounded-2xl">
+                    <Gamepad2 className="w-12 h-12 text-[var(--tt-text-faint)] mx-auto mb-4" />
+                    <p className="text-sm text-[var(--tt-text-muted)] font-semibold">{t('noResults')}</p>
                     <button
                       onClick={() => { setSelectedCategorySlug(null); setSearchQuery(''); setFilterRegion('ALL'); }}
                       className="mt-4 bg-[#a855f7] text-[#0c0714] font-extrabold text-xs px-5 py-2.5 rounded-xl"
@@ -4544,57 +4546,57 @@ export default function App() {
             ========================================== */}
         {currentPage === 'about' && (
           <div id="about-us-page" className="max-w-4xl mx-auto px-4 py-12 animate-fadeIn text-center">
-            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
+            <h1 className="text-3xl md:text-5xl font-black text-[var(--tt-text)] tracking-tight mb-4">
               {t('aboutTitle')}
             </h1>
-            <p className="text-xs md:text-sm text-white/50 max-w-xl mx-auto mb-12">
+            <p className="text-xs md:text-sm text-[var(--tt-text-muted)] max-w-xl mx-auto mb-12">
               Votre portail d'accès premium au divertissement mondial en Haïti.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left mb-12">
-              <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-6 md:p-8">
+              <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-6 md:p-8">
                 <h3 className="text-lg font-bold text-[#a855f7] mb-3 flex items-center gap-2">
                   <Star className="w-5 h-5 fill-current" />
                   {t('ourStory')}
                 </h3>
-                <p className="text-xs text-white/70 leading-relaxed">
+                <p className="text-xs text-[var(--tt-text)] leading-relaxed">
                   {t('ourStoryDesc')}
                 </p>
               </div>
 
-              <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-6 md:p-8">
+              <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-6 md:p-8">
                 <h3 className="text-lg font-bold text-[#8b5cf6] mb-3 flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5" />
                   {t('ourMission')}
                 </h3>
-                <p className="text-xs text-white/70 leading-relaxed">
+                <p className="text-xs text-[var(--tt-text)] leading-relaxed">
                   {t('ourMissionDesc')}
                 </p>
               </div>
             </div>
 
-            <div className="bg-[var(--tt-surface-2)] border border-white/[0.06] rounded-2xl p-6 md:p-8 text-left">
-              <h3 className="text-lg font-bold text-white mb-4">Nos Valeurs Clés</h3>
-              <ul className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-white/70">
+            <div className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-2xl p-6 md:p-8 text-left">
+              <h3 className="text-lg font-bold text-[var(--tt-text)] mb-4">Nos Valeurs Clés</h3>
+              <ul className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-[var(--tt-text)]">
                 <li className="flex gap-2.5 items-start">
                   <Check className="w-4 h-4 text-[#a855f7] flex-shrink-0 mt-0.5" />
                   <div>
-                    <strong className="text-white">Rapidité Absolute</strong>
-                    <p className="text-white/50 mt-1">Livraison garantie de vos codes de jeux sous 5 minutes par e-mail.</p>
+                    <strong className="text-[var(--tt-text)]">Rapidité Absolute</strong>
+                    <p className="text-[var(--tt-text-muted)] mt-1">Livraison garantie de vos codes de jeux sous 5 minutes par e-mail.</p>
                   </div>
                 </li>
                 <li className="flex gap-2.5 items-start">
                   <Check className="w-4 h-4 text-[#a855f7] flex-shrink-0 mt-0.5" />
                   <div>
-                    <strong className="text-white">Sécurité Maximale</strong>
-                    <p className="text-white/50 mt-1">Transactions validées via les systèmes financiers officiels locaux MonCash/NatCash.</p>
+                    <strong className="text-[var(--tt-text)]">Sécurité Maximale</strong>
+                    <p className="text-[var(--tt-text-muted)] mt-1">Transactions validées via les systèmes financiers officiels locaux MonCash/NatCash.</p>
                   </div>
                 </li>
                 <li className="flex gap-2.5 items-start">
                   <Check className="w-4 h-4 text-[#a855f7] flex-shrink-0 mt-0.5" />
                   <div>
-                    <strong className="text-white">Service Transparent</strong>
-                    <p className="text-white/50 mt-1">Aucuns frais d'enregistrement ou coûts cachés additionnels sur vos forfaits.</p>
+                    <strong className="text-[var(--tt-text)]">Service Transparent</strong>
+                    <p className="text-[var(--tt-text-muted)] mt-1">Aucuns frais d'enregistrement ou coûts cachés additionnels sur vos forfaits.</p>
                   </div>
                 </li>
               </ul>
