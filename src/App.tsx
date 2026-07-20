@@ -566,6 +566,9 @@ const PRODUCTS: Product[] = [
 const DICTIONARY: Record<string, Record<string, string>> = {
   FR: {
     accueil: 'Accueil',
+    // Absente du dictionnaire, la clé était affichée telle quelle (« allProducts »)
+    // en titre de page, fil d'Ariane et filtre : t() retombe sur la clé brute.
+    allProducts: 'Tous les produits',
     products: 'Produits',
     freeFire: 'Free Fire',
     pubg: 'PUBG',
@@ -634,6 +637,7 @@ const DICTIONARY: Record<string, Record<string, string>> = {
   },
   HT: {
     accueil: 'Paj Prensipal',
+    allProducts: 'Tout pwodwi yo',
     products: 'Pwodwi yo',
     freeFire: 'Free Fire',
     pubg: 'PUBG',
