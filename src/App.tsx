@@ -2775,7 +2775,7 @@ export default function App() {
         <div className="relative flex items-center justify-center w-28 h-28 mb-4">
           <ThieThieLogo variant="icon" size={110} animated={true} />
         </div>
-        <h2 className="text-xl font-extrabold text-white mt-6 tracking-wider bg-gradient-to-r from-white via-white to-[#a855f7] bg-clip-text text-transparent uppercase font-sans">
+        <h2 className="text-xl font-extrabold text-white mt-6 tracking-wider bg-gradient-to-r from-[var(--tt-text)] via-[var(--tt-text)] to-[var(--tt-accent)] bg-clip-text text-transparent uppercase font-sans">
           THIE THIE SERVICES
         </h2>
         <p className="text-[10px] text-white/50 mt-2 font-mono uppercase tracking-widest">
@@ -2828,7 +2828,7 @@ export default function App() {
                 <ThieThieLogo variant="icon" size={96} />
               </div>
 
-              <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-none bg-gradient-to-r from-white via-white to-[#a855f7] bg-clip-text text-transparent uppercase">
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-none bg-gradient-to-r from-[var(--tt-text)] via-[var(--tt-text)] to-[var(--tt-accent)] bg-clip-text text-transparent uppercase">
                 Thie Thie Services
               </h1>
               <span className="block text-xs font-bold tracking-widest text-[var(--tt-accent)] mt-1.5 uppercase font-mono">

@@ -74,6 +74,11 @@
      d'où des statuts « en attente » peints en violet, confondus avec l'accent. */
   --tt-warn: #f0a63c;
   --tt-warn-soft: rgba(240, 166, 60, 0.14);
+  /* Voiles translucides : remplacent les `bg-white/[0.0x]` codés en dur. Un simple
+     renvoi vers --tt-surface-2 aurait ALOURDI le thème sombre (surface opaque au lieu
+     d'un blanc à 3 %) ; ces tokens conservent la translucidité et s'inversent en clair. */
+  --tt-overlay: rgba(255, 255, 255, 0.04);
+  --tt-overlay-strong: rgba(255, 255, 255, 0.09);
   --tt-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.55);
 }
 
@@ -98,6 +103,8 @@ body.light {
   --tt-danger-soft: #fdeaef;
   --tt-warn: #9e5a08; /* 5.36:1 sur blanc · 5.01:1 sur --tt-bg */
   --tt-warn-soft: #fdf0dc;
+  --tt-overlay: rgba(16, 19, 26, 0.035);
+  --tt-overlay-strong: rgba(16, 19, 26, 0.07);
   --tt-shadow: 0 1px 2px rgba(16, 19, 26, 0.04), 0 8px 24px -12px rgba(16, 19, 26, 0.12);
 }
 

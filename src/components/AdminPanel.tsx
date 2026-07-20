@@ -165,32 +165,32 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
   // Écran de step-up : un passkey est enregistré mais pas encore vérifié cette session.
   // (Le serveur applique de toute façon requireStepUp sur les actions sensibles.)
   if (hasPasskey === null) {
-    return <div className="min-h-screen bg-[var(--tt-bg)] text-white flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-[var(--tt-accent)]" /></div>;
+    return <div className="min-h-screen bg-[var(--tt-bg)] text-[var(--tt-text)] flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-[var(--tt-accent)]" /></div>;
   }
   if (hasPasskey && !stepUpOk) {
     return (
-      <div className="min-h-screen bg-[var(--tt-bg)] text-white flex items-center justify-center p-4">
-        <div className="bg-[var(--tt-surface)] border border-white/10 rounded-3xl w-full max-w-sm p-8 text-center flex flex-col items-center gap-4">
+      <div className="min-h-screen bg-[var(--tt-bg)] text-[var(--tt-text)] flex items-center justify-center p-4">
+        <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl w-full max-w-sm p-8 text-center flex flex-col items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-[#a855f7]/15 flex items-center justify-center"><Fingerprint className="w-7 h-7 text-[var(--tt-accent)]" /></div>
           <div>
             <h1 className="text-xl font-black">Back-office protégé</h1>
-            <p className="text-sm text-white/50 mt-1">Vérifie ton identité avec ton passkey pour continuer.</p>
+            <p className="text-sm text-[var(--tt-text-muted)] mt-1">Vérifie ton identité avec ton passkey pour continuer.</p>
           </div>
           {pkMsg && <p className="text-xs font-bold text-red-400">{pkMsg}</p>}
           <button onClick={doVerifyPasskey} disabled={pkBusy} className="w-full bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">
             {pkBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Fingerprint className="w-4 h-4" />} Déverrouiller
           </button>
-          <button onClick={() => navigateToPage('home')} className="text-xs text-white/40 hover:text-white">Retour au site</button>
+          <button onClick={() => navigateToPage('home')} className="text-xs text-[var(--tt-text-faint)] hover:text-[var(--tt-text)]">Retour au site</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--tt-bg)] text-white flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[var(--tt-bg)] text-[var(--tt-text)] flex flex-col lg:flex-row">
       {/* Nav onglets */}
-      <aside className="lg:w-60 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.06] bg-[var(--tt-surface)] lg:h-screen lg:sticky lg:top-0 p-3">
-        <button onClick={() => navigateToPage('home')} className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white mb-3 px-2 py-1">
+      <aside className="lg:w-60 shrink-0 border-b lg:border-b-0 lg:border-r border-[var(--tt-border)] bg-[var(--tt-surface)] lg:h-screen lg:sticky lg:top-0 p-3">
+        <button onClick={() => navigateToPage('home')} className="flex items-center gap-1.5 text-xs text-[var(--tt-text-muted)] hover:text-[var(--tt-text)] mb-3 px-2 py-1">
           <ChevronLeft className="w-4 h-4" /> Retour au site
         </button>
         <h1 className="text-sm font-black px-2 mb-2 text-[var(--tt-accent)] uppercase tracking-wider">Back-office</h1>
@@ -200,7 +200,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
             const badge = t.id === 'orders' ? ordersToFulfill.length : t.id === 'deposits' ? depositsPending.length : t.id === 'kyc' ? kycPending.length : 0;
             return (
               <button key={t.id} onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-colors ${tab === t.id ? 'bg-[#a855f7] text-black' : 'text-white/70 hover:bg-white/[0.05]'}`}>
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-colors ${tab === t.id ? 'bg-[#a855f7] text-black' : 'text-[var(--tt-text-muted)] hover:bg-[var(--tt-overlay)]'}`}>
                 <Icon className="w-4 h-4" /> {t.label}
                 {badge > 0 && <span className={`ml-auto text-[10px] rounded-full px-1.5 ${tab === t.id ? 'bg-[var(--tt-surface-2)]' : 'bg-[#a855f7] text-black'}`}>{badge}</span>}
               </button>
@@ -222,9 +222,9 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                 { label: 'KYC en attente', value: kycPending.length, c: '#a78bfa' },
                 { label: 'Total commandes', value: orders.length, c: '#10b981' },
               ].map((s) => (
-                <div key={s.label} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5">
+                <div key={s.label} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5">
                   <p className="text-3xl font-black tabular-nums" style={{ color: s.c }}>{s.value}</p>
-                  <p className="text-xs text-white/50 font-bold mt-1">{s.label}</p>
+                  <p className="text-xs text-[var(--tt-text-muted)] font-bold mt-1">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -233,14 +233,14 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
 
         {tab === 'orders' && (
           <div>
-            <h2 className="text-2xl font-black mb-6">Commandes <span className="text-sm text-white/40">({ordersToFulfill.length} à livrer)</span></h2>
+            <h2 className="text-2xl font-black mb-6">Commandes <span className="text-sm text-[var(--tt-text-faint)]">({ordersToFulfill.length} à livrer)</span></h2>
             <div className="flex flex-col gap-3">
-              {orders.length === 0 && <p className="text-white/40 text-sm">Aucune commande.</p>}
+              {orders.length === 0 && <p className="text-[var(--tt-text-faint)] text-sm">Aucune commande.</p>}
               {orders.map((o) => (
-                <div key={o.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div key={o.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-bold text-sm truncate">{o.productName || 'Produit'}{o.optionLabel ? ` — ${o.optionLabel}` : ''}</p>
-                    <p className="text-[11px] text-white/40 font-mono">{o.orderId || o.id} · {htg(o.priceCents)}{o.playerId ? ` · Player ${o.playerId}` : ''}</p>
+                    <p className="text-[11px] text-[var(--tt-text-faint)] font-mono">{o.orderId || o.id} · {htg(o.priceCents)}{o.playerId ? ` · Player ${o.playerId}` : ''}</p>
                   </div>
                   {o.fulfilledAt || o.deliveryCode ? (
                     <span className="text-[10px] font-black text-emerald-400 shrink-0 flex items-center gap-1"><Check className="w-3 h-3" />Livré{o.emailSent === false ? ' (e-mail KO)' : ''}</span>
@@ -255,14 +255,14 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
 
         {tab === 'deposits' && (
           <div>
-            <h2 className="text-2xl font-black mb-6">Dépôts <span className="text-sm text-white/40">({depositsPending.length} en attente)</span></h2>
+            <h2 className="text-2xl font-black mb-6">Dépôts <span className="text-sm text-[var(--tt-text-faint)]">({depositsPending.length} en attente)</span></h2>
             <div className="flex flex-col gap-3">
-              {depositsPending.length === 0 && <p className="text-white/40 text-sm">Aucun dépôt en attente.</p>}
+              {depositsPending.length === 0 && <p className="text-[var(--tt-text-faint)] text-sm">Aucun dépôt en attente.</p>}
               {depositsPending.map((d) => (
-                <div key={d.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div key={d.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-bold text-sm">{d.amountCents ? htg(d.amountCents) : (d.amount || '—')} · {d.paymentMethod || d.provider || '—'}</p>
-                    <p className="text-[11px] text-white/40 font-mono truncate">{d.id}{d.txId ? ` · Tx ${d.txId}` : ''}</p>
+                    <p className="text-[11px] text-[var(--tt-text-faint)] font-mono truncate">{d.id}{d.txId ? ` · Tx ${d.txId}` : ''}</p>
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <button disabled={busy === d.id} onClick={() => doReviewDeposit(d.id, 'approve')} className="bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40">{busy === d.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}Approuver</button>
@@ -276,14 +276,14 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
 
         {tab === 'kyc' && (
           <div>
-            <h2 className="text-2xl font-black mb-6">KYC <span className="text-sm text-white/40">({kycPending.length} en attente)</span></h2>
+            <h2 className="text-2xl font-black mb-6">KYC <span className="text-sm text-[var(--tt-text-faint)]">({kycPending.length} en attente)</span></h2>
             <div className="flex flex-col gap-3">
-              {kycPending.length === 0 && <p className="text-white/40 text-sm">Aucune demande KYC en attente.</p>}
+              {kycPending.length === 0 && <p className="text-[var(--tt-text-faint)] text-sm">Aucune demande KYC en attente.</p>}
               {kycPending.map((k) => (
-                <div key={k.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div key={k.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-bold text-sm truncate">{k.fullName || k.name || 'Sans nom'}</p>
-                    <p className="text-[11px] text-white/40 font-mono truncate">{k.id}</p>
+                    <p className="text-[11px] text-[var(--tt-text-faint)] font-mono truncate">{k.id}</p>
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <button disabled={busy === k.id} onClick={() => doReviewKyc(k.id, 'approve')} className="bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40">{busy === k.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}Approuver</button>
@@ -298,7 +298,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         {tab === 'users' && (
           <div>
             <h2 className="text-2xl font-black mb-1">Utilisateurs</h2>
-            <p className="text-xs text-white/40 mb-5">
+            <p className="text-xs text-[var(--tt-text-faint)] mb-5">
               « Actif » = au moins une commande sur les 30 derniers jours. La connexion n’est
               pas encore horodatée dans le profil, elle ne peut donc pas servir de critère.
             </p>
@@ -310,45 +310,45 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                 { l: 'KYC vérifiés', v: usersVerified, c: 'var(--tt-accent)' },
                 { l: 'Avec solde', v: usersFunded, c: 'var(--tt-warn)' },
               ].map((s) => (
-                <div key={s.l} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4">
+                <div key={s.l} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4">
                   <p className="text-2xl font-black tabular-nums" style={{ color: s.c }}>{s.v.toLocaleString()}</p>
-                  <p className="text-[11px] text-white/40 mt-0.5">{s.l}</p>
+                  <p className="text-[11px] text-[var(--tt-text-faint)] mt-0.5">{s.l}</p>
                 </div>
               ))}
             </div>
 
             <div className="relative mb-4">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--tt-text-faint)]" />
               <input
                 value={userSearch}
                 onChange={(e) => setUserSearch(e.target.value)}
                 placeholder="Rechercher par nom, e-mail ou identifiant…"
-                className="w-full bg-[var(--tt-surface)] border border-white/[0.06] rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none focus:border-[var(--tt-accent)]"
+                className="w-full bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none focus:border-[var(--tt-accent)]"
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              {usersFiltered.length === 0 && <p className="text-white/40 text-sm">Aucun utilisateur ne correspond.</p>}
+              {usersFiltered.length === 0 && <p className="text-[var(--tt-text-faint)] text-sm">Aucun utilisateur ne correspond.</p>}
               {usersFiltered.slice(0, 100).map((u) => (
-                <div key={u.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div key={u.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-bold text-sm truncate">
                       {u.fullName || u.displayName || 'Sans nom'}
                       {u.role === 'admin' && <span className="ml-2 text-[10px] font-black text-[var(--tt-accent)]">ADMIN</span>}
                     </p>
-                    <p className="text-[11px] text-white/40 truncate">{u.email || '—'}</p>
-                    <p className="text-[10px] text-white/25 font-mono truncate">{u.id}</p>
+                    <p className="text-[11px] text-[var(--tt-text-faint)] truncate">{u.email || '—'}</p>
+                    <p className="text-[10px] text-[var(--tt-text-faint)] font-mono truncate">{u.id}</p>
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-black tabular-nums">{htg(u.walletBalanceCents || 0)}</p>
-                    <p className="text-[10px] text-white/40">
+                    <p className="text-[10px] text-[var(--tt-text-faint)]">
                       {u.kycStatus === 'verified' ? 'KYC vérifié' : u.kycStatus || 'KYC non soumis'}
                     </p>
                   </div>
                 </div>
               ))}
               {usersFiltered.length > 100 && (
-                <p className="text-[11px] text-white/30 text-center py-2">
+                <p className="text-[11px] text-[var(--tt-text-faint)] text-center py-2">
                   100 premiers affichés sur {usersFiltered.length} — affinez la recherche.
                 </p>
               )}
@@ -359,25 +359,25 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         {tab === 'audit' && (
           <div>
             <h2 className="text-2xl font-black mb-1">Journal d’audit</h2>
-            <p className="text-xs text-white/40 mb-5">
+            <p className="text-xs text-[var(--tt-text-faint)] mb-5">
               Écrit uniquement par le serveur et non modifiable, y compris par un administrateur.
               200 entrées les plus récentes.
             </p>
             <div className="flex flex-col gap-2">
-              {audit.length === 0 && <p className="text-white/40 text-sm">Aucune entrée pour le moment.</p>}
+              {audit.length === 0 && <p className="text-[var(--tt-text-faint)] text-sm">Aucune entrée pour le moment.</p>}
               {audit.map((a) => (
-                <div key={a.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4">
+                <div key={a.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4">
                   <div className="flex items-center justify-between gap-3 mb-1">
                     <p className="font-black text-xs text-[var(--tt-accent)] truncate">{a.action || '—'}</p>
-                    <p className="text-[10px] text-white/30 shrink-0 tabular-nums">{fmtAuditDate(a.at)}</p>
+                    <p className="text-[10px] text-[var(--tt-text-faint)] shrink-0 tabular-nums">{fmtAuditDate(a.at)}</p>
                   </div>
-                  <p className="text-[11px] text-white/50 truncate">
+                  <p className="text-[11px] text-[var(--tt-text-muted)] truncate">
                     par <span className="font-mono">{a.actorUid || '—'}</span>
                     {a.targetUid && <> → <span className="font-mono">{a.targetUid}</span></>}
                     {typeof a.amountCents === 'number' && <> · <span className="font-bold">{htg(a.amountCents)}</span></>}
                   </p>
                   {a.meta && (
-                    <pre className="mt-2 text-[10px] text-white/35 whitespace-pre-wrap break-all font-mono">
+                    <pre className="mt-2 text-[10px] text-[var(--tt-text-faint)] whitespace-pre-wrap break-all font-mono">
                       {JSON.stringify(a.meta)}
                     </pre>
                   )}
@@ -397,16 +397,16 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         {tab === 'security' && (
           <div className="max-w-lg">
             <h2 className="text-2xl font-black mb-4">Sécurité</h2>
-            <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5">
+            <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-[#a855f7]/15 flex items-center justify-center"><Fingerprint className="w-5 h-5 text-[var(--tt-accent)]" /></div>
                 <div>
                   <h3 className="font-black text-sm">Passkey (WebAuthn)</h3>
-                  <p className="text-[11px] text-white/50">{hasPasskey ? 'Actif — le back-office exige une vérification biométrique.' : 'Aucun passkey. Le back-office n\'est pas encore protégé par step-up.'}</p>
+                  <p className="text-[11px] text-[var(--tt-text-muted)]">{hasPasskey ? 'Actif — le back-office exige une vérification biométrique.' : 'Aucun passkey. Le back-office n\'est pas encore protégé par step-up.'}</p>
                 </div>
                 {hasPasskey && <span className="ml-auto text-[10px] font-black text-emerald-400 flex items-center gap-1"><Check className="w-3 h-3" />Actif</span>}
               </div>
-              <p className="text-[11px] text-white/40 mb-3">Un passkey (empreinte / Face ID, stocké par Google Password Manager, Apple ou 1Password) protège l'accès au back-office et les actions sensibles (livraison, dépôts, KYC, paramètres). Tu peux en enregistrer plusieurs (téléphone + ordinateur).</p>
+              <p className="text-[11px] text-[var(--tt-text-faint)] mb-3">Un passkey (empreinte / Face ID, stocké par Google Password Manager, Apple ou 1Password) protège l'accès au back-office et les actions sensibles (livraison, dépôts, KYC, paramètres). Tu peux en enregistrer plusieurs (téléphone + ordinateur).</p>
               {pkMsg && <p className="text-xs font-bold text-[var(--tt-accent)] mb-2">{pkMsg}</p>}
               <button onClick={doEnrollPasskey} disabled={pkBusy} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">
                 {pkBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}{hasPasskey ? 'Ajouter un autre passkey' : 'Enregistrer un passkey'}
@@ -419,16 +419,16 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
       {/* Modal livraison */}
       {fx && (
         <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50 backdrop-blur-md">
-          <div className="bg-[var(--tt-surface)] border border-white/10 rounded-3xl w-full max-w-md p-6 flex flex-col gap-4">
+          <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl w-full max-w-md p-6 flex flex-col gap-4">
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-black flex items-center gap-2"><Mail className="w-4 h-4 text-[var(--tt-accent)]" />Livrer la commande</h3>
-                <p className="text-xs text-white/50 mt-0.5">{fx.productName}{fx.optionLabel ? ` — ${fx.optionLabel}` : ''}</p>
+                <p className="text-xs text-[var(--tt-text-muted)] mt-0.5">{fx.productName}{fx.optionLabel ? ` — ${fx.optionLabel}` : ''}</p>
               </div>
-              <button onClick={() => setFx(null)} className="p-2 rounded-full bg-[var(--tt-surface-2)] hover:bg-white/10" aria-label="Fermer"><X className="w-4 h-4" /></button>
+              <button onClick={() => setFx(null)} className="p-2 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-overlay-strong)]" aria-label="Fermer"><X className="w-4 h-4" /></button>
             </div>
-            <input value={fxCode} onChange={(e) => setFxCode(e.target.value)} placeholder="Code / PIN" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 font-mono text-sm focus:border-[#a855f7] outline-none" />
-            <textarea value={fxInstr} onChange={(e) => setFxInstr(e.target.value)} rows={3} placeholder="Instructions d'application (optionnel)" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none resize-none" />
+            <input value={fxCode} onChange={(e) => setFxCode(e.target.value)} placeholder="Code / PIN" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 font-mono text-sm focus:border-[#a855f7] outline-none" />
+            <textarea value={fxInstr} onChange={(e) => setFxInstr(e.target.value)} rows={3} placeholder="Instructions d'application (optionnel)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none resize-none" />
             <button onClick={doFulfill} disabled={busy === 'fulfill' || !fxCode.trim()} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3">{busy === 'fulfill' ? 'Envoi…' : 'Envoyer le code'}</button>
           </div>
         </div>
@@ -459,16 +459,16 @@ function AdminSettings({ flash }: { flash: (m: string) => void }) {
     <div className="max-w-lg flex flex-col gap-8">
       <div>
         <h2 className="text-2xl font-black mb-4">Paramètres</h2>
-        <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5">
+        <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5">
           <h3 className="font-black text-sm mb-1">Taux de change (HTG pour 1 USD)</h3>
-          <p className="text-[11px] text-white/40 mb-3">Utilisé pour convertir les prix. Doit rester cohérent avec le catalogue.</p>
+          <p className="text-[11px] text-[var(--tt-text-faint)] mb-3">Utilisé pour convertir les prix. Doit rester cohérent avec le catalogue.</p>
           <div className="flex gap-2">
-            <input value={rate} onChange={(e) => setRate(e.target.value)} type="number" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm w-32 focus:border-[#a855f7] outline-none" />
+            <input value={rate} onChange={(e) => setRate(e.target.value)} type="number" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm w-32 focus:border-[#a855f7] outline-none" />
             <button onClick={saveFx} disabled={busy} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4">Enregistrer</button>
           </div>
         </div>
       </div>
-      <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5">
+      <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5">
         <h3 className="font-black text-sm mb-3">Coordonnées de dépôt (affichées aux clients)</h3>
         <div className="grid grid-cols-2 gap-2">
           {[
@@ -477,11 +477,11 @@ function AdminSettings({ flash }: { flash: (m: string) => void }) {
             ['binancePayId', 'Binance Pay ID'], ['paypalEmail', 'PayPal — e-mail'],
           ].map(([k, label]) => (
             <input key={k} placeholder={label} value={(dep as any)[k]} onChange={(e) => setDep({ ...dep, [k]: e.target.value })}
-              className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+              className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
           ))}
         </div>
         <button onClick={saveDep} disabled={busy} className="mt-3 bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5">Enregistrer les coordonnées</button>
-        <p className="text-[10px] text-white/30 mt-2">Laisse un champ vide pour ne pas l'écraser n'est pas supporté — remplis tous les champs.</p>
+        <p className="text-[10px] text-[var(--tt-text-faint)] mt-2">Laisse un champ vide pour ne pas l'écraser n'est pas supporté — remplis tous les champs.</p>
       </div>
     </div>
   );
@@ -552,24 +552,24 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
       {/* Composer push */}
       <div>
         <h2 className="text-2xl font-black mb-4 flex items-center gap-2"><Bell className="w-5 h-5 text-[var(--tt-accent)]" />Envoyer un push</h2>
-        <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre" maxLength={60} className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
-          <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message" rows={2} maxLength={160} className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm resize-none focus:border-[#a855f7] outline-none" />
+        <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 flex flex-col gap-3">
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre" maxLength={60} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message" rows={2} maxLength={160} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm resize-none focus:border-[#a855f7] outline-none" />
           {/* Image d'aperçu : upload direct (Storage public) OU coller une URL */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <label className="cursor-pointer bg-white/[0.06] hover:bg-white/10 rounded-xl px-3 py-2.5 text-xs font-bold flex items-center gap-1.5 shrink-0">
+              <label className="cursor-pointer bg-[var(--tt-overlay)] hover:bg-[var(--tt-overlay-strong)] rounded-xl px-3 py-2.5 text-xs font-bold flex items-center gap-1.5 shrink-0">
                 {uploadingImg ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5" />} Importer une image
                 <input type="file" accept="image/png,image/jpeg,image/jpg,image/webp" className="hidden" onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0])} />
               </label>
-              {imageUrl && <button onClick={() => setImageUrl('')} className="text-white/40 hover:text-red-400 text-xs font-bold">retirer</button>}
+              {imageUrl && <button onClick={() => setImageUrl('')} className="text-[var(--tt-text-faint)] hover:text-red-400 text-xs font-bold">retirer</button>}
             </div>
-            <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="…ou colle une URL d'image (optionnel)" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
-            {imageUrl && <img src={imageUrl} alt="aperçu" className="rounded-lg max-h-28 w-auto object-cover border border-white/10" />}
+            <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="…ou colle une URL d'image (optionnel)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+            {imageUrl && <img src={imageUrl} alt="aperçu" className="rounded-lg max-h-28 w-auto object-cover border border-[var(--tt-border)]" />}
           </div>
-          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Lien au clic (ex. page promo)" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Lien au clic (ex. page promo)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
           <button onClick={send} disabled={sending} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}Envoyer à tous</button>
-          <p className="text-[10px] text-white/30">Le push affiche titre + message + image ; le HTML riche va sur une page promo (ci-contre) vers laquelle pointe le lien.</p>
+          <p className="text-[10px] text-[var(--tt-text-faint)]">Le push affiche titre + message + image ; le HTML riche va sur une page promo (ci-contre) vers laquelle pointe le lien.</p>
         </div>
       </div>
 
@@ -577,25 +577,25 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-black">Pages promo</h2>
-          <button onClick={newPromo} className="text-xs font-black bg-white/[0.06] hover:bg-white/10 rounded-lg px-3 py-1.5">+ Nouvelle</button>
+          <button onClick={newPromo} className="text-xs font-black bg-[var(--tt-overlay)] hover:bg-[var(--tt-overlay-strong)] rounded-lg px-3 py-1.5">+ Nouvelle</button>
         </div>
-        <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
-          <input value={pTitle} onChange={(e) => setPTitle(e.target.value)} placeholder="Titre de la page" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
-          <textarea value={pHtml} onChange={(e) => setPHtml(e.target.value)} placeholder="<h1>Ma promo</h1><p>Contenu HTML…</p>" rows={7} className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono resize-y focus:border-[#a855f7] outline-none" />
+        <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 flex flex-col gap-3">
+          <input value={pTitle} onChange={(e) => setPTitle(e.target.value)} placeholder="Titre de la page" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
+          <textarea value={pHtml} onChange={(e) => setPHtml(e.target.value)} placeholder="<h1>Ma promo</h1><p>Contenu HTML…</p>" rows={7} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs font-mono resize-y focus:border-[#a855f7] outline-none" />
           <label className="flex items-center gap-2 text-xs font-bold"><input type="checkbox" checked={pPub} onChange={(e) => setPPub(e.target.checked)} /> Publiée (visible publiquement)</label>
           <button onClick={save} disabled={pBusy} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl py-2.5">{pBusy ? 'Enregistrement…' : (pId ? 'Mettre à jour' : 'Créer la page')}</button>
         </div>
         {promos.length > 0 && (
           <div className="mt-3 flex flex-col gap-2">
             {promos.map((p) => (
-              <div key={p.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-xl p-3 flex items-center justify-between gap-2">
+              <div key={p.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl p-3 flex items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-sm font-bold truncate">{p.title} {p.published ? <span className="text-[9px] text-emerald-400">● publiée</span> : <span className="text-[9px] text-white/30">brouillon</span>}</p>
+                  <p className="text-sm font-bold truncate">{p.title} {p.published ? <span className="text-[9px] text-emerald-400">● publiée</span> : <span className="text-[9px] text-[var(--tt-text-faint)]">brouillon</span>}</p>
                   <a href={promoLink(p.id)} target="_blank" rel="noreferrer" className="text-[10px] text-[var(--tt-accent)] hover:underline flex items-center gap-1"><ExternalLink className="w-2.5 h-2.5" />{promoLink(p.id)}</a>
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  <button onClick={() => editPromo(p)} className="text-[10px] font-black bg-white/[0.06] hover:bg-white/10 rounded-lg px-2 py-1.5">Éditer</button>
-                  <button onClick={() => remove(p.id)} className="text-white/40 hover:text-red-400 p-1.5" aria-label="Supprimer"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => editPromo(p)} className="text-[10px] font-black bg-[var(--tt-overlay)] hover:bg-[var(--tt-overlay-strong)] rounded-lg px-2 py-1.5">Éditer</button>
+                  <button onClick={() => remove(p.id)} className="text-[var(--tt-text-faint)] hover:text-red-400 p-1.5" aria-label="Supprimer"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
             ))}
@@ -646,14 +646,14 @@ function AdminSupplier({ flash }: { flash: (m: string) => void }) {
       <h2 className="text-2xl font-black mb-4 flex items-center gap-2"><Boxes className="w-5 h-5 text-[var(--tt-accent)]" />Fournisseur (Reloadly)</h2>
 
       {/* Solde */}
-      <div className={`rounded-2xl p-5 mb-6 border ${lowBal ? 'border-red-500/40 bg-red-500/5' : 'border-white/[0.06] bg-[var(--tt-surface)]'}`}>
+      <div className={`rounded-2xl p-5 mb-6 border ${lowBal ? 'border-red-500/40 bg-red-500/5' : 'border-[var(--tt-border)] bg-[var(--tt-surface)]'}`}>
         {!bal ? <Loader2 className="w-4 h-4 animate-spin" /> : !bal.configured ? (
-          <p className="text-sm text-white/50">Reloadly non configuré (clés absentes).</p>
+          <p className="text-sm text-[var(--tt-text-muted)]">Reloadly non configuré (clés absentes).</p>
         ) : (
           <div className="flex items-center justify-between">
             <div>
               <p className="text-3xl font-black tabular-nums text-[var(--tt-accent)]">{bal.balance?.toLocaleString()} {bal.currencyCode}</p>
-              <p className="text-xs text-white/50 font-bold mt-1">Solde fournisseur {lowBal && <span className="text-red-400">· solde bas !</span>}</p>
+              <p className="text-xs text-[var(--tt-text-muted)] font-bold mt-1">Solde fournisseur {lowBal && <span className="text-red-400">· solde bas !</span>}</p>
             </div>
             <span className="text-[10px] font-black text-emerald-400 flex items-center gap-1"><Check className="w-3 h-3" />connecté</span>
           </div>
@@ -662,31 +662,31 @@ function AdminSupplier({ flash }: { flash: (m: string) => void }) {
 
       {/* Mapping produit */}
       <h3 className="font-black text-sm mb-2">Mapper un produit du catalogue → Reloadly</h3>
-      <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
+      <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 flex flex-col gap-3">
         <div className="flex gap-2">
-          <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && search()} placeholder="Chercher un produit Reloadly (ex. Steam, Google Play, App Store)" className="flex-1 bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && search()} placeholder="Chercher un produit Reloadly (ex. Steam, Google Play, App Store)" className="flex-1 bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
           <button onClick={search} disabled={searching} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4">{searching ? '…' : 'Chercher'}</button>
         </div>
         {results.length > 0 && (
           <div className="max-h-52 overflow-y-auto flex flex-col gap-1">
             {results.map((p) => (
-              <button key={p.productId} onClick={() => pick(p)} className={`text-left rounded-lg px-3 py-2 text-xs border ${sel?.productId === p.productId ? 'border-[#a855f7] bg-[#a855f7]/10' : 'border-white/[0.06] hover:bg-white/[0.04]'}`}>
-                <span className="font-bold text-white">{p.productName}</span> <span className="text-white/40">· {p.recipientCurrencyCode} · {p.countryCode} · {p.denominationType}{p.discountPercentage ? ` · -${p.discountPercentage}%` : ''}</span>
-                {p.denominationType === 'FIXED' && <span className="block text-white/40">dénoms : {(p.fixedRecipientDenominations || []).join(', ')}</span>}
+              <button key={p.productId} onClick={() => pick(p)} className={`text-left rounded-lg px-3 py-2 text-xs border ${sel?.productId === p.productId ? 'border-[#a855f7] bg-[#a855f7]/10' : 'border-[var(--tt-border)] hover:bg-[var(--tt-overlay)]'}`}>
+                <span className="font-bold text-[var(--tt-text)]">{p.productName}</span> <span className="text-[var(--tt-text-faint)]">· {p.recipientCurrencyCode} · {p.countryCode} · {p.denominationType}{p.discountPercentage ? ` · -${p.discountPercentage}%` : ''}</span>
+                {p.denominationType === 'FIXED' && <span className="block text-[var(--tt-text-faint)]">dénoms : {(p.fixedRecipientDenominations || []).join(', ')}</span>}
               </button>
             ))}
           </div>
         )}
         {sel && (
-          <div className="border-t border-white/[0.06] pt-3 flex flex-col gap-2">
-            <p className="text-xs text-white/60">Sélectionné : <strong className="text-[var(--tt-accent)]">{sel.productName}</strong> (id {sel.productId})</p>
-            <input value={catId} onChange={(e) => setCatId(e.target.value)} placeholder="ID produit catalogue (ex. apple-gift-card__0)" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono focus:border-[#a855f7] outline-none" />
-            <input value={unit} onChange={(e) => setUnit(e.target.value)} placeholder={`Montant à commander (${sel.recipientCurrencyCode})`} className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+          <div className="border-t border-[var(--tt-border)] pt-3 flex flex-col gap-2">
+            <p className="text-xs text-[var(--tt-text-muted)]">Sélectionné : <strong className="text-[var(--tt-accent)]">{sel.productName}</strong> (id {sel.productId})</p>
+            <input value={catId} onChange={(e) => setCatId(e.target.value)} placeholder="ID produit catalogue (ex. apple-gift-card__0)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs font-mono focus:border-[#a855f7] outline-none" />
+            <input value={unit} onChange={(e) => setUnit(e.target.value)} placeholder={`Montant à commander (${sel.recipientCurrencyCode})`} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
             <label className="flex items-center gap-2 text-xs font-bold"><input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} /> Livraison automatique dès qu'une commande est payée</label>
             <button onClick={save} disabled={saving} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl py-2.5">{saving ? 'Enregistrement…' : 'Mapper ce produit'}</button>
           </div>
         )}
-        <p className="text-[10px] text-white/30">Les recharges jeu (Free Fire, PUBG…) ne sont pas des cartes Reloadly → laisse-les sans mapping, elles restent en livraison manuelle.</p>
+        <p className="text-[10px] text-[var(--tt-text-faint)]">Les recharges jeu (Free Fire, PUBG…) ne sont pas des cartes Reloadly → laisse-les sans mapping, elles restent en livraison manuelle.</p>
       </div>
     </div>
   );
@@ -803,8 +803,8 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
     } catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setMBusy(false); }
   };
 
-  const inputCls = 'bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none';
-  const card = 'bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5';
+  const inputCls = 'bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none';
+  const card = 'bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5';
   const btn = 'bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5 flex items-center justify-center gap-2';
 
   return (
@@ -816,7 +816,7 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-black text-sm flex items-center gap-2"><Coins className="w-4 h-4 text-[var(--tt-accent)]" />Float initial à déposer</h3>
           <div className="flex items-center gap-2">
-            <label className="flex items-center gap-1 text-[11px] text-white/50 font-bold"><input type="checkbox" checked={availOnly} onChange={(e) => { setAvailOnly(e.target.checked); refresh(Number(qty) || 1, e.target.checked); }} /> publiés seulement</label>
+            <label className="flex items-center gap-1 text-[11px] text-[var(--tt-text-muted)] font-bold"><input type="checkbox" checked={availOnly} onChange={(e) => { setAvailOnly(e.target.checked); refresh(Number(qty) || 1, e.target.checked); }} /> publiés seulement</label>
             <input value={qty} onChange={(e) => setQty(e.target.value)} onBlur={() => refresh()} type="number" min={1} className={`${inputCls} w-20`} title="Quantité par produit" />
           </div>
         </div>
@@ -830,25 +830,25 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
             ].map((s) => (
               <div key={s.l} className="bg-[var(--tt-surface-2)] rounded-xl p-3">
                 <p className="text-lg font-black tabular-nums" style={{ color: s.c }}>{s.v}</p>
-                <p className="text-[10px] text-white/50 font-bold mt-0.5">{s.l}</p>
+                <p className="text-[10px] text-[var(--tt-text-muted)] font-bold mt-0.5">{s.l}</p>
               </div>
             ))}
           </div>
-        ) : <p className="text-xs text-white/40">Aucun produit avec coût. Importe Reloadly ou saisis un coût manuel.</p>}
+        ) : <p className="text-xs text-[var(--tt-text-faint)]">Aucun produit avec coût. Importe Reloadly ou saisis un coût manuel.</p>}
         {Object.keys(perProvider).length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {Object.entries(perProvider).map(([src, t]: any) => (
-              <span key={src} className="text-[10px] font-bold text-white/50 bg-white/[0.04] rounded-lg px-2 py-1">{src} : ${(t.usdtToDepositUsdCents / 100).toFixed(2)} USDT</span>
+              <span key={src} className="text-[10px] font-bold text-[var(--tt-text-muted)] bg-[var(--tt-overlay)] rounded-lg px-2 py-1">{src} : ${(t.usdtToDepositUsdCents / 100).toFixed(2)} USDT</span>
             ))}
           </div>
         )}
-        <p className="text-[10px] text-white/30 mt-3">Quantité × chaque produit ayant un coût. Le capital HTG = USDT × taux d'acquisition.</p>
+        <p className="text-[10px] text-[var(--tt-text-faint)] mt-3">Quantité × chaque produit ayant un coût. Le capital HTG = USDT × taux d'acquisition.</p>
       </div>
 
       {/* Config tarification */}
       <div className={card}>
         <h3 className="font-black text-sm mb-1">Paramètres du calcul</h3>
-        <p className="text-[11px] text-white/40 mb-3">face fournisseur → −remise → ×(1+frais crypto) → ×acquisition → marge → arrondi.</p>
+        <p className="text-[11px] text-[var(--tt-text-faint)] mb-3">face fournisseur → −remise → ×(1+frais crypto) → ×acquisition → marge → arrondi.</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <Field label="Acquisition (HTG / USDT)"><input value={acq} onChange={(e) => setAcq(e.target.value)} type="number" className={inputCls} /></Field>
           <Field label="Frais crypto (%)"><input value={crypto} onChange={(e) => setCrypto(e.target.value)} type="number" className={inputCls} /></Field>
@@ -867,19 +867,19 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
       {/* Import Reloadly + reprice */}
       <div className={card}>
         <h3 className="font-black text-sm mb-1">Auto-listing Reloadly</h3>
-        <p className="text-[11px] text-white/40 mb-3">Importe tout le catalogue Reloadly (USD), prix calculés. Produits masqués (à activer un par un).</p>
+        <p className="text-[11px] text-[var(--tt-text-faint)] mb-3">Importe tout le catalogue Reloadly (USD), prix calculés. Produits masqués (à activer un par un).</p>
         <div className="flex flex-wrap gap-2 items-center">
           <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Pays ISO (optionnel, ex. US)" className={`${inputCls} w-48`} />
           <button onClick={doImport} disabled={importing} className={btn}>{importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <DownloadCloud className="w-4 h-4" />}Importer Reloadly</button>
           <button onClick={doClear} disabled={clearing} className="bg-red-500/15 hover:bg-red-500/25 disabled:opacity-40 text-red-300 font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">{clearing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}Vider Reloadly</button>
         </div>
-        {importMsg && <p className="text-[11px] text-white/50 mt-2 tabular-nums">{importMsg}</p>}
+        {importMsg && <p className="text-[11px] text-[var(--tt-text-muted)] mt-2 tabular-nums">{importMsg}</p>}
       </div>
 
       {/* Coût manuel (non-Reloadly / cartes non-USD comme Netflix) */}
       <div className={card}>
         <h3 className="font-black text-sm mb-1">Produit / carte manuelle (Netflix, Free Fire…)</h3>
-        <p className="text-[11px] text-white/40 mb-3">Saisis le coût d'achat réel en USD ; le prix HTG est calculé avec la même marge. <strong className="text-white/60">Renseigne un Nom pour créer une carte affichable</strong> dans la catégorie Cartes cadeaux (ex. Netflix EUR converti à la main).</p>
+        <p className="text-[11px] text-[var(--tt-text-faint)] mb-3">Saisis le coût d'achat réel en USD ; le prix HTG est calculé avec la même marge. <strong className="text-[var(--tt-text-muted)]">Renseigne un Nom pour créer une carte affichable</strong> dans la catégorie Cartes cadeaux (ex. Netflix EUR converti à la main).</p>
         <div className="grid sm:grid-cols-3 gap-2">
           <input value={mProd} onChange={(e) => setMProd(e.target.value)} placeholder="ID produit (ex. manual-netflix-25)" className={`${inputCls} font-mono text-xs sm:col-span-3`} />
           <Field label="Nom affiché (→ crée une carte)"><input value={mName} onChange={(e) => setMName(e.target.value)} placeholder="ex. Netflix 25€" className={inputCls} /></Field>
@@ -891,9 +891,9 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
         <button onClick={saveManual} disabled={mBusy} className={`${btn} mt-3`}>{mBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}Calculer & créer / tarifer</button>
         {mPreview && (
           <div className="mt-3 text-xs bg-[var(--tt-surface-2)] rounded-xl p-3 flex flex-wrap gap-x-5 gap-y-1">
-            <span className="text-white/50">coût : <strong className="text-white">{htg(mPreview.costHtgCents)}</strong></span>
-            <span className="text-white/50">prix de vente : <strong className="text-[var(--tt-accent)]">{htg(mPreview.retailHtgCents)}</strong></span>
-            <span className="text-white/50">marge : <strong className="text-emerald-400">{htg(mPreview.marginHtgCents)} ({(mPreview.effectiveMarginBps / 100).toFixed(1)}%)</strong></span>
+            <span className="text-[var(--tt-text-muted)]">coût : <strong className="text-[var(--tt-text)]">{htg(mPreview.costHtgCents)}</strong></span>
+            <span className="text-[var(--tt-text-muted)]">prix de vente : <strong className="text-[var(--tt-accent)]">{htg(mPreview.retailHtgCents)}</strong></span>
+            <span className="text-[var(--tt-text-muted)]">marge : <strong className="text-emerald-400">{htg(mPreview.marginHtgCents)} ({(mPreview.effectiveMarginBps / 100).toFixed(1)}%)</strong></span>
           </div>
         )}
       </div>
@@ -950,32 +950,32 @@ function AdminManualProducts({ flash }: { flash: (m: string) => void }) {
     catch (err) { flash(`Échec : ${(err as Error).message}`); } finally { setBusy(null); }
   };
 
-  const inputCls = 'bg-[var(--tt-surface-2)] border border-white/10 rounded-lg px-2 py-1.5 text-xs focus:border-[#a855f7] outline-none w-24 tabular-nums';
+  const inputCls = 'bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-lg px-2 py-1.5 text-xs focus:border-[#a855f7] outline-none w-24 tabular-nums';
 
   return (
-    <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5">
+    <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5">
       <div className="flex items-center justify-between mb-1">
         <h3 className="font-black text-sm flex items-center gap-2"><Boxes className="w-4 h-4 text-[var(--tt-accent)]" />Produits manuels — stock & prix</h3>
-        <button onClick={load} className="text-[11px] font-bold text-white/50 hover:text-white flex items-center gap-1"><RefreshCw className="w-3 h-3" />Rafraîchir</button>
+        <button onClick={load} className="text-[11px] font-bold text-[var(--tt-text-muted)] hover:text-[var(--tt-text)] flex items-center gap-1"><RefreshCw className="w-3 h-3" />Rafraîchir</button>
       </div>
-      <p className="text-[11px] text-white/40 mb-3">Ajuste le stock, le prix de vente (HTG) et la disponibilité des produits créés à la main.</p>
+      <p className="text-[11px] text-[var(--tt-text-faint)] mb-3">Ajuste le stock, le prix de vente (HTG) et la disponibilité des produits créés à la main.</p>
       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : rows.length === 0 ? (
-        <p className="text-xs text-white/40">Aucun produit manuel. Crée-en un via « Produit / carte manuelle » ci-dessus.</p>
+        <p className="text-xs text-[var(--tt-text-faint)]">Aucun produit manuel. Crée-en un via « Produit / carte manuelle » ci-dessus.</p>
       ) : (
         <div className="flex flex-col gap-2">
           {rows.map((p) => (
             <div key={p.id} className="bg-[var(--tt-surface-2)] rounded-xl p-3 flex flex-wrap items-end gap-3">
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold truncate">{p.name} {p.available === false && <span className="text-[9px] text-red-400">masqué</span>}</p>
-                <p className="text-[10px] text-white/30 font-mono truncate">{p.id}</p>
+                <p className="text-[10px] text-[var(--tt-text-faint)] font-mono truncate">{p.id}</p>
               </div>
-              <label className="flex flex-col gap-0.5"><span className="text-[9px] text-white/40 font-bold uppercase">Stock</span>
+              <label className="flex flex-col gap-0.5"><span className="text-[9px] text-[var(--tt-text-faint)] font-bold uppercase">Stock</span>
                 <input type="number" value={edits[p.id]?.stock ?? ''} onChange={(e) => setEdits({ ...edits, [p.id]: { ...edits[p.id], stock: e.target.value } })} className={inputCls} /></label>
-              <label className="flex flex-col gap-0.5"><span className="text-[9px] text-white/40 font-bold uppercase">Prix HTG</span>
+              <label className="flex flex-col gap-0.5"><span className="text-[9px] text-[var(--tt-text-faint)] font-bold uppercase">Prix HTG</span>
                 <input type="number" value={edits[p.id]?.priceHtg ?? ''} onChange={(e) => setEdits({ ...edits, [p.id]: { ...edits[p.id], priceHtg: e.target.value } })} className={inputCls} /></label>
               <button onClick={() => save(p)} disabled={busy === p.id} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-xs rounded-lg px-3 py-1.5">{busy === p.id ? '…' : 'Enregistrer'}</button>
-              <button onClick={() => toggle(p)} disabled={busy === p.id} className="bg-white/[0.06] hover:bg-white/10 disabled:opacity-40 text-white font-bold text-xs rounded-lg px-3 py-1.5">{p.available === false ? 'Afficher' : 'Masquer'}</button>
-              <button onClick={() => remove(p)} disabled={busy === p.id} className="text-white/40 hover:text-red-400 p-1.5" aria-label="Supprimer"><Trash2 className="w-3.5 h-3.5" /></button>
+              <button onClick={() => toggle(p)} disabled={busy === p.id} className="bg-[var(--tt-overlay)] hover:bg-[var(--tt-overlay-strong)] disabled:opacity-40 text-[var(--tt-text)] font-bold text-xs rounded-lg px-3 py-1.5">{p.available === false ? 'Afficher' : 'Masquer'}</button>
+              <button onClick={() => remove(p)} disabled={busy === p.id} className="text-[var(--tt-text-faint)] hover:text-red-400 p-1.5" aria-label="Supprimer"><Trash2 className="w-3.5 h-3.5" /></button>
             </div>
           ))}
         </div>
@@ -987,7 +987,7 @@ function AdminManualProducts({ flash }: { flash: (m: string) => void }) {
 function Field({ label, children }: { label: string; children: any }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[10px] text-white/40 font-bold uppercase tracking-wide">{label}</span>
+      <span className="text-[10px] text-[var(--tt-text-faint)] font-bold uppercase tracking-wide">{label}</span>
       {children}
     </label>
   );
