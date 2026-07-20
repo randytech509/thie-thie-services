@@ -24,6 +24,27 @@ import { SkeletonList } from './Skeleton';
 import { AdminShieldIcon, VerifiedSealIcon, PendingClockIcon, RejectedIcon, UnverifiedIcon } from './BadgeIcons';
 import { db, auth, storage } from '../firebase';
 import { DeliveryPanel } from './DeliveryPanel';
+
+/**
+ * Traduit l'échec `step-up-required` en consigne actionnable.
+ *
+ * Les actions d'administration exposées dans cet écran (validation de dépôt, validation KYC,
+ * livraison de code) exigent toutes une vérification biométrique récente côté serveur. Or
+ * l'interface qui permet de la faire n'existe QUE dans le back-office : depuis le profil,
+ * l'action échouait avec un code brut, sans dire ni pourquoi ni où aller.
+ */
+function messageErreurAdmin(err: unknown, lang: 'FR' | 'HT'): string {
+  const brut = (err as { message?: string })?.message ?? '';
+  if (brut.includes('step-up-required')) {
+    return lang === 'FR'
+      ? "Vérification biométrique requise. Ouvrez le back-office, onglet Sécurité, validez votre passkey, puis réessayez — la vérification reste valable un moment."
+      : "Verifikasyon byometrik obligatwa. Ouvri back-office la, onglè Sekirite, valide passkey ou, epi eseye ankò.";
+  }
+  if (brut.includes('permission-denied')) {
+    return lang === 'FR' ? "Action refusée : droits administrateur insuffisants." : "Aksyon refize : ou pa gen dwa administratè.";
+  }
+  return brut || (lang === 'FR' ? "L'action a échoué. Réessayez." : "Aksyon an echwe. Eseye ankò.");
+}
 import moncashLogo from '../assets/images/moncash.png';
 import natcashLogo from '../assets/images/natcash.png';
 
@@ -312,7 +333,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       setFulfillInstructions('');
       setTimeout(() => { setFulfillTarget(null); setFulfillMsg(null); }, 2600);
     } catch (e) {
-      setFulfillMsg(`Échec : ${(e as Error).message}`);
+      setFulfillMsg(messageErreurAdmin(e, lang));
     } finally {
       setFulfilling(false);
     }
@@ -729,9 +750,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       setSelectedRequest(null);
     } catch (err: any) {
       console.error('reviewDeposit a échoué :', err);
-      alert(err?.message || (lang === 'FR'
-        ? "Échec de la validation du dépôt. Réessayez."
-        : "Validasyon depo a echwe. Eseye ankò."));
+      alert(messageErreurAdmin(err, lang));
     } finally {
       setSubmittingDeposit(false);
     }
@@ -795,7 +814,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       setSelectedKycRequest(null);
     } catch (err: any) {
       console.error('reviewKyc a échoué :', err);
-      alert(err?.message || (lang === 'FR' ? "Échec de la validation KYC." : "Validasyon KYC echwe."));
+      alert(messageErreurAdmin(err, lang));
     } finally {
       setSubmittingKycReview(false);
     }
