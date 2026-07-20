@@ -1,6 +1,51 @@
 @import "tailwindcss";
 
 /* ==========================================
+   PALETTE SÉMANTIQUE — sortie des défauts Tailwind
+   ==========================================
+   Pourquoi ici et pas seulement dans les tokens --tt-* : les couleurs de statut ne
+   passaient PAS par les tokens. Ceux-ci n'avaient aucun consommateur hors de ce
+   fichier ; toute la surface réelle, ce sont ~240 classes utilitaires
+   (`text-emerald-400`, `bg-red-500`, `border-amber-500`…) éparpillées dans les
+   composants. Redéfinir la palette ici les déplace toutes d'un coup, sans toucher
+   un seul appel.
+
+   Le problème : #34d399 / #ef4444 / #f59e0b sont les valeurs par défaut de Tailwind.
+   Elles reviennent dans une telle proportion d'interfaces qu'elles signent le produit.
+   Les remplaçantes restent dans la MÊME FAMILLE de teinte (le nom de la classe garde
+   donc son sens : `emerald` reste un vert), mais tirent vers le rose pour s'accorder
+   au violet de marque #a855f7, avec lequel l'émeraude et le rouge brique juraient.
+
+   Chaque valeur est calée sur la LUMINANCE de celle qu'elle remplace (à ~0,02 près) :
+   les rapports de contraste existants sont donc préservés, en clair comme en sombre.
+   Sans cette contrainte, un simple changement de teinte ferait passer des libellés
+   sous le seuil AA sans que rien ne le signale.
+   ========================================== */
+@theme {
+  /* Jade — remplace l'émeraude */
+  --color-emerald-300: #5ee0ba;
+  --color-emerald-400: #29d3a2;
+  --color-emerald-500: #12b98a;
+  --color-emerald-600: #0e9e77;
+  /* `green` n'apparaît que 7 fois, aligné sur le même jade pour éviter deux verts */
+  --color-green-400: #29d3a2;
+  --color-green-500: #12b98a;
+
+  /* Vermillon rosé — remplace le rouge */
+  --color-red-300: #ff9fb0;
+  --color-red-400: #ff5c7a;
+  --color-red-500: #ee3d62;
+  --color-red-600: #d92a4e;
+
+  /* Ambre brûlé — remplace l'ambre/jaune */
+  --color-amber-400: #f7bc45;
+  --color-amber-500: #f0a63c;
+  --color-amber-600: #d18a22;
+  --color-yellow-400: #f2c63e;
+  --color-yellow-500: #e0ae2a;
+}
+
+/* ==========================================
    DESIGN TOKENS (refonte sidebar + palette affinée)
    Utilisés via la syntaxe Tailwind arbitraire, ex. bg-[var(--tt-surface)].
    Dark = valeurs par défaut (app dark-first) ; body.light les redéfinit,
@@ -20,14 +65,15 @@
   --tt-accent: #a855f7;
   --tt-accent-ink: #e9d5ff;
   --tt-accent-soft: rgba(168, 85, 247, 0.14);
-  --tt-good: #34d399;
-  --tt-good-soft: rgba(52, 211, 153, 0.14);
-  --tt-danger: #f87171;
-  --tt-danger-soft: rgba(248, 113, 113, 0.14);
+  /* Alignés sur la palette sémantique redéfinie plus haut (jade / vermillon / ambre). */
+  --tt-good: #29d3a2;
+  --tt-good-soft: rgba(41, 211, 162, 0.14);
+  --tt-danger: #ff5c7a;
+  --tt-danger-soft: rgba(255, 92, 122, 0.14);
   /* État intermédiaire (vérification en cours) : il manquait un jaune à la palette,
      d'où des statuts « en attente » peints en violet, confondus avec l'accent. */
-  --tt-warn: #f59e0b;
-  --tt-warn-soft: rgba(245, 158, 11, 0.14);
+  --tt-warn: #f0a63c;
+  --tt-warn-soft: rgba(240, 166, 60, 0.14);
   --tt-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.55);
 }
 
@@ -44,13 +90,14 @@ body.light {
   --tt-accent: #9333ea;
   --tt-accent-ink: #4a1d75;
   --tt-accent-soft: #f3e8ff;
-  /* #16a34a = 3.30:1 sur blanc : insuffisant pour un statut écrit en petit. */
-  --tt-good: #15803d;
-  --tt-good-soft: #e8f8ee;
-  --tt-danger: #dc2626;
-  --tt-danger-soft: #fdecec;
-  --tt-warn: #b45309; /* 5.02:1 sur blanc — l'ambre vif du thème sombre y tomberait à 2:1 */
-  --tt-warn-soft: #fef3c7;
+  /* Mêmes familles qu'en sombre, mais assombries pour le fond clair : le jade et le
+     vermillon vifs y tomberaient sous 3:1. Ratios mesurés sur blanc / sur --tt-bg. */
+  --tt-good: #0f7a5c; /* 5.30:1 sur blanc · 4.96:1 sur --tt-bg */
+  --tt-good-soft: #e6f6f0;
+  --tt-danger: #b81d42; /* 6.38:1 sur blanc · 5.96:1 sur --tt-bg */
+  --tt-danger-soft: #fdeaef;
+  --tt-warn: #9e5a08; /* 5.36:1 sur blanc · 5.01:1 sur --tt-bg */
+  --tt-warn-soft: #fdf0dc;
   --tt-shadow: 0 1px 2px rgba(16, 19, 26, 0.04), 0 8px 24px -12px rgba(16, 19, 26, 0.12);
 }
 

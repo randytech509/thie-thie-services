@@ -164,11 +164,11 @@ const CATEGORIES = [
   { slug: 'pubg', name: 'PUBG UC', count: 6, icon: ShieldCheck, gradient: 'from-[#8b5cf6] to-[#7c3aed]' },
   { slug: 'robux', name: 'Roblox', count: 5, icon: Coins, gradient: 'from-[#7c3aed] to-[#a855f7]' },
   { slug: 'netflix', name: 'Netflix', count: 4, icon: Tv, gradient: 'from-[#ef4444] to-[#7c3aed]' },
-  { slug: 'meru', name: 'Meru Services', count: 4, icon: Smartphone, gradient: 'from-[#10b981] to-[#8b5cf6]' },
-  { slug: 'google-play', name: 'Google Play', count: 4, icon: Gift, gradient: 'from-[#c084fc] to-[#10b981]' },
+  { slug: 'meru', name: 'Meru Services', count: 4, icon: Smartphone, gradient: 'from-[#12b98a] to-[#8b5cf6]' },
+  { slug: 'google-play', name: 'Google Play', count: 4, icon: Gift, gradient: 'from-[#c084fc] to-[#12b98a]' },
   { slug: 'apple', name: 'Apple Gift Card', count: 4, icon: ShieldCheck, gradient: 'from-[#a855f7] to-[#8b5cf6]' },
   { slug: 'playstation', name: 'PlayStation', count: 4, icon: Gamepad2, gradient: 'from-[#8b5cf6] to-[#3b1a6e]' },
-  { slug: 'xbox', name: 'Xbox Live', count: 3, icon: Gamepad2, gradient: 'from-[#10b981] to-[#064e3b]' },
+  { slug: 'xbox', name: 'Xbox Live', count: 3, icon: Gamepad2, gradient: 'from-[#12b98a] to-[#064e3b]' },
   { slug: 'steam', name: 'Steam Wallet', count: 3, icon: Coins, gradient: 'from-[#4b5563] to-[#111827]' },
   { slug: 'valorant', name: 'Valorant Points', count: 4, icon: ShieldCheck, gradient: 'from-[#f43f5e] to-[#991b1b]' },
   { slug: 'mobile-legends', name: 'Mobile Legends', count: 4, icon: Gamepad2, gradient: 'from-[#06b6d4] to-[#4f46e5]' },
@@ -750,7 +750,7 @@ const HERO_SLIDES = [
     subtitleIcon: MapPin,
     desc: 'Faites le plein de jetons de crédit Meru pour débloquer de nouveaux services instantanés.',
     descHT: 'Pran gwo pakèt kredi Meru pou debloke tout sèvis lokal yo fasil an Ayiti.',
-    gradient: 'from-[#10b981] to-[#3b1a6e]',
+    gradient: 'from-[#12b98a] to-[#3b1a6e]',
     cta: 'Commander',
     image: meruOgImage,
     slug: 'meru'
@@ -812,7 +812,7 @@ const HIGHLIGHTED_CATEGORIES = [
     badgeFR: 'Android',
     badgeHT: 'Android',
     color: '#10b981',
-    gradient: 'from-[#10b981]/20 to-transparent'
+    gradient: 'from-[#12b98a]/20 to-transparent'
   },
   {
     slug: 'playstation',
@@ -3840,7 +3840,7 @@ export default function App() {
                           <Clock className="w-3.5 h-3.5 text-[#c084fc]" />
                           {p.deliveryTime}
                         </span>
-                        <span className="bg-[#10b981]/10 text-[#10b981] font-bold px-2 py-0.5 rounded-full uppercase">
+                        <span className="bg-[#12b98a]/10 text-[#12b98a] font-bold px-2 py-0.5 rounded-full uppercase">
                           {t('stock')}
                         </span>
                       </div>
@@ -3902,7 +3902,7 @@ export default function App() {
                       <h4 className="text-xs font-extrabold text-white mt-1.5 truncate group-hover:text-[var(--tt-accent)] transition-colors">
                         {p.name}
                       </h4>
-                      <div className="mt-2 text-xs font-bold text-[#10b981] tabular-nums">
+                      <div className="mt-2 text-xs font-bold text-[#12b98a] tabular-nums">
                         {priceLabel(p)}
                       </div>
                     </div>
@@ -4996,8 +4996,8 @@ export default function App() {
                       </p>
 
                       {alertSubmitted ? (
-                        <div className="bg-[#10b981]/5 border border-[#10b981]/20 rounded-2xl p-5 text-center flex flex-col items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-[#10b981]/10 border border-[#10b981]/30 flex items-center justify-center text-[#10b981]">
+                        <div className="bg-[#12b98a]/5 border border-[#12b98a]/20 rounded-2xl p-5 text-center flex flex-col items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-[#12b98a]/10 border border-[#12b98a]/30 flex items-center justify-center text-[#12b98a]">
                             <Check className="w-6 h-6" />
                           </div>
                           <div>
@@ -5364,7 +5364,7 @@ export default function App() {
                         <span className="text-[9px] font-extrabold text-white/30 uppercase tracking-widest">
                           {lang === 'FR' ? 'Paiement par Wallet · Instantané' : 'Peman ak Wallet · Enstantane'}
                         </span>
-                        <span className="text-[9px] bg-[#10b981]/10 text-[#10b981] font-bold px-2 py-0.5 rounded uppercase">
+                        <span className="text-[9px] bg-[#12b98a]/10 text-[#12b98a] font-bold px-2 py-0.5 rounded uppercase">
                           {t('stock')}
                         </span>
                       </div>

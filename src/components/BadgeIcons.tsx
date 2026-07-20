@@ -64,9 +64,9 @@ export function VerifiedSealIcon({ className = 'w-3.5 h-3.5', flat = false }: Ic
     <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
       <defs>
         <linearGradient id={g} x1="12" y1="1.4" x2="12" y2="22.6" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#6ee7b7" />
-          <stop offset="55%" stopColor="#10b981" />
-          <stop offset="100%" stopColor="#047857" />
+          <stop offset="0%" stopColor="#7fe8c8" />
+          <stop offset="55%" stopColor="#12b98a" />
+          <stop offset="100%" stopColor="#0b7a5c" />
         </linearGradient>
       </defs>
       <polygon points={points} fill={flat ? 'currentColor' : `url(#${g})`} />
@@ -90,9 +90,9 @@ export function PendingClockIcon({ className = 'w-3.5 h-3.5', flat = false }: Ic
     <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
       <defs>
         <linearGradient id={g} x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#fcd34d" />
-          <stop offset="60%" stopColor="#f59e0b" />
-          <stop offset="100%" stopColor="#b45309" />
+          <stop offset="0%" stopColor="#f7cf6b" />
+          <stop offset="60%" stopColor="#f0a63c" />
+          <stop offset="100%" stopColor="#9e5a08" />
         </linearGradient>
       </defs>
       <circle cx="12" cy="12" r="10" fill={flat ? 'currentColor' : `url(#${g})`} />
@@ -131,9 +131,9 @@ export function RejectedIcon({ className = 'w-3.5 h-3.5', flat = false }: IconPr
     <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
       <defs>
         <linearGradient id={g} x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#fca5a5" />
-          <stop offset="60%" stopColor="#ef4444" />
-          <stop offset="100%" stopColor="#b91c1c" />
+          <stop offset="0%" stopColor="#ff9fb0" />
+          <stop offset="60%" stopColor="#ee3d62" />
+          <stop offset="100%" stopColor="#a81a3c" />
         </linearGradient>
       </defs>
       <circle cx="12" cy="12" r="10" fill={flat ? 'currentColor' : `url(#${g})`} />
