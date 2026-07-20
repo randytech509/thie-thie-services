@@ -14,7 +14,9 @@
   --tt-border: rgba(255, 255, 255, 0.08);
   --tt-text: #f5f7fa;
   --tt-text-muted: #93a1b8;
-  --tt-text-faint: #667088;
+  /* #667088 ne donnait que 3.71:1 sur --tt-surface : conforme pour du texte large,
+     PAS pour les libellés 9-11 px sur lesquels il est employé. WCAG AA = 4.5:1. */
+  --tt-text-faint: #78839b;
   --tt-accent: #a855f7;
   --tt-accent-ink: #e9d5ff;
   --tt-accent-soft: rgba(168, 85, 247, 0.14);
@@ -33,15 +35,50 @@ body.light {
   --tt-border: #e1e5ee;
   --tt-text: #10131a;
   --tt-text-muted: #5b6478;
-  --tt-text-faint: #8891a3;
+  /* #8891a3 = 3.17:1 sur blanc et 2.96:1 sur --tt-bg : sous le seuil AA. */
+  --tt-text-faint: #646d7d;
   --tt-accent: #9333ea;
   --tt-accent-ink: #4a1d75;
   --tt-accent-soft: #f3e8ff;
-  --tt-good: #16a34a;
+  /* #16a34a = 3.30:1 sur blanc : insuffisant pour un statut écrit en petit. */
+  --tt-good: #15803d;
   --tt-good-soft: #e8f8ee;
   --tt-danger: #dc2626;
   --tt-danger-soft: #fdecec;
   --tt-shadow: 0 1px 2px rgba(16, 19, 26, 0.04), 0 8px 24px -12px rgba(16, 19, 26, 0.12);
+}
+
+/* ==========================================
+   ACCESSIBILITÉ — indicateur de focus clavier (WCAG 2.4.7 « Focus Visible »)
+   Aucun style de focus n'existait : la navigation au clavier était impossible à
+   suivre. :focus-visible ne s'active qu'au clavier, donc rien ne change à la souris.
+   Double anneau (accent + halo contrasté) pour rester visible sur les deux thèmes
+   ET sur les surfaces colorées (boutons violets, images du carrousel).
+   ========================================== */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--tt-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 4px var(--tt-bg);
+}
+
+/* Les utilisateurs de clavier doivent pouvoir atteindre le contenu sans parcourir
+   toute la navigation latérale (WCAG 2.4.1 « Bypass Blocks »). */
+.tt-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+.tt-skip-link:focus {
+  left: 8px;
+  top: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--tt-surface);
+  color: var(--tt-text);
+  font-weight: 800;
+  box-shadow: var(--tt-shadow);
 }
 
 @keyframes shimmer {

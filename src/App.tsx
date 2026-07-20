@@ -3227,6 +3227,11 @@ export default function App() {
 
   return (
     <div id="app-root" className="min-h-screen flex bg-[var(--tt-bg)]">
+      {/* Premier élément focusable : permet d'atteindre le contenu sans traverser
+          les ~15 liens de catégories au clavier (WCAG 2.4.1). Invisible à la souris. */}
+      <a href="#main-content-flow" className="tt-skip-link">
+        {lang === 'FR' ? 'Aller au contenu' : 'Ale nan kontni an'}
+      </a>
       <Sidebar
         lang={lang}
         setLang={setLang}
@@ -5775,7 +5780,7 @@ export default function App() {
       </div>
 
       {/* FOOTER SECTION */}
-      <footer id="main-footer-section" className="bg-[#0b0e14] border-t border-white/[0.06] pt-16 pb-8 text-xs text-[#c9d1d9]">
+      <footer id="main-footer-section" className="bg-[var(--tt-surface)] border-t border-[var(--tt-border)] pt-16 pb-8 text-xs text-[var(--tt-text-muted)]">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-10">
           
           {/* Logo Description */}
@@ -5784,16 +5789,16 @@ export default function App() {
               <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#a855f7] to-[#7c3aed] flex items-center justify-center text-black font-extrabold text-xs">
                 TT
               </div>
-              <span className="font-extrabold text-lg tracking-wider text-white">THIE THIE SERVICES</span>
+              <span className="font-extrabold text-lg tracking-wider text-[var(--tt-text)]">THIE THIE SERVICES</span>
             </div>
-            <p className="text-white/50 leading-relaxed text-[11px]">
+            <p className="text-[var(--tt-text-muted)] leading-relaxed text-[11px]">
               {t('footerDesc')}
             </p>
           </div>
 
           {/* Quick Links navigation */}
           <div>
-            <h4 className="text-white font-extrabold text-xs uppercase tracking-wider mb-4">Navigation</h4>
+            <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-4">Navigation</h4>
             <ul className="flex flex-col gap-2 font-medium">
               <li><button onClick={() => navigateToPage('home')} className="hover:text-[#a855f7] transition-colors">{t('accueil')}</button></li>
               <li><button onClick={() => navigateToPage('about')} className="hover:text-[#a855f7] transition-colors">{lang === 'FR' ? 'À Propos' : 'Kiyès nou ye'}</button></li>
@@ -5804,7 +5809,7 @@ export default function App() {
 
           {/* Policies conditions */}
           <div>
-            <h4 className="text-white font-extrabold text-xs uppercase tracking-wider mb-4">Légal</h4>
+            <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-4">Légal</h4>
             <ul className="flex flex-col gap-2 font-medium">
               <li><button onClick={() => navigateToPage('privacy')} className="hover:text-[#a855f7] transition-colors">{t('privacyTitle')}</button></li>
               <li><button onClick={() => navigateToPage('terms')} className="hover:text-[#a855f7] transition-colors">{t('termsTitle')}</button></li>
@@ -5813,8 +5818,8 @@ export default function App() {
 
           {/* Newsletter Section */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-white font-extrabold text-xs uppercase tracking-wider mb-1">Newsletter</h4>
-            <p className="text-[11px] text-white/50 leading-relaxed font-medium">
+            <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-1">Newsletter</h4>
+            <p className="text-[11px] text-[var(--tt-text-muted)] leading-relaxed font-medium">
               {lang === 'FR' 
                 ? 'Abonnez-vous pour recevoir les dernières offres, promos et nouveaux jeux.' 
                 : 'Enskri pou resevwa dènye of, pwomosyon, ak nouvo jwèt yo.'}
@@ -5830,10 +5835,10 @@ export default function App() {
                       if (newsletterStatus !== 'idle') setNewsletterStatus('idle');
                     }}
                     placeholder={lang === 'FR' ? 'Votre adresse email' : 'Adrès imel ou'}
-                    className="w-full bg-[#1c1030] border border-white/[0.08] text-xs px-3.5 py-3 pl-9 rounded-xl text-white focus:outline-none focus:border-[#a855f7]/50 placeholder-white/25"
+                    className="w-full bg-[var(--tt-surface-2)] border border-[var(--tt-border)] text-xs px-3.5 py-3 pl-9 rounded-xl text-[var(--tt-text)] focus:outline-none focus:border-[#a855f7]/50 placeholder-white/25"
                     disabled={newsletterStatus === 'loading' || newsletterStatus === 'success'}
                   />
-                  <Mail className="absolute left-3 top-3.5 w-4 h-4 text-white/30" />
+                  <Mail className="absolute left-3 top-3.5 w-4 h-4 text-[var(--tt-text-faint)]" />
                 </div>
                 <button
                   type="submit"
@@ -5866,30 +5871,30 @@ export default function App() {
 
           {/* Payments newsletter */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-white font-extrabold text-xs uppercase tracking-wider mb-1">Modes de Paiement</h4>
-            <div className="flex flex-wrap gap-2 items-center text-white/40 text-[10px] font-bold">
-              <span className="bg-white/5 px-2 py-1 rounded">MonCash</span>
-              <span className="bg-white/5 px-2 py-1 rounded">NatCash</span>
-              <span className="bg-white/5 px-2 py-1 rounded">USDT TRC20</span>
-              <span className="bg-white/5 px-2 py-1 rounded">PayPal</span>
+            <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-1">Modes de Paiement</h4>
+            <div className="flex flex-wrap gap-2 items-center text-[var(--tt-text-faint)] text-[10px] font-bold">
+              <span className="bg-[var(--tt-surface-2)] px-2 py-1 rounded">MonCash</span>
+              <span className="bg-[var(--tt-surface-2)] px-2 py-1 rounded">NatCash</span>
+              <span className="bg-[var(--tt-surface-2)] px-2 py-1 rounded">USDT TRC20</span>
+              <span className="bg-[var(--tt-surface-2)] px-2 py-1 rounded">PayPal</span>
             </div>
             
-            <p className="text-[10px] text-white/40 mt-2 font-bold uppercase tracking-wider">SUPPORT DIRECT</p>
-            <p className="text-white font-extrabold -mt-2">+509 4323 1463</p>
+            <p className="text-[10px] text-[var(--tt-text-faint)] mt-2 font-bold uppercase tracking-wider">SUPPORT DIRECT</p>
+            <p className="text-[var(--tt-text)] font-extrabold -mt-2">+509 4323 1463</p>
           </div>
 
           {/* Standalone Currency Converter */}
-          <div className="flex flex-col gap-3 bg-[var(--tt-surface)] border border-white/[0.08] p-4 rounded-2xl shadow-xl">
+          <div className="flex flex-col gap-3 bg-[var(--tt-surface)] border border-[var(--tt-border)] p-4 rounded-2xl shadow-xl">
             <div className="flex items-center justify-between">
-              <h4 className="text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <Coins className="w-3.5 h-3.5 text-[#a855f7]" />
                 <span>{lang === 'FR' ? 'Convertisseur' : 'Konvètisè'}</span>
               </h4>
-              <span className="text-[8px] bg-white/[0.04] border border-white/[0.08] px-2 py-0.5 rounded-full text-white/50 font-black uppercase tracking-wider">
+              <span className="text-[8px] bg-[var(--tt-surface-2)] border border-[var(--tt-border)] px-2 py-0.5 rounded-full text-[var(--tt-text-muted)] font-black uppercase tracking-wider">
                 Mode: {calcMode}
               </span>
             </div>
-            <p className="text-[10px] text-white/55 leading-normal font-medium">
+            <p className="text-[10px] text-[var(--tt-text-muted)] leading-normal font-medium">
               {lang === 'FR' 
                 ? 'Convertissez instantanément vos prix entre USD et Gourdes.' 
                 : 'Chanje pri ou fasil ant USD ak Goud.'}
@@ -5904,13 +5909,13 @@ export default function App() {
                   onChange={(e) => handleUSDCalcChange(e.target.value)}
                   onFocus={() => setCalcMode('USD')}
                   placeholder="0"
-                  className={`w-full bg-black/40 border text-[11px] px-2.5 py-2 pl-12 rounded-xl text-white font-extrabold transition-all duration-300 focus:outline-none ${
+                  className={`w-full bg-[var(--tt-bg)] border text-[11px] px-2.5 py-2 pl-12 rounded-xl text-[var(--tt-text)] font-extrabold transition-all duration-300 focus:outline-none ${
                     calcMode === 'USD' 
                       ? 'border-[#a855f7] bg-[#a855f7]/5 shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
-                      : 'border-white/[0.08] opacity-70 hover:opacity-100'
+                      : 'border-[var(--tt-border)] opacity-70 hover:opacity-100'
                   }`}
                 />
-                <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-white/40">USD ($)</span>
+                <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-[var(--tt-text-faint)]">USD ($)</span>
                 {calcMode === 'USD' && (
                   <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[#a855f7] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
                     {lang === 'FR' ? 'Actif' : 'Aktif'}
@@ -5920,7 +5925,7 @@ export default function App() {
 
               {/* Arrow Indicator */}
               <div className="flex justify-center -my-1">
-                <div className="bg-[#1c1030] border border-white/[0.08] p-0.5 rounded-full text-white/60">
+                <div className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] p-0.5 rounded-full text-[var(--tt-text-muted)]">
                   <ArrowUpDown className="w-3 h-3 text-[#a855f7]" />
                 </div>
               </div>
@@ -5933,13 +5938,13 @@ export default function App() {
                   onChange={(e) => handleHTGCalcChange(e.target.value)}
                   onFocus={() => setCalcMode('HTG')}
                   placeholder="0"
-                  className={`w-full bg-black/40 border text-[11px] px-2.5 py-2 pl-14 rounded-xl font-extrabold transition-all duration-300 focus:outline-none ${
+                  className={`w-full bg-[var(--tt-bg)] border text-[11px] px-2.5 py-2 pl-14 rounded-xl font-extrabold transition-all duration-300 focus:outline-none ${
                     calcMode === 'HTG' 
                       ? 'border-[#a855f7] bg-[#a855f7]/5 text-[#a855f7] shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
-                      : 'border-white/[0.08] text-[#a855f7]/70 opacity-70 hover:opacity-100'
+                      : 'border-[var(--tt-border)] text-[#a855f7]/70 opacity-70 hover:opacity-100'
                   }`}
                 />
-                <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-white/40">HTG (G)</span>
+                <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-[var(--tt-text-faint)]">HTG (G)</span>
                 {calcMode === 'HTG' && (
                   <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[#a855f7] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
                     {lang === 'FR' ? 'Actif' : 'Aktif'}
@@ -5950,7 +5955,7 @@ export default function App() {
 
             {/* Quick Presets */}
             <div className="mt-1">
-              <p className="text-[9px] uppercase tracking-wider text-white/30 font-bold mb-1">{lang === 'FR' ? 'Raccourcis' : 'Rakousi'}</p>
+              <p className="text-[9px] uppercase tracking-wider text-[var(--tt-text-faint)] font-bold mb-1">{lang === 'FR' ? 'Raccourcis' : 'Rakousi'}</p>
               <div className="flex flex-wrap gap-1">
                 {[5, 10, 20, 50, 100].map((preset) => (
                   <button
@@ -5960,7 +5965,7 @@ export default function App() {
                       handlePresetClick(preset);
                       setCalcMode('USD');
                     }}
-                    className="text-[9px] bg-white/[0.03] hover:bg-[#a855f7]/10 hover:text-[#a855f7] hover:border-[#a855f7]/30 border border-white/[0.05] px-1.5 py-0.5 rounded-md text-white/70 font-extrabold transition-all"
+                    className="text-[9px] bg-[var(--tt-surface-2)] hover:bg-[#a855f7]/10 hover:text-[#a855f7] hover:border-[#a855f7]/30 border border-[var(--tt-border)] px-1.5 py-0.5 rounded-md text-[var(--tt-text)] font-extrabold transition-all"
                   >
                     ${preset}
                   </button>
@@ -5968,7 +5973,7 @@ export default function App() {
               </div>
             </div>
 
-            <p className="text-[9px] text-white/30 font-bold text-center mt-1 pt-1.5 border-t border-white/[0.04]">
+            <p className="text-[9px] text-[var(--tt-text-faint)] font-bold text-center mt-1 pt-1.5 border-t border-[var(--tt-border)]">
               Taux : 1$ = {exchangeRate} HTG
             </p>
           </div>
@@ -5976,7 +5981,7 @@ export default function App() {
         </div>
 
         {/* Copyright notice bar */}
-        <div className="max-w-7xl mx-auto px-4 border-t border-white/[0.05] mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-white/30 font-bold uppercase tracking-wider">
+        <div className="max-w-7xl mx-auto px-4 border-t border-[var(--tt-border)] mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-[var(--tt-text-faint)] font-bold uppercase tracking-wider">
           <span>© {new Date().getFullYear()} {t('copyright')}</span>
           <span>Crafted for gamers with passion</span>
         </div>
