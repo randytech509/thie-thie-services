@@ -24,6 +24,7 @@ import { SkeletonList } from './Skeleton';
 import { AdminShieldIcon, VerifiedSealIcon, PendingClockIcon, RejectedIcon, UnverifiedIcon } from './BadgeIcons';
 import { db, auth, storage } from '../firebase';
 import { DeliveryPanel } from './DeliveryPanel';
+import { ThieThieLogo } from './ThieThieLogo';
 
 /**
  * Traduit l'échec `step-up-required` en consigne actionnable.
@@ -2718,9 +2719,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               exit={{ scale: 0.9, opacity: 0 }}
               className="bg-[#1c1030] border border-white/10 w-full max-w-sm rounded-3xl p-6 relative text-center flex flex-col items-center gap-4 text-xs font-semibold"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#a855f7] to-orange-600 flex items-center justify-center text-black font-black text-xl shadow-lg">
-                TTS
-              </div>
+              {/* Le vrai logo, pas un placeholder texte : le dégradé violet-orange
+                  ne correspondait plus à la palette depuis l'alignement sur les tokens. */}
+              <ThieThieLogo variant="icon" size={64} />
               
               <div>
                 <h4 className="text-md font-black text-white">Thie Thie Services</h4>
