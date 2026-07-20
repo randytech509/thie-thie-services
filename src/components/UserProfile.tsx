@@ -18,7 +18,7 @@ import {
   deleteDoc
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { reviewDeposit, reviewKyc, createCryptoInvoice, fulfillOrder } from '../lib/api';
+import { createCryptoInvoice } from '../lib/api';
 import { enablePushNotifications } from '../lib/push';
 import { SkeletonList } from './Skeleton';
 import { AdminShieldIcon, VerifiedSealIcon, PendingClockIcon, RejectedIcon, UnverifiedIcon } from './BadgeIcons';
@@ -313,31 +313,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   // Plus aucun email ni champ `role` Firestore ne confère de privilège.
   const [isAdminClaim, setIsAdminClaim] = useState(false);
   // Livraison admin d'une commande (saisie du code + envoi e-mail)
-  const [fulfillTarget, setFulfillTarget] = useState<any | null>(null);
-  const [fulfillCode, setFulfillCode] = useState('');
-  const [fulfillInstructions, setFulfillInstructions] = useState('');
-  const [fulfilling, setFulfilling] = useState(false);
-  const [fulfillMsg, setFulfillMsg] = useState<string | null>(null);
-  const handleFulfill = async () => {
-    if (!fulfillTarget || !fulfillCode.trim()) return;
-    setFulfilling(true);
-    setFulfillMsg(null);
-    try {
-      const res = await fulfillOrder({
-        orderId: fulfillTarget.orderId || fulfillTarget.id,
-        code: fulfillCode.trim(),
-        instructions: fulfillInstructions.trim() || undefined,
-      });
-      setFulfillMsg(res.emailSent ? 'Code livré et e-mail envoyé au client.' : `Code enregistré, mais e-mail NON envoyé : ${res.error || 'erreur'}`);
-      setFulfillCode('');
-      setFulfillInstructions('');
-      setTimeout(() => { setFulfillTarget(null); setFulfillMsg(null); }, 2600);
-    } catch (e) {
-      setFulfillMsg(messageErreurAdmin(e, lang));
-    } finally {
-      setFulfilling(false);
-    }
-  };
   useEffect(() => {
     if (!user) { setIsAdminClaim(false); return; }
     user.getIdTokenResult()
@@ -381,7 +356,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const [showNotifications, setShowNotifications] = useState(false);
   const [pushStatus, setPushStatus] = useState<'idle' | 'loading' | 'enabled' | 'error'>('idle');
   const [pushError, setPushError] = useState<string | null>(null);
-  const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
 
   // --- KYC States (gate de la recharge crypto) ---
   const [kycModalOpen, setKycModalOpen] = useState(false);
@@ -392,8 +366,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const [kycSuccessMsg, setKycSuccessMsg] = useState(false);
   const [myKycRequests, setMyKycRequests] = useState<any[]>([]);
   const [pendingKycRequests, setPendingKycRequests] = useState<any[]>([]);
-  const [selectedKycRequest, setSelectedKycRequest] = useState<any | null>(null);
-  const [submittingKycReview, setSubmittingKycReview] = useState(false);
 
   // --- Crypto Deposit States (OxaPay, débloqué après KYC approuvé) ---
   const [cryptoAmountUsd, setCryptoAmountUsd] = useState('10');
@@ -741,23 +713,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   // directe : il appelle la Cloud Function transactionnelle idempotente `reviewDeposit`
   // (→ creditWallet()), qui dédupe sur requestId (pas de double-crédit même en re-clic/retry).
   // La liste `walletRequests` se met à jour d'elle-même via son listener onSnapshot.
-  const handleReviewDeposit = async (req: any, decision: 'approve' | 'reject') => {
-    const requestId = req?.requestId;
-    if (!requestId) return;
-    setSubmittingDeposit(true);
-    try {
-      await reviewDeposit({ requestId, decision });
-      setSelectedRequest(null);
-    } catch (err: any) {
-      console.error('reviewDeposit a échoué :', err);
-      alert(messageErreurAdmin(err, lang));
-    } finally {
-      setSubmittingDeposit(false);
-    }
-  };
 
-  const handleApproveDeposit = (req: any) => handleReviewDeposit(req, 'approve');
-  const handleRejectDeposit = (req: any) => handleReviewDeposit(req, 'reject');
 
   // --- KYC (léger, manuel) — débloque la recharge crypto ---
   const kycStatus: 'none' | 'pending' | 'approved' | 'rejected' = dbUser.kycStatus ?? 'none';
@@ -802,25 +758,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       setSubmittingKyc(false);
     }
   };
-
-  // Validation manuelle du KYC (admin) — même politique que reviewDeposit : AUCUNE écriture
-  // directe côté client, tout passe par la Cloud Function reviewKyc (Admin SDK).
-  const handleReviewKyc = async (req: any, decision: 'approve' | 'reject') => {
-    const requestId = req?.requestId;
-    if (!requestId) return;
-    setSubmittingKycReview(true);
-    try {
-      await reviewKyc({ requestId, decision });
-      setSelectedKycRequest(null);
-    } catch (err: any) {
-      console.error('reviewKyc a échoué :', err);
-      alert(messageErreurAdmin(err, lang));
-    } finally {
-      setSubmittingKycReview(false);
-    }
-  };
-  const handleApproveKyc = (req: any) => handleReviewKyc(req, 'approve');
-  const handleRejectKyc = (req: any) => handleReviewKyc(req, 'reject');
 
   // --- Recharge crypto (OxaPay) — réservée à kycStatus === 'approved' (revérifié SERVEUR) ---
   const handleCreateCryptoInvoice = async () => {
@@ -1371,173 +1308,24 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           {/* ==========================================
               ADMIN WORKFLOW: PENDING DEPOSIT REQUESTS
               ========================================== */}
+          {/* Les panneaux « Validation Portefeuille » et « Validation KYC » vivaient ici.
+              Ils sont RETIRÉS : ces actions exigent une vérification passkey récente côté
+              serveur, et l'interface qui permet de la faire n'existe que dans le back-office.
+              Exposées ici, elles échouaient donc systématiquement dès qu'un passkey était
+              enrôlé. Le back-office les couvre déjà toutes les deux — aucune capacité n'est
+              perdue, seule la duplication disparaît. */}
           {isAdminClaim && (
-            <div className="bg-[#1c1030] border border-[#a855f7]/30 rounded-3xl p-6 shadow-2xl flex flex-col gap-4 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#a855f7]/5 to-transparent rounded-full blur-2xl pointer-events-none"></div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-[#a855f7]/10 text-[var(--tt-accent)] rounded-xl">
-                    <Shield className="w-4 h-4 stroke-[2]" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-black text-white">Validation Administrative Portefeuille</h3>
-                    <p className="text-[9px] text-white/40 font-bold uppercase tracking-wider">Thie Thie Services Admin Panel</p>
-                  </div>
-                </div>
-                <span className="bg-orange-500/10 text-[var(--tt-accent)] border border-orange-500/20 px-2 py-0.5 rounded-md text-[9px] font-black uppercase">
-                  {walletRequests.filter(r => r.status === 'Pending Verification').length} PENDING
-                </span>
-              </div>
-
-              {walletRequests.filter(r => r.status === 'Pending Verification').length === 0 ? (
-                <div className="py-8 border border-white/[0.04] rounded-2xl flex flex-col items-center text-center px-4 bg-black/10">
-                  <Inbox className="w-8 h-8 text-white/10 mb-2" />
-                  <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider">Aucune demande en attente</p>
-                  <p className="text-[9px] text-white/30 font-medium mt-0.5">Tous les dépôts ont été validés ou refusés.</p>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  {walletRequests.filter(r => r.status === 'Pending Verification').map((req) => (
-                    <div 
-                      key={req.requestId}
-                      className="bg-[#0c0714] border border-white/[0.05] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-white/15 transition-all"
-                    >
-                      <div className="flex-1 min-w-0 flex flex-col gap-1 text-left">
-                        <div className="flex items-center gap-2">
-                          <span className="font-black text-xs text-white select-all">Demande {req.requestId}</span>
-                          <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-[9px] text-[var(--tt-accent)] font-black uppercase tracking-wider">
-                            {req.paymentMethod}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-white/40 font-semibold select-all truncate">Utilisateur: {req.uid}</p>
-                        <div className="grid grid-cols-2 gap-2 mt-1 text-[10px]">
-                          <div>
-                            <span className="text-white/30 block text-[9px] font-bold">RÉFÉRENCE SENDER</span>
-                            <span className="text-white font-mono font-bold select-all">{req.transactionReference}</span>
-                          </div>
-                          <div>
-                            <span className="text-white/30 block text-[9px] font-bold">MONTANT</span>
-                            <span className="text-emerald-400 font-extrabold text-xs font-sans">{formatHTG(req.amount)}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 mt-2 md:mt-0">
-                        {req.screenshotURL && req.screenshotURL !== 'N/A' && (
-                          <button
-                            type="button"
-                            onClick={() => setSelectedRequest(req)}
-                            className="px-3 py-2 bg-white/[0.03] hover:bg-white/[0.08] text-white/70 border border-white/[0.06] hover:border-white/10 text-[10px] font-black rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <Camera className="w-3.5 h-3.5" />
-                            <span>Voir Preuve</span>
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => handleApproveDeposit(req)}
-                          className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-black text-[10px] font-black rounded-xl transition-all flex items-center gap-1 shadow-sm cursor-pointer"
-                        >
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
-                          <span>Approuver</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRejectDeposit(req)}
-                          className="px-3.5 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 text-[10px] font-black rounded-xl transition-all flex items-center gap-1 cursor-pointer"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                          <span>Refuser</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <button
+              onClick={() => navigateToPage('admin')}
+              className="w-full flex items-center justify-center gap-2 rounded-2xl border border-[var(--tt-accent)]/30 bg-[var(--tt-accent-soft)] px-4 py-3 text-xs font-black uppercase tracking-wider text-[var(--tt-accent)] transition-colors hover:bg-[var(--tt-accent)]/20"
+            >
+              Validations dépôts &amp; KYC — ouvrir le back-office
+            </button>
           )}
 
           {/* ==========================================
               ADMIN WORKFLOW: PENDING KYC REQUESTS
               ========================================== */}
-          {isAdminClaim && (
-            <div className="bg-[#1c1030] border border-[#a855f7]/30 rounded-3xl p-6 shadow-2xl flex flex-col gap-4 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#a855f7]/5 to-transparent rounded-full blur-2xl pointer-events-none"></div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 bg-[#a855f7]/10 text-[var(--tt-accent)] rounded-xl">
-                    <UserCheck className="w-4 h-4 stroke-[2]" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-black text-white">Validation KYC</h3>
-                    <p className="text-[9px] text-white/40 font-bold uppercase tracking-wider">Débloque la recharge crypto du client</p>
-                  </div>
-                </div>
-                <span className="bg-orange-500/10 text-[var(--tt-accent)] border border-orange-500/20 px-2 py-0.5 rounded-md text-[9px] font-black uppercase">
-                  {pendingKycRequests.filter(r => r.status === 'pending').length} PENDING
-                </span>
-              </div>
-
-              {pendingKycRequests.filter(r => r.status === 'pending').length === 0 ? (
-                <div className="py-8 border border-white/[0.04] rounded-2xl flex flex-col items-center text-center px-4 bg-black/10">
-                  <Inbox className="w-8 h-8 text-white/10 mb-2" />
-                  <p className="text-[10px] text-white/40 font-bold uppercase tracking-wider">Aucune demande en attente</p>
-                  <p className="text-[9px] text-white/30 font-medium mt-0.5">Toutes les demandes KYC ont été traitées.</p>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  {pendingKycRequests.filter(r => r.status === 'pending').map((req) => (
-                    <div
-                      key={req.requestId}
-                      className="bg-[#0c0714] border border-white/[0.05] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-white/15 transition-all"
-                    >
-                      <div className="flex-1 min-w-0 flex flex-col gap-1 text-left">
-                        <div className="flex items-center gap-2">
-                          <span className="font-black text-xs text-white select-all">Demande {req.requestId}</span>
-                          <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-[9px] text-[var(--tt-accent)] font-black uppercase tracking-wider">
-                            KYC
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-white/40 font-semibold select-all truncate">Utilisateur: {req.uid}</p>
-                        <p className="text-[10px] text-white font-bold mt-0.5">{req.fullName}</p>
-                      </div>
-
-                      <div className="flex items-center gap-2 mt-2 md:mt-0">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedKycRequest(req)}
-                          className="px-3 py-2 bg-white/[0.03] hover:bg-white/[0.08] text-white/70 border border-white/[0.06] hover:border-white/10 text-[10px] font-black rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Camera className="w-3.5 h-3.5" />
-                          <span>Voir Pièces</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleApproveKyc(req)}
-                          disabled={submittingKycReview}
-                          className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-black text-[10px] font-black rounded-xl transition-all flex items-center gap-1 shadow-sm cursor-pointer disabled:opacity-50"
-                        >
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
-                          <span>Approuver</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRejectKyc(req)}
-                          disabled={submittingKycReview}
-                          className="px-3.5 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 text-[10px] font-black rounded-xl transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                          <span>Refuser</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* ==========================================
               STATISTICS SECTION
@@ -1741,22 +1529,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                           )}
                         </td>
                         <td className="py-3 px-4 text-right">
-                          {tx.status?.toLowerCase() === 'pending' && (
-                            <div className="flex justify-end gap-1">
-                              <button
-                                onClick={() => handleApproveDeposit(tx)}
-                                className="bg-emerald-500 hover:bg-emerald-600 text-black font-black text-[9px] px-2 py-1 rounded transition-colors"
-                              >
-                                {t.simulatedApproval}
-                              </button>
-                              <button
-                                onClick={() => handleRejectDeposit(tx)}
-                                className="bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 text-[9px] px-2 py-1 rounded transition-all"
-                              >
-                                Rejeter
-                              </button>
-                            </div>
-                          )}
+                          {/* Approbation/rejet retirés : mêmes actions serveur que le
+                              back-office, mêmes exigences de step-up, et aucune interface
+                              de vérification passkey ici. Elles échouaient donc toujours. */}
                         </td>
                       </tr>
                     ))}
@@ -1847,20 +1622,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                         si le courriel n'arrivait pas. */}
                     <DeliveryPanel order={order} lang={lang} />
 
-                    {/* ADMIN : livraison du code */}
-                    {isAdminClaim && (
-                      (order.fulfilledAt || order.deliveryCode) ? (
-                        <div className="text-[9px] font-bold text-emerald-400/80 bg-emerald-500/5 rounded-lg px-2.5 py-1.5">
-                          Code livré{order.emailSent === false ? ' — e-mail NON envoyé (à renvoyer)' : ' et envoyé par e-mail'}
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => { setFulfillTarget(order); setFulfillCode(''); setFulfillInstructions(''); setFulfillMsg(null); }}
-                          className="text-[10px] font-black uppercase tracking-wider bg-[#a855f7] hover:bg-[#b56ff5] text-black rounded-lg px-3 py-1.5 transition-colors"
-                        >
-                          Livrer le code
-                        </button>
-                      )
+                    {/* ADMIN : la livraison se fait au back-office, ou la verification
+                        passkey est disponible. Le libelle ne parle plus d'e-mail : le contenu
+                        livre s'affiche desormais dans le compte du client (DeliveryPanel). */}
+                    {isAdminClaim && (order.fulfilledAt || order.deliveryCode) && (
+                      <div className="text-[9px] font-bold text-[var(--tt-good)] bg-[var(--tt-good-soft)] rounded-lg px-2.5 py-1.5">
+                        Code livre et visible dans le compte du client
+                      </div>
                     )}
 
                     {/* DYNAMIC PROGRESS TIMELINE TRACKER */}
@@ -2214,36 +1982,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           MODAL: EDIT PROFILE
           ========================================== */}
       <AnimatePresence>
-        {fulfillTarget && (
-          <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50 animate-fadeIn backdrop-blur-md">
-            <div className="bg-[var(--tt-surface)] border border-white/10 rounded-3xl w-full max-w-md p-6 flex flex-col gap-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-black text-white">Livrer la commande</h3>
-                  <p className="text-xs text-white/50 mt-0.5">{fulfillTarget.productName || 'Produit'}{fulfillTarget.optionLabel ? ` — ${fulfillTarget.optionLabel}` : ''}</p>
-                </div>
-                <button onClick={() => setFulfillTarget(null)} className="p-2 rounded-full bg-[var(--tt-surface-2)] text-white hover:bg-white/10" aria-label="Fermer"><X className="w-4 h-4" /></button>
-              </div>
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-wider text-white/50">Code / PIN à envoyer</label>
-                <input value={fulfillCode} onChange={(e) => setFulfillCode(e.target.value)} placeholder="XXXX-XXXX-XXXX"
-                  className="mt-1 w-full bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-white font-mono text-sm focus:border-[#a855f7] outline-none" />
-              </div>
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-wider text-white/50">Instructions d'application (optionnel)</label>
-                <textarea value={fulfillInstructions} onChange={(e) => setFulfillInstructions(e.target.value)} rows={3}
-                  placeholder="Ex. Ouvrez l'App Store (région USA) &gt; votre compte &gt; Utiliser une carte cadeau &gt; saisissez le code."
-                  className="mt-1 w-full bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:border-[#a855f7] outline-none resize-none" />
-              </div>
-              {fulfillMsg && <p className="text-xs font-bold text-[var(--tt-accent)]">{fulfillMsg}</p>}
-              <button onClick={handleFulfill} disabled={fulfilling || !fulfillCode.trim()}
-                className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase tracking-wider text-sm rounded-xl py-3 transition-colors">
-                {fulfilling ? 'Envoi…' : 'Enregistrer et envoyer le code'}
-              </button>
-              <p className="text-[10px] text-white/40 text-center">Le client recevra le code par e-mail avec les instructions.</p>
-            </div>
-          </div>
-        )}
 
         {editModalOpen && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 animate-fadeIn backdrop-blur-sm">
@@ -2992,18 +2730,24 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   La plateforme de recharge de jeux vidéo et de services de streaming la plus rapide et fiable en Haïti.
                 </p>
 
+                {/* La pile technique n'est PAS mentionnée : elle n'appartient pas à la marque
+                    Thie Thie, et publier son moteur de stockage offre de la reconnaissance
+                    gratuite à qui cherche une surface d'attaque. */}
                 <div className="bg-[var(--tt-surface-2)] rounded-2xl p-3 border border-white/[0.04] mt-4 flex flex-col gap-1.5 text-[10px]">
                   <div className="flex justify-between">
                     <span className="text-white/40">Version de l'application</span>
                     <span className="text-white font-bold">3.2.0 (Stable)</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/40">Serveur de Base de Données</span>
-                    <span className="text-[var(--tt-accent)] font-black">Firebase Firestore</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/40">Développement</span>
-                    <span className="text-white font-bold">Thie Thie Pro Team</span>
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-white/40 shrink-0">Conçu et développé par</span>
+                    <a
+                      href="https://randytech-agency.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[var(--tt-accent)] font-black hover:underline focus-visible:underline"
+                    >
+                      RandyTech Solutions
+                    </a>
                   </div>
                 </div>
               </div>
@@ -3023,76 +2767,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           MODAL: VIEW PROOF (ADMIN SCREENSHOT)
           ========================================== */}
       <AnimatePresence>
-        {selectedRequest && (
-          <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50 animate-fadeIn backdrop-blur-md">
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#1c1030] border border-white/10 w-full max-w-lg rounded-3xl p-6 relative flex flex-col gap-4 text-xs font-semibold"
-            >
-              <button 
-                onClick={() => setSelectedRequest(null)}
-                className="absolute top-4 right-4 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-xl transition-all"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              <div className="text-left">
-                <h4 className="text-sm font-black text-white flex items-center gap-2">
-                  <Camera className="w-4 h-4 text-[var(--tt-accent)]" />
-                  Preuve de dépôt — {selectedRequest.requestId}
-                </h4>
-                <p className="text-[10px] text-white/40 mt-0.5">Vérifiez la transaction de {selectedRequest.amount} HTG via {selectedRequest.paymentMethod}</p>
-              </div>
-
-              <div className="w-full max-h-[350px] overflow-hidden rounded-2xl border border-white/10 bg-[var(--tt-surface-2)] flex items-center justify-center relative group">
-                <img 
-                  src={selectedRequest.screenshotURL} 
-                  alt="Proof screenshot" 
-                  className="w-full h-full object-contain max-h-[350px]"
-                />
-                <a 
-                  href={selectedRequest.screenshotURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute bottom-3 right-3 bg-black/75 hover:bg-black/90 text-[var(--tt-accent)] px-3 py-1.5 rounded-lg text-[10px] font-black flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  Ouvrir en grand
-                </a>
-              </div>
-
-              <div className="bg-[var(--tt-surface-2)] p-3 rounded-xl border border-white/[0.04] text-[10px] text-left flex flex-col gap-1">
-                <div>
-                  <span className="text-white/40">Utilisateur ID: </span>
-                  <span className="text-white select-all font-mono">{selectedRequest.uid}</span>
-                </div>
-                <div>
-                  <span className="text-white/40">Référence d'envoi: </span>
-                  <span className="text-white select-all font-mono">{selectedRequest.transactionReference}</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => handleApproveDeposit(selectedRequest)}
-                  className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Check className="w-4 h-4 stroke-[3]" />
-                  Approuver le dépôt
-                </button>
-                <button
-                  onClick={() => handleRejectDeposit(selectedRequest)}
-                  className="w-full py-3 bg-red-500/10 hover:bg-[#a855f7] text-red-400 hover:text-black border border-red-500/20 rounded-xl font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                  Refuser le dépôt
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
       </AnimatePresence>
 
       {/* ==========================================
@@ -3211,80 +2885,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           MODAL: PIÈCES KYC (admin)
           ========================================== */}
       <AnimatePresence>
-        {selectedKycRequest && (
-          <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50 animate-fadeIn backdrop-blur-md">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#1c1030] border border-white/10 w-full max-w-lg rounded-3xl p-6 relative flex flex-col gap-4 text-xs font-semibold"
-            >
-              <button
-                onClick={() => setSelectedKycRequest(null)}
-                className="absolute top-4 right-4 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-xl transition-all"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              <div className="text-left">
-                <h4 className="text-sm font-black text-white flex items-center gap-2">
-                  <UserCheck className="w-4 h-4 text-[var(--tt-accent)]" />
-                  Pièces KYC — {selectedKycRequest.requestId}
-                </h4>
-                <p className="text-[10px] text-white/40 mt-0.5">{selectedKycRequest.fullName}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-[9px] text-white/30 font-bold uppercase">Pièce d'identité</span>
-                  <div className="w-full h-40 overflow-hidden rounded-2xl border border-white/10 bg-[var(--tt-surface-2)] flex items-center justify-center relative group">
-                    <img src={selectedKycRequest.idPhotoURL} alt="ID" className="w-full h-full object-contain" />
-                    <a href={selectedKycRequest.idPhotoURL} target="_blank" rel="noopener noreferrer"
-                      className="absolute bottom-2 right-2 bg-black/75 hover:bg-black/90 text-[var(--tt-accent)] p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-[9px] text-white/30 font-bold uppercase">Selfie</span>
-                  <div className="w-full h-40 overflow-hidden rounded-2xl border border-white/10 bg-[var(--tt-surface-2)] flex items-center justify-center relative group">
-                    <img src={selectedKycRequest.selfiePhotoURL} alt="Selfie" className="w-full h-full object-contain" />
-                    <a href={selectedKycRequest.selfiePhotoURL} target="_blank" rel="noopener noreferrer"
-                      className="absolute bottom-2 right-2 bg-black/75 hover:bg-black/90 text-[var(--tt-accent)] p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[var(--tt-surface-2)] p-3 rounded-xl border border-white/[0.04] text-[10px] text-left flex flex-col gap-1">
-                <div>
-                  <span className="text-white/40">Utilisateur ID: </span>
-                  <span className="text-white select-all font-mono">{selectedKycRequest.uid}</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => handleApproveKyc(selectedKycRequest)}
-                  disabled={submittingKycReview}
-                  className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-black rounded-xl font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  <Check className="w-4 h-4 stroke-[3]" />
-                  Approuver
-                </button>
-                <button
-                  onClick={() => handleRejectKyc(selectedKycRequest)}
-                  disabled={submittingKycReview}
-                  className="w-full py-3 bg-red-500/10 hover:bg-[#a855f7] text-red-400 hover:text-black border border-red-500/20 rounded-xl font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  <X className="w-4 h-4" />
-                  Refuser
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
       </AnimatePresence>
 
       {/* ==========================================
