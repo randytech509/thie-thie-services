@@ -85,25 +85,56 @@ rien transférer si la source l'est, et on croirait sauvegarder pendant des mois
 
 ### Restaurer (à répéter au moins une fois par trimestre)
 
-Une sauvegarde jamais restaurée est une hypothèse, pas une sauvegarde. La restauration d'essai
-se fait vers **`thie-thie-dev`**, jamais vers la production.
+Une sauvegarde jamais restaurée est une hypothèse, pas une sauvegarde.
+
+> **Correction du 2026-07-20.** Ce document indiquait de restaurer vers un projet
+> `thie-thie-dev`. **Ce projet n'existe pas** : c'est un identifiant réservé à l'émulateur
+> local (`.env.local`), jamais créé dans le cloud. La procédure était donc inapplicable — le
+> genre de détail qu'on découvre le jour où l'on en a besoin en urgence.
+>
+> La cible correcte est une **base Firestore nommée** dans le même projet. La production vit
+> dans `(default)` et n'est jamais touchée ; la base d'essai est supprimée après contrôle.
 
 ```bash
-# 1. Rapatrier un instantané depuis le tiers vers un bucket GCS accessible au projet de test
-rclone copy r2:<BUCKET>/firestore/<AAAA-MM-JJ_HHMMSS> \
-            gcs:<BUCKET_TEST>/restore/<AAAA-MM-JJ_HHMMSS>
+# 1. Créer une base d'essai isolée (jamais (default))
+gcloud firestore databases create --database=restore-test \
+  --location=us-central1 --type=firestore-native --project=thie-thie-services
 
-# 2. Importer dans le projet de DÉVELOPPEMENT
-gcloud firestore import gs://<BUCKET_TEST>/restore/<AAAA-MM-JJ_HHMMSS> \
-  --project=thie-thie-dev
+# 2. Importer l'instantané. Depuis le bucket de transit s'il est encore là (< 7 jours),
+#    sinon rapatrier d'abord depuis le tiers :
+#    rclone copy r2:<BUCKET>/firestore/<AAAA-MM-JJ_HHMMSS> gcs:<TRANSIT>/firestore/<...>
+gcloud firestore import gs://thie-thie-backup-transit/firestore/<AAAA-MM-JJ_HHMMSS> \
+  --database=restore-test --project=thie-thie-services
+
+# 3. Attendre la fin (l'import est asynchrone — ne rien conclure avant SUCCESSFUL)
+gcloud firestore operations list --database=restore-test --project=thie-thie-services \
+  --format="value(metadata.operationState)"
 ```
 
-Puis contrôler que les collections critiques sont présentes et cohérentes : `users`,
-`wallet_transactions`, `orders`, `wallet_requests`. Un import ne signale pas une collection
-manquante — c'est à la vérification de le faire.
+**4. Comparer avec la production, collection par collection.** C'est l'étape qui prouve
+quelque chose : un import « réussi » sur une base vide réussit tout aussi bien. Compter les
+documents des deux côtés via l'API REST (`:runAggregationQuery`, agrégation `count`) sur
+`users`, `orders`, `products`, `wallet_transactions`, `wallet_requests`, `kyc_requests`.
+Les écarts attendus ne portent que sur les collections qui grossissent en continu
+(`admin_audit`, `notifications`), puisque la production a avancé depuis l'instantané.
 
-⚠️ `gcloud firestore import` **écrase** les documents de même identifiant. Ne jamais viser la
-production pour un essai : vérifier deux fois la valeur de `--project`.
+**5. Supprimer la base d'essai** — elle est facturée tant qu'elle existe :
+
+```bash
+gcloud firestore databases delete --database=restore-test \
+  --project=thie-thie-services --quiet
+```
+
+⚠️ `gcloud firestore import` **écrase** les documents de même identifiant. Vérifier deux fois
+la valeur de `--database` avant de valider : viser `(default)` par distraction écraserait la
+production avec des données périmées.
+
+#### Dernier essai réalisé
+
+**2026-07-20** — instantané `2026-07-20_073348` restauré dans `restore-test`, **342 documents**.
+Comptes **identiques à la production** sur les six collections critiques (`users` 4, `orders` 13,
+`products` 123, `wallet_transactions` 15, `wallet_requests` 3, `kyc_requests` 1). Base d'essai
+supprimée. La sauvegarde n'est plus une hypothèse.
 
 ---
 
