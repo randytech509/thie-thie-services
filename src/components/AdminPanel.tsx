@@ -152,7 +152,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
               <button key={t.id} onClick={() => setTab(t.id)}
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-colors ${tab === t.id ? 'bg-[#a855f7] text-black' : 'text-white/70 hover:bg-white/[0.05]'}`}>
                 <Icon className="w-4 h-4" /> {t.label}
-                {badge > 0 && <span className={`ml-auto text-[10px] rounded-full px-1.5 ${tab === t.id ? 'bg-black/20' : 'bg-[#a855f7] text-black'}`}>{badge}</span>}
+                {badge > 0 && <span className={`ml-auto text-[10px] rounded-full px-1.5 ${tab === t.id ? 'bg-[var(--tt-surface-2)]' : 'bg-[#a855f7] text-black'}`}>{badge}</span>}
               </button>
             );
           })}
@@ -283,10 +283,10 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                 <h3 className="text-lg font-black flex items-center gap-2"><Mail className="w-4 h-4 text-[var(--tt-accent)]" />Livrer la commande</h3>
                 <p className="text-xs text-white/50 mt-0.5">{fx.productName}{fx.optionLabel ? ` — ${fx.optionLabel}` : ''}</p>
               </div>
-              <button onClick={() => setFx(null)} className="p-2 rounded-full bg-black/40 hover:bg-white/10" aria-label="Fermer"><X className="w-4 h-4" /></button>
+              <button onClick={() => setFx(null)} className="p-2 rounded-full bg-[var(--tt-surface-2)] hover:bg-white/10" aria-label="Fermer"><X className="w-4 h-4" /></button>
             </div>
-            <input value={fxCode} onChange={(e) => setFxCode(e.target.value)} placeholder="Code / PIN" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 font-mono text-sm focus:border-[#a855f7] outline-none" />
-            <textarea value={fxInstr} onChange={(e) => setFxInstr(e.target.value)} rows={3} placeholder="Instructions d'application (optionnel)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none resize-none" />
+            <input value={fxCode} onChange={(e) => setFxCode(e.target.value)} placeholder="Code / PIN" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 font-mono text-sm focus:border-[#a855f7] outline-none" />
+            <textarea value={fxInstr} onChange={(e) => setFxInstr(e.target.value)} rows={3} placeholder="Instructions d'application (optionnel)" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none resize-none" />
             <button onClick={doFulfill} disabled={busy === 'fulfill' || !fxCode.trim()} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3">{busy === 'fulfill' ? 'Envoi…' : 'Envoyer le code'}</button>
           </div>
         </div>
@@ -321,7 +321,7 @@ function AdminSettings({ flash }: { flash: (m: string) => void }) {
           <h3 className="font-black text-sm mb-1">Taux de change (HTG pour 1 USD)</h3>
           <p className="text-[11px] text-white/40 mb-3">Utilisé pour convertir les prix. Doit rester cohérent avec le catalogue.</p>
           <div className="flex gap-2">
-            <input value={rate} onChange={(e) => setRate(e.target.value)} type="number" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm w-32 focus:border-[#a855f7] outline-none" />
+            <input value={rate} onChange={(e) => setRate(e.target.value)} type="number" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm w-32 focus:border-[#a855f7] outline-none" />
             <button onClick={saveFx} disabled={busy} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4">Enregistrer</button>
           </div>
         </div>
@@ -335,7 +335,7 @@ function AdminSettings({ flash }: { flash: (m: string) => void }) {
             ['binancePayId', 'Binance Pay ID'], ['paypalEmail', 'PayPal — e-mail'],
           ].map(([k, label]) => (
             <input key={k} placeholder={label} value={(dep as any)[k]} onChange={(e) => setDep({ ...dep, [k]: e.target.value })}
-              className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+              className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
           ))}
         </div>
         <button onClick={saveDep} disabled={busy} className="mt-3 bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5">Enregistrer les coordonnées</button>
@@ -411,8 +411,8 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
       <div>
         <h2 className="text-2xl font-black mb-4 flex items-center gap-2"><Bell className="w-5 h-5 text-[var(--tt-accent)]" />Envoyer un push</h2>
         <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre" maxLength={60} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
-          <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message" rows={2} maxLength={160} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm resize-none focus:border-[#a855f7] outline-none" />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre" maxLength={60} className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message" rows={2} maxLength={160} className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm resize-none focus:border-[#a855f7] outline-none" />
           {/* Image d'aperçu : upload direct (Storage public) OU coller une URL */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -422,10 +422,10 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
               </label>
               {imageUrl && <button onClick={() => setImageUrl('')} className="text-white/40 hover:text-red-400 text-xs font-bold">retirer</button>}
             </div>
-            <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="…ou colle une URL d'image (optionnel)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+            <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="…ou colle une URL d'image (optionnel)" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
             {imageUrl && <img src={imageUrl} alt="aperçu" className="rounded-lg max-h-28 w-auto object-cover border border-white/10" />}
           </div>
-          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Lien au clic (ex. page promo)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Lien au clic (ex. page promo)" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
           <button onClick={send} disabled={sending} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}Envoyer à tous</button>
           <p className="text-[10px] text-white/30">Le push affiche titre + message + image ; le HTML riche va sur une page promo (ci-contre) vers laquelle pointe le lien.</p>
         </div>
@@ -438,8 +438,8 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
           <button onClick={newPromo} className="text-xs font-black bg-white/[0.06] hover:bg-white/10 rounded-lg px-3 py-1.5">+ Nouvelle</button>
         </div>
         <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
-          <input value={pTitle} onChange={(e) => setPTitle(e.target.value)} placeholder="Titre de la page" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
-          <textarea value={pHtml} onChange={(e) => setPHtml(e.target.value)} placeholder="<h1>Ma promo</h1><p>Contenu HTML…</p>" rows={7} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono resize-y focus:border-[#a855f7] outline-none" />
+          <input value={pTitle} onChange={(e) => setPTitle(e.target.value)} placeholder="Titre de la page" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
+          <textarea value={pHtml} onChange={(e) => setPHtml(e.target.value)} placeholder="<h1>Ma promo</h1><p>Contenu HTML…</p>" rows={7} className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono resize-y focus:border-[#a855f7] outline-none" />
           <label className="flex items-center gap-2 text-xs font-bold"><input type="checkbox" checked={pPub} onChange={(e) => setPPub(e.target.checked)} /> Publiée (visible publiquement)</label>
           <button onClick={save} disabled={pBusy} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl py-2.5">{pBusy ? 'Enregistrement…' : (pId ? 'Mettre à jour' : 'Créer la page')}</button>
         </div>
@@ -522,7 +522,7 @@ function AdminSupplier({ flash }: { flash: (m: string) => void }) {
       <h3 className="font-black text-sm mb-2">Mapper un produit du catalogue → Reloadly</h3>
       <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5 flex flex-col gap-3">
         <div className="flex gap-2">
-          <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && search()} placeholder="Chercher un produit Reloadly (ex. Steam, Google Play, App Store)" className="flex-1 bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && search()} placeholder="Chercher un produit Reloadly (ex. Steam, Google Play, App Store)" className="flex-1 bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
           <button onClick={search} disabled={searching} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4">{searching ? '…' : 'Chercher'}</button>
         </div>
         {results.length > 0 && (
@@ -538,8 +538,8 @@ function AdminSupplier({ flash }: { flash: (m: string) => void }) {
         {sel && (
           <div className="border-t border-white/[0.06] pt-3 flex flex-col gap-2">
             <p className="text-xs text-white/60">Sélectionné : <strong className="text-[var(--tt-accent)]">{sel.productName}</strong> (id {sel.productId})</p>
-            <input value={catId} onChange={(e) => setCatId(e.target.value)} placeholder="ID produit catalogue (ex. apple-gift-card__0)" className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono focus:border-[#a855f7] outline-none" />
-            <input value={unit} onChange={(e) => setUnit(e.target.value)} placeholder={`Montant à commander (${sel.recipientCurrencyCode})`} className="bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+            <input value={catId} onChange={(e) => setCatId(e.target.value)} placeholder="ID produit catalogue (ex. apple-gift-card__0)" className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono focus:border-[#a855f7] outline-none" />
+            <input value={unit} onChange={(e) => setUnit(e.target.value)} placeholder={`Montant à commander (${sel.recipientCurrencyCode})`} className="bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
             <label className="flex items-center gap-2 text-xs font-bold"><input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} /> Livraison automatique dès qu'une commande est payée</label>
             <button onClick={save} disabled={saving} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl py-2.5">{saving ? 'Enregistrement…' : 'Mapper ce produit'}</button>
           </div>
@@ -661,7 +661,7 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
     } catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setMBusy(false); }
   };
 
-  const inputCls = 'bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none';
+  const inputCls = 'bg-[var(--tt-surface-2)] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none';
   const card = 'bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5';
   const btn = 'bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5 flex items-center justify-center gap-2';
 
@@ -686,7 +686,7 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
               { l: 'CA potentiel', v: `${funding.potentialRevenueHtg.toLocaleString()} G`, c: '#34d399' },
               { l: 'Marge projetée', v: `${funding.projectedMarginHtg.toLocaleString()} G`, c: '#fbbf24' },
             ].map((s) => (
-              <div key={s.l} className="bg-black/20 rounded-xl p-3">
+              <div key={s.l} className="bg-[var(--tt-surface-2)] rounded-xl p-3">
                 <p className="text-lg font-black tabular-nums" style={{ color: s.c }}>{s.v}</p>
                 <p className="text-[10px] text-white/50 font-bold mt-0.5">{s.l}</p>
               </div>
@@ -748,7 +748,7 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
         </div>
         <button onClick={saveManual} disabled={mBusy} className={`${btn} mt-3`}>{mBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}Calculer & créer / tarifer</button>
         {mPreview && (
-          <div className="mt-3 text-xs bg-black/20 rounded-xl p-3 flex flex-wrap gap-x-5 gap-y-1">
+          <div className="mt-3 text-xs bg-[var(--tt-surface-2)] rounded-xl p-3 flex flex-wrap gap-x-5 gap-y-1">
             <span className="text-white/50">coût : <strong className="text-white">{htg(mPreview.costHtgCents)}</strong></span>
             <span className="text-white/50">prix de vente : <strong className="text-[var(--tt-accent)]">{htg(mPreview.retailHtgCents)}</strong></span>
             <span className="text-white/50">marge : <strong className="text-emerald-400">{htg(mPreview.marginHtgCents)} ({(mPreview.effectiveMarginBps / 100).toFixed(1)}%)</strong></span>
@@ -808,7 +808,7 @@ function AdminManualProducts({ flash }: { flash: (m: string) => void }) {
     catch (err) { flash(`Échec : ${(err as Error).message}`); } finally { setBusy(null); }
   };
 
-  const inputCls = 'bg-black/30 border border-white/10 rounded-lg px-2 py-1.5 text-xs focus:border-[#a855f7] outline-none w-24 tabular-nums';
+  const inputCls = 'bg-[var(--tt-surface-2)] border border-white/10 rounded-lg px-2 py-1.5 text-xs focus:border-[#a855f7] outline-none w-24 tabular-nums';
 
   return (
     <div className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-5">
@@ -822,7 +822,7 @@ function AdminManualProducts({ flash }: { flash: (m: string) => void }) {
       ) : (
         <div className="flex flex-col gap-2">
           {rows.map((p) => (
-            <div key={p.id} className="bg-black/20 rounded-xl p-3 flex flex-wrap items-end gap-3">
+            <div key={p.id} className="bg-[var(--tt-surface-2)] rounded-xl p-3 flex flex-wrap items-end gap-3">
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold truncate">{p.name} {p.available === false && <span className="text-[9px] text-red-400">masqué</span>}</p>
                 <p className="text-[10px] text-white/30 font-mono truncate">{p.id}</p>

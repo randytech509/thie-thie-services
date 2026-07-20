@@ -24,6 +24,10 @@
   --tt-good-soft: rgba(52, 211, 153, 0.14);
   --tt-danger: #f87171;
   --tt-danger-soft: rgba(248, 113, 113, 0.14);
+  /* État intermédiaire (vérification en cours) : il manquait un jaune à la palette,
+     d'où des statuts « en attente » peints en violet, confondus avec l'accent. */
+  --tt-warn: #f59e0b;
+  --tt-warn-soft: rgba(245, 158, 11, 0.14);
   --tt-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.55);
 }
 
@@ -45,6 +49,8 @@ body.light {
   --tt-good-soft: #e8f8ee;
   --tt-danger: #dc2626;
   --tt-danger-soft: #fdecec;
+  --tt-warn: #b45309; /* 5.02:1 sur blanc — l'ambre vif du thème sombre y tomberait à 2:1 */
+  --tt-warn-soft: #fef3c7;
   --tt-shadow: 0 1px 2px rgba(16, 19, 26, 0.04), 0 8px 24px -12px rgba(16, 19, 26, 0.12);
 }
 
@@ -79,6 +85,59 @@ body.light {
   color: var(--tt-text);
   font-weight: 800;
   box-shadow: var(--tt-shadow);
+}
+
+/* ==========================================
+   BADGES DE STATUT (profil)
+   Une seule classe de base : même gabarit, même rythme vertical, seules les couleurs
+   changent d'un statut à l'autre. Les teintes viennent des tokens, donc les badges
+   suivent le thème sans surcharge.
+   ========================================== */
+.tt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px 5px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  /* Le liseré clair en haut capte la lumière, l'ombre basse décolle la pastille du fond. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.tt-badge--admin {
+  background: var(--tt-accent-soft);
+  color: var(--tt-accent);
+  border-color: color-mix(in oklab, var(--tt-accent) 32%, transparent);
+}
+.tt-badge--verified {
+  background: var(--tt-good-soft);
+  color: var(--tt-good);
+  border-color: color-mix(in oklab, var(--tt-good) 32%, transparent);
+}
+.tt-badge--pending {
+  background: var(--tt-warn-soft);
+  color: var(--tt-warn);
+  border-color: color-mix(in oklab, var(--tt-warn) 32%, transparent);
+}
+.tt-badge--rejected {
+  background: var(--tt-danger-soft);
+  color: var(--tt-danger);
+  border-color: color-mix(in oklab, var(--tt-danger) 32%, transparent);
+}
+/* Non vérifié : neutre et discret — c'est une invitation à vérifier, pas une sanction. */
+.tt-badge--unverified {
+  background: var(--tt-surface-3);
+  color: var(--tt-text-muted);
+  border-color: var(--tt-border);
+  box-shadow: none;
 }
 
 @keyframes shimmer {

@@ -3556,13 +3556,13 @@ export default function App() {
                   onClick={() =>
                     setCurrentHeroSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)
                   }
-                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 hover:bg-[#a855f7] text-white hover:text-black flex items-center justify-center backdrop-blur-sm border border-white/10 hover:border-transparent transition-all"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[#a855f7] text-white hover:text-black flex items-center justify-center backdrop-blur-sm border border-white/10 hover:border-transparent transition-all"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setCurrentHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/40 hover:bg-[#a855f7] text-white hover:text-black flex items-center justify-center backdrop-blur-sm border border-white/10 hover:border-transparent transition-all"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[#a855f7] text-white hover:text-black flex items-center justify-center backdrop-blur-sm border border-white/10 hover:border-transparent transition-all"
                 >
                   <ArrowRight className="w-5 h-5" />
                 </button>
@@ -3801,7 +3801,7 @@ export default function App() {
                       {/* Top Right Wishlist action button */}
                       <button
                         onClick={(e) => toggleWishlist(p.id, e)}
-                        className="absolute top-3 right-3 p-2 rounded-lg bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-colors"
+                        className="absolute top-3 right-3 p-2 rounded-lg bg-[var(--tt-surface-2)] hover:bg-black/60 text-white backdrop-blur-sm transition-colors"
                       >
                         <Heart
                           className={`w-4.5 h-4.5 ${
@@ -3889,7 +3889,7 @@ export default function App() {
                       />
                       <button
                         onClick={(e) => toggleWishlist(p.id, e)}
-                        className="absolute top-2 right-2 p-1.5 rounded bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-colors"
+                        className="absolute top-2 right-2 p-1.5 rounded bg-[var(--tt-surface-2)] text-white backdrop-blur-sm hover:bg-black/60 transition-colors"
                       >
                         <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[var(--tt-accent)]' : 'text-white'}`} />
                       </button>
@@ -4484,7 +4484,7 @@ export default function App() {
                           />
                           <button
                             onClick={(e) => toggleWishlist(p.id, e)}
-                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/40 text-[var(--tt-text)] backdrop-blur-sm hover:bg-black/60 transition-colors"
+                            className="absolute top-2 right-2 p-1.5 rounded-lg bg-[var(--tt-surface-2)] text-[var(--tt-text)] backdrop-blur-sm hover:bg-black/60 transition-colors"
                           >
                             <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[var(--tt-accent)]' : 'text-[var(--tt-text)]'}`} />
                           </button>
@@ -4865,7 +4865,7 @@ export default function App() {
             {/* Close modal action */}
             <button
               onClick={() => setSelectedProduct(null)}
-              className="absolute top-4 right-4 p-2.5 rounded-full bg-black/40 text-white hover:bg-[#a855f7] hover:text-black transition-colors z-10"
+              className="absolute top-4 right-4 p-2.5 rounded-full bg-[var(--tt-surface-2)] text-white hover:bg-[#a855f7] hover:text-black transition-colors z-10"
               aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}
             >
               <X className="w-4 h-4" />
@@ -5403,14 +5403,14 @@ export default function App() {
             {/* Close button */}
             <button
               onClick={() => { setAuthModalOpen(false); setAuthError(null); }}
-              className="absolute top-4 right-4 p-2 rounded-full bg-black/40 text-white hover:bg-red-500 transition-colors z-10"
+              className="absolute top-4 right-4 p-2 rounded-full bg-[var(--tt-surface-2)] text-white hover:bg-red-500 transition-colors z-10"
               aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}
             >
               <X className="w-4 h-4" />
             </button>
 
             {/* Mode Selector Tabs */}
-            <div className="grid grid-cols-2 gap-1 bg-black/20 p-1 rounded-xl mb-6 border border-white/[0.04] mt-2 select-none">
+            <div className="grid grid-cols-2 gap-1 bg-[var(--tt-surface-2)] p-1 rounded-xl mb-6 border border-white/[0.04] mt-2 select-none">
               <button
                 onClick={() => { setAuthMode('login'); setAuthError(null); }}
                 className={`py-2 text-xs font-black rounded-lg transition-all ${
@@ -5567,7 +5567,7 @@ export default function App() {
                 {lang === 'FR' ? 'Mon panier' : 'Panye mwen'}
                 <span className="text-white/40 text-sm font-bold tabular-nums">({cartCount})</span>
               </h3>
-              <button onClick={() => setCartOpen(false)} className="p-2 rounded-full bg-black/40 hover:bg-white/10" aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}>
+              <button onClick={() => setCartOpen(false)} className="p-2 rounded-full bg-[var(--tt-surface-2)] hover:bg-white/10" aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}>
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -5578,8 +5578,8 @@ export default function App() {
               <>
                 <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
                   {cart.map((l) => (
-                    <div key={l.key} className="bg-black/25 rounded-2xl p-3 flex items-center gap-3">
-                      {l.image && <img src={l.image} alt="" className="w-12 h-12 rounded-lg object-cover bg-black/30 shrink-0" />}
+                    <div key={l.key} className="bg-[var(--tt-surface-2)] rounded-2xl p-3 flex items-center gap-3">
+                      {l.image && <img src={l.image} alt="" className="w-12 h-12 rounded-lg object-cover bg-[var(--tt-surface-2)] shrink-0" />}
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold truncate">{l.name}</p>
                         <p className="text-[11px] text-white/50 tabular-nums">
