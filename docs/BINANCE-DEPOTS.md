@@ -1,4 +1,4 @@
-# Dépôts Binance sur compte personnel — audit de conception
+# Dépôts crypto — audit de conception (Binance perso / Cwallet-CCPayment)
 
 État au 2026-07-20. Document d'aide à la décision, **avant toute implémentation**. Le sujet
 touche au crédit de soldes réels : une erreur de conception ici se paie en argent, pas en
@@ -120,12 +120,80 @@ Quelle que soit l'implémentation retenue :
 
 ---
 
-## 6. Étape suivante recommandée
+## 6. Alternative examinée : Cwallet / CCPayment
+
+**CCPayment est la passerelle marchande de Cwallet** (même éditeur ; la doc CCPayment mentionne
+explicitement les transferts « vers un compte Cwallet »). Se présente comme sous licence UE,
+80+ pays, 900+ cryptomonnaies.
+
+Deux caractéristiques changent la donne par rapport à Binance en compte personnel.
+
+**a. `merchant_order_id` — la propriété perdue est restaurée.** L'API accepte un identifiant de
+commande propre au marchand, unique par commande, et le renvoie dans le webhook. On retrouve
+exactement le mécanisme d'OxaPay décrit au §1 : un identifiant créé AVANT le paiement. Toute la
+gymnastique du §3 (montant aux centimes imposés, liaison d'identité) devient inutile.
+
+**b. Adresse de dépôt permanente PAR utilisateur.** L'API expose un endpoint rendant une adresse
+statique liée à un `user_id`. C'est plus fort encore qu'une facture : **l'attribution devient
+structurelle**. Tout dépôt reçu sur cette adresse appartient à cet utilisateur par construction,
+sans rapprochement par montant ni par identité d'expéditeur.
+
+> **Cela supprime la fraude du §2.** Il n'y a plus d'identifiant d'expéditeur à revendiquer :
+> on ne peut pas s'approprier l'adresse d'un autre, puisqu'on ne choisit pas où le client envoie.
+
+**Webhook.** Signature `SHA-256(APPID + APP_SECRET + timestamp + body)`, transmise dans les
+en-têtes `Appid` / `Sign` / `Timestamp`. Le serveur doit répondre `200` avec la chaîne `success`
+dans le corps ; à défaut, CCPayment relance jusqu'à **6 fois**. À noter : cela impose de
+répondre `success` **après** avoir traité, et de rester idempotent — les relances sont normales,
+pas exceptionnelles.
+
+### Ce qui reste à trancher, et c'est décisif
+
+1. **L'ouverture de compte.** C'est la question qui a fait échouer OxaPay. CCPayment annonce des
+   prérequis techniques minimes, mais ses conditions prévoient la fourniture de documents au
+   titre de la lutte anti-blanchiment. **Compte d'entreprise obligatoire ou non ? KYB exigé ?**
+   Rien dans la documentation publique ne le dit clairement.
+2. **Haïti est-il éligible ?** Les conditions mentionnent des restrictions régionales sans les
+   énumérer. À demander avant tout développement.
+3. **Fiabilité de l'éditeur.** Traders Union note CCPayment « Unclear Performance » à 0,7/5. Ce
+   type de notation est de qualité inégale et ne vaut pas condamnation, mais confier le flux de
+   dépôts d'une boutique mérite d'y regarder de plus près — au minimum un test avec de petits
+   montants avant toute mise en service.
+
+### État de mes sources
+
+Les pages de documentation `docs.ccpayment.com` **redirigent désormais vers une application
+JavaScript** que je n'ai pas pu lire directement. Les éléments ci-dessus proviennent d'extraits
+indexés de la documentation **v1.0**. La version courante de l'API peut donc différer : à
+reconfirmer sur la doc en ligne avant d'écrire du code.
+
+---
+
+## 7. Classement des options
+
+| | Attribution du paiement | Crédit instantané | Blocage connu |
+|---|---|---|---|
+| **CCPayment / Cwallet** | **structurelle** (adresse par utilisateur) | oui (webhook) | ouverture de compte à vérifier |
+| OxaPay | par `order_id` | oui (webhook) | **refusé** |
+| Binance perso | par montant unique + identité | non (sondage) | identité du payeur peut-être illisible |
+
+**CCPayment est la meilleure piste**, sous la seule réserve de l'ouverture de compte. Binance en
+compte personnel reste le repli si CCPayment refuse à son tour : plus fragile, plus lent, et
+exigeant les parades du §3 — mais il ne dépend de l'agrément de personne.
+
+---
+
+## 8. Étape suivante recommandée
 
 Interroger l'API avec une clé en lecture seule et **observer ce qu'elle renvoie réellement**
 sur une transaction de test : rail utilisé, champs de contrepartie disponibles, format de
 l'identifiant de transaction. Une seule transaction réelle lèvera les quatre incertitudes du §4
 mieux que n'importe quelle lecture de documentation.
 
+**Mais l'ordre a changé depuis le §6** : commencer par **demander à CCPayment si un compte peut
+être ouvert depuis Haïti, et à quelles conditions**. Une réponse positive rend inutile tout le
+travail des §3 et §4. Une réponse négative renvoie au repli Binance, et c'est alors seulement
+qu'une transaction de test a un intérêt.
+
 Tant que le point 4.2 n'est pas tranché — l'identité du payeur est-elle lisible ? — la parade
-§3 ne peut pas être arrêtée, et l'implémentation n'a pas de base solide.
+§3 ne peut pas être arrêtée, et l'implémentation Binance n'a pas de base solide.
