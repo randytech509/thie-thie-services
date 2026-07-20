@@ -16,6 +16,8 @@
  * module reste inerte, ce qui laisse le développement et les tests non tracés.
  */
 
+import Clarity from '@microsoft/clarity';
+
 const GA4_ID = import.meta.env.VITE_GA4_ID as string | undefined;
 const CLARITY_ID = import.meta.env.VITE_CLARITY_ID as string | undefined;
 
@@ -46,6 +48,8 @@ export function isAnalyticsConfigured(): boolean {
 }
 
 let loaded = false;
+let clarityReady = false;
+const pendingTags = new Map<string, string>();
 
 /** Injecte les scripts. Idempotent : un double appel (re-render, changement de page) ne duplique rien. */
 export function initAnalytics(): void {
@@ -86,13 +90,43 @@ function loadGa4(id: string): void {
 }
 
 function loadClarity(id: string): void {
-  const w = window as any;
-  if (w.clarity) return;
-  w.clarity = w.clarity || function () { (w.clarity.q = w.clarity.q || []).push(arguments); };
-  const s = document.createElement('script');
-  s.async = true;
-  s.src = `https://www.clarity.ms/tag/${encodeURIComponent(id)}`;
-  document.head.appendChild(s);
+  Clarity.init(id);
+  clarityReady = true;
+  // Consentement GRANULAIRE : on veut la mesure d'audience, pas le stockage publicitaire.
+  // Sans cet appel, Clarity applique ses valeurs par défaut, plus larges que notre besoin.
+  Clarity.consentV2({ ad_Storage: 'denied', analytics_Storage: 'granted' });
+  flushTags(); // rejoue les étiquettes accumulées avant le consentement
+}
+
+/**
+ * Étiquette la session courante (`setTag`) — c'est ce qui rend les enregistrements
+ * TROUVABLES. Sans étiquettes, on fait défiler des sessions à l'aveugle ; avec, on filtre
+ * (« les sessions en kreyòl », « celles des visiteurs non connectés »).
+ *
+ * On étiquette des CATÉGORIES, jamais des personnes. `Clarity.identify()` existe mais n'est
+ * volontairement pas exposé ici : lier un utilisateur nommé à l'enregistrement vidéo de son
+ * écran, sur une application qui manipule des soldes et des pièces d'identité KYC, demande
+ * une décision explicite et une mention dans la politique de confidentialité.
+ */
+export function tagSession(key: string, value: string): void {
+  // Les étiquettes sont posées au montage de l'app, donc AVANT que le visiteur ait répondu au
+  // bandeau. Sans mise en attente elles seraient perdues : l'effet React qui les pose ne se
+  // rejoue pas après l'acceptation, ses dépendances n'ayant pas changé. On les conserve et on
+  // les rejoue à l'initialisation — l'appelant n'a ainsi aucune question de timing à se poser.
+  pendingTags.set(key, value);
+  if (!clarityReady) return;
+  flushTags();
+}
+
+function flushTags(): void {
+  for (const [key, value] of pendingTags) {
+    try {
+      Clarity.setTag(key, value);
+    } catch {
+      /* une étiquette perdue ne doit jamais casser la page */
+    }
+  }
+  pendingTags.clear();
 }
 
 /**
@@ -101,6 +135,11 @@ function loadClarity(id: string): void {
  */
 export function trackEvent(name: string, params?: Record<string, unknown>): void {
   const w = window as any;
-  if (typeof w.gtag !== 'function') return;
-  w.gtag('event', name, params ?? {});
+  if (typeof w.gtag === 'function') w.gtag('event', name, params ?? {});
+  // Le même événement côté Clarity : il devient un filtre dans la liste des enregistrements,
+  // ce qui permet de retrouver la session où l'événement s'est produit — pas seulement de
+  // savoir qu'il a eu lieu. Clarity n'accepte qu'un nom, sans paramètres.
+  if (clarityReady) {
+    try { Clarity.event(name); } catch { /* sans effet sur la page */ }
+  }
 }

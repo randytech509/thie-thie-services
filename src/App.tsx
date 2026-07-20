@@ -79,6 +79,7 @@ const LazyFallback = () => (
 import { ThieThieLogo } from './components/ThieThieLogo';
 import { AppInfoSection } from './components/AppInfoSection';
 import { ConsentBanner } from './components/ConsentBanner';
+import { tagSession } from './lib/analytics';
 import { Sidebar } from './components/Sidebar';
 import { BottomTabBar } from './components/BottomTabBar';
 
@@ -1419,6 +1420,16 @@ export default function App() {
     const timer = setTimeout(() => setCartToast(null), 4000);
     return () => clearTimeout(timer);
   }, [cartToast]);
+
+  // Étiquettes de session Clarity : elles rendent les enregistrements filtrables (« sessions
+  // en kreyòl », « visiteurs non connectés »). Sans elles on fait défiler des sessions à
+  // l'aveugle. Uniquement des CATÉGORIES — jamais d'identifiant nominatif.
+  // Sans consentement, tagSession() ne fait rien : aucun test à écrire côté appelant.
+  useEffect(() => {
+    tagSession('langue', lang);
+    tagSession('theme', theme);
+    tagSession('session', user ? 'connecte' : 'invite');
+  }, [lang, theme, user]);
 
 
   // Real-time listener for user orders & status transition checking
