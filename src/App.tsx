@@ -78,6 +78,7 @@ const LazyFallback = () => (
 );
 import { ThieThieLogo } from './components/ThieThieLogo';
 import { AppInfoSection } from './components/AppInfoSection';
+import { ConsentBanner } from './components/ConsentBanner';
 import { Sidebar } from './components/Sidebar';
 import { BottomTabBar } from './components/BottomTabBar';
 
@@ -3237,6 +3238,8 @@ export default function App() {
       <a href="#main-content-flow" className="tt-skip-link">
         {lang === 'FR' ? 'Aller au contenu' : 'Ale nan kontni an'}
       </a>
+      {/* Ne s'affiche que si VITE_GA4_ID / VITE_CLARITY_ID sont configurés. */}
+      <ConsentBanner lang={lang} />
       <Sidebar
         lang={lang}
         setLang={setLang}
