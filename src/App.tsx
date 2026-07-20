@@ -587,7 +587,7 @@ const DICTIONARY: Record<string, Record<string, string>> = {
     whyChooseUs: 'Pourquoi nous choisir ?',
     whySubtitle: 'Le partenaire de confiance pour tous vos besoins de jeu numérique',
     instantDelivery: 'Livraison Instantanée',
-    instantDeliveryDesc: 'Vos codes de jeu livrés par e-mail en moins de 5 minutes chrono.',
+    instantDeliveryDesc: 'Vos codes livrés dans votre compte en moins de 5 minutes chrono.',
     securePayments: 'Paiements Ultra Sécurisés',
     securePaymentsDesc: 'Alimentez votre wallet via MonCash, NatCash ou USDT, puis payez vos commandes en un clic depuis votre solde.',
     support247: 'Service Client 24/7',
@@ -727,7 +727,7 @@ const HERO_SLIDES = [
     title: 'PUBG UC Pack',
     subtitle: 'Battle Royale Dominance',
     subtitleIcon: Trophy,
-    desc: 'Unknown Cash pas cher avec livraison éclair par e-mail sur votre identifiant de jeu PUBG.',
+    desc: 'Unknown Cash pas cher avec livraison éclair sur votre identifiant de jeu PUBG.',
     descHT: 'Achite Unknown Cash ak pi bon pri sou mache a epi livrezon rapid pa imèl.',
     gradient: 'from-[#0d1b2a] to-[#241640]',
     cta: 'Commander',
@@ -775,7 +775,7 @@ const HIGHLIGHTED_CATEGORIES = [
   {
     slug: 'pubg',
     name: 'PUBG UC',
-    taglineFR: 'Unknown Cash instantané, livré par e-mail',
+    taglineFR: 'Unknown Cash instantané, livré dans votre compte',
     taglineHT: 'Unknown Cash rapid, livre pa imèl',
     image: pubgOvergrownHelmet,
     badgeFR: 'Populaire',
@@ -844,7 +844,7 @@ const HIGHLIGHTED_CATEGORIES = [
   {
     slug: 'efootball',
     name: 'eFootball',
-    taglineFR: 'Pièces eFootball instantanées, livrées par e-mail',
+    taglineFR: 'Pièces eFootball instantanées, livrées dans votre compte',
     taglineHT: 'Kwen eFootball rapid, livre pa imèl',
     image: 'https://image.api.playstation.com/vulcan/ap/rnd/202308/2513/1908ef918e69d95f87b328a6fdf94291c95f19c29ca52e9f.png',
     badgeFR: 'Nouveau',
@@ -904,7 +904,7 @@ const FAQS = [
   {
     qFR: 'Comment se déroule la livraison ?',
     qHT: 'Kouman livrezon an fèt ?',
-    aFR: 'La livraison est instantanée. Vous payez votre commande depuis votre wallet Thie Thie (que vous alimentez via MonCash, NatCash ou USDT), et nous vous envoyons votre code par e-mail ou rechargeons votre compte de jeu en moins de 5 minutes.',
+    aFR: 'La livraison est instantanée. Vous payez votre commande depuis votre wallet Thie Thie (que vous alimentez via MonCash, NatCash ou USDT), et votre code apparaît dans votre compte, section Mes commandes, ou nous rechargeons directement votre compte de jeu — en moins de 5 minutes.',
     aHT: 'Livrezon an fèt byen vit. Ou peye kòmand ou an ak wallet Thie Thie ou (ke ou chaje ak MonCash, NatCash oswa USDT), epi nou voye kòd la oswa chaje kont jwèt ou an nan mwens pase 5 minit.'
   },
   {
@@ -2592,7 +2592,7 @@ export default function App() {
               deliveryTime: String(v.deliveryTime ?? '1-5 Min'),
               regions: Array.isArray(v.regions) && v.regions.length ? v.regions : ['Global'],
               options,
-              descriptionFR: `Carte cadeau ${v.name ?? ''} — livraison par e-mail.`,
+              descriptionFR: `Carte cadeau ${v.name ?? ''} — livrée dans votre compte.`,
               descriptionHT: `Kat kado ${v.name ?? ''} — livrezon pa imel.`,
               stockStatus: 'instock',
               fsProductId: d.id,
@@ -3290,7 +3290,7 @@ export default function App() {
         </span>
         <span className="hidden md:inline text-white/40">|</span>
         <span className="hidden md:inline flex items-center gap-1 text-white">
-          <Zap className="w-3.5 h-3.5" /> Livraison garantie en moins de 5 min par e-mail
+          <Zap className="w-3.5 h-3.5" /> Livraison garantie en moins de 5 min dans votre compte
         </span>
       </div>
 
@@ -4262,7 +4262,7 @@ export default function App() {
                   }
                 </h1>
                 <p className="text-xs md:text-sm text-white/60 mt-2">
-                  Livraison ultra-rapide par e-mail. Tarifs transparents, sans frais cachés.
+                  Livraison ultra-rapide dans votre compte. Tarifs transparents, sans frais cachés.
                 </p>
               </div>
               <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-15 pointer-events-none hidden md:block">
@@ -4601,7 +4601,7 @@ export default function App() {
                   <Check className="w-4 h-4 text-[var(--tt-accent)] flex-shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-[var(--tt-text)]">Rapidité Absolute</strong>
-                    <p className="text-[var(--tt-text-muted)] mt-1">Livraison garantie de vos codes de jeux sous 5 minutes par e-mail.</p>
+                    <p className="text-[var(--tt-text-muted)] mt-1">Livraison garantie de vos codes sous 5 minutes, directement dans votre compte.</p>
                   </div>
                 </li>
                 <li className="flex gap-2.5 items-start">
@@ -4845,7 +4845,7 @@ export default function App() {
               <p>Le délai moyen constaté de traitement est inférieur à 5 minutes. Thie Thie Services s'engage à livrer l'intégralité des commandes sous 2 heures maximum. Au-delà, un remboursement intégral pourra être demandé.</p>
               
               <h3 className="text-sm font-bold text-white mt-4">3. Remboursements</h3>
-              <p>En raison du caractère numérique et de l'activation immédiate des codes, aucun retour ni remboursement n'est possible une fois le code envoyé par e-mail.</p>
+              <p>En raison du caractère numérique et de l'activation immédiate des codes, aucun retour ni remboursement n'est possible une fois le code mis à disposition dans votre compte.</p>
               <p className="mt-2"><strong className="text-white">Cartes cadeaux — région obligatoire.</strong> Chaque carte cadeau est liée à une région précise. Par exemple, une carte cadeau <strong className="text-white">Apple USA</strong> n'est utilisable que sur un compte Apple dont la région est réglée sur les <strong className="text-white">États-Unis</strong>. Il vous appartient de <strong className="text-white">vérifier la région de votre compte avant tout achat</strong>. Aucun remboursement ne sera accordé pour une carte inutilisable en raison d'une région de compte non conforme, ou pour un code déjà révélé.</p>
             </div>
           </div>
@@ -5644,7 +5644,7 @@ export default function App() {
                   </button>
                   <p className="text-[10px] text-white/30 text-center">
                     {lang === 'FR'
-                      ? 'Un seul paiement · chaque article est livré séparément par e-mail.'
+                      ? 'Un seul paiement · chaque article est livré séparément dans votre compte.'
                       : 'Yon sèl peman · chak atik livre apa pa imel.'}
                   </p>
                 </div>
