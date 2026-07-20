@@ -912,7 +912,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     />
                   ) : (
                     <div className="w-full h-full rounded-[14px] bg-[#0c0714] flex items-center justify-center">
-                      <span className="text-3xl font-black text-[#a855f7]">
+                      <span className="text-3xl font-black text-[var(--tt-accent)]">
                         {(dbUser.fullName || user.email || 'U').charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -941,7 +941,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <h2 className="text-xl font-black tracking-tight text-white">
                   {dbUser.fullName || user.displayName || user.email?.split('@')[0]}
                 </h2>
-                <div className="bg-orange-500/10 text-[#a855f7] p-1 rounded-md" title={t.verifiedUser}>
+                <div className="bg-orange-500/10 text-[var(--tt-accent)] p-1 rounded-md" title={t.verifiedUser}>
                   <Check className="w-3.5 h-3.5 stroke-[3]" />
                 </div>
               </div>
@@ -980,7 +980,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   <span className="flex items-center gap-1.5 text-white/40">
                     <Clock className="w-3.5 h-3.5" /> ID Joueur
                   </span>
-                  <span className="text-[#a855f7] font-mono text-[10px] select-all uppercase font-black">{user.uid.substring(0, 10)}...</span>
+                  <span className="text-[var(--tt-accent)] font-mono text-[10px] select-all uppercase font-black">{user.uid.substring(0, 10)}...</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white/40">Membre depuis</span>
@@ -1002,7 +1002,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           <div className="bg-[#1c1030] border border-white/[0.08] rounded-3xl p-6 relative overflow-hidden shadow-2xl flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2.5 bg-[#a855f7]/10 rounded-xl text-[#a855f7]">
+                <div className="p-2.5 bg-[#a855f7]/10 rounded-xl text-[var(--tt-accent)]">
                   <Coins className="w-5 h-5" />
                 </div>
                 <div>
@@ -1010,7 +1010,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     Points Fidélité
                   </h3>
                   <p className="text-2xl font-black text-white mt-1 tabular-nums">
-                    {thieThiePoints} <span className="text-xs text-[#a855f7]">PTS</span>
+                    {thieThiePoints} <span className="text-xs text-[var(--tt-accent)]">PTS</span>
                   </p>
                 </div>
               </div>
@@ -1113,7 +1113,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               </div>
               <div className="flex flex-col border-l border-white/[0.06] pl-4">
                 <span className="text-white/40 font-bold mb-1">Actuel (HTG)</span>
-                <span className="text-[#a855f7] font-black text-sm select-all tabular-nums">
+                <span className="text-[var(--tt-accent)] font-black text-sm select-all tabular-nums">
                   {formatHTG(walletBalanceHtg)}
                 </span>
               </div>
@@ -1127,7 +1127,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             <div className="flex items-center gap-3">
               <div className={`p-2.5 rounded-xl ${
                 kycStatus === 'approved' ? 'bg-emerald-500/10 text-emerald-400'
-                : kycStatus === 'pending' ? 'bg-[#a855f7]/10 text-[#a855f7]'
+                : kycStatus === 'pending' ? 'bg-[#a855f7]/10 text-[var(--tt-accent)]'
                 : kycStatus === 'rejected' ? 'bg-red-500/10 text-red-400'
                 : 'bg-white/[0.04] text-white/40'
               }`}>
@@ -1149,7 +1149,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <CheckCircle className="w-3.5 h-3.5" /> Vérifié
               </span>
             ) : kycStatus === 'pending' ? (
-              <span className="bg-[#a855f7]/10 text-[#a855f7] border border-[#a855f7]/20 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">
+              <span className="bg-[#a855f7]/10 text-[var(--tt-accent)] border border-[#a855f7]/20 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">
                 En attente
               </span>
             ) : (
@@ -1169,7 +1169,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           <div className="bg-[#1c1030] border border-white/[0.08] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black text-white flex items-center gap-2">
-                <Bell className="w-4 h-4 text-[#a855f7]" />
+                <Bell className="w-4 h-4 text-[var(--tt-accent)]" />
                 Centre d'Activités & Notifications
                 {notifications.filter(n => !n.read).length > 0 && (
                   <span className="bg-red-500 text-white font-black text-[9px] px-1.5 py-0.5 rounded-full">
@@ -1203,7 +1203,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                           : detail || "Échec inconnu.",
                       );
                     }}
-                    className="text-[9px] font-black uppercase tracking-wider text-[#a855f7] hover:text-white border border-[#a855f7]/25 hover:border-[#a855f7] rounded-lg px-2.5 py-1.5 transition-all disabled:opacity-40 cursor-pointer"
+                    className="text-[9px] font-black uppercase tracking-wider text-[var(--tt-accent)] hover:text-white border border-[#a855f7]/25 hover:border-[#a855f7] rounded-lg px-2.5 py-1.5 transition-all disabled:opacity-40 cursor-pointer"
                   >
                     {pushStatus === 'loading' ? 'Activation…' : 'Activer les notifications'}
                   </button>
@@ -1211,7 +1211,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className="text-white/40 hover:text-[#a855f7] text-[10px] font-black uppercase flex items-center gap-1 cursor-pointer"
+                  className="text-white/40 hover:text-[var(--tt-accent)] text-[10px] font-black uppercase flex items-center gap-1 cursor-pointer"
                 >
                   {showNotifications ? "Masquer" : "Afficher"}
                   <ChevronDown className={`w-3.5 h-3.5 transition-all ${showNotifications ? 'rotate-180' : ''}`} />
@@ -1255,7 +1255,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                               : 'bg-gradient-to-r from-[#a855f7]/5 to-transparent border-[#a855f7]/25 text-white shadow-sm hover:from-[#a855f7]/10'
                           }`}
                         >
-                          <div className={`p-1.5 rounded-lg mt-0.5 ${notif.read ? 'bg-white/5 text-white/30' : 'bg-[#a855f7]/10 text-[#a855f7]'}`}>
+                          <div className={`p-1.5 rounded-lg mt-0.5 ${notif.read ? 'bg-white/5 text-white/30' : 'bg-[#a855f7]/10 text-[var(--tt-accent)]'}`}>
                             <Sparkles className="w-3.5 h-3.5" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -1285,7 +1285,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-[#a855f7]/10 text-[#a855f7] rounded-xl">
+                  <div className="p-2 bg-[#a855f7]/10 text-[var(--tt-accent)] rounded-xl">
                     <Shield className="w-4 h-4 stroke-[2]" />
                   </div>
                   <div>
@@ -1293,7 +1293,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     <p className="text-[9px] text-white/40 font-bold uppercase tracking-wider">Thie Thie Services Admin Panel</p>
                   </div>
                 </div>
-                <span className="bg-orange-500/10 text-[#a855f7] border border-orange-500/20 px-2 py-0.5 rounded-md text-[9px] font-black uppercase">
+                <span className="bg-orange-500/10 text-[var(--tt-accent)] border border-orange-500/20 px-2 py-0.5 rounded-md text-[9px] font-black uppercase">
                   {walletRequests.filter(r => r.status === 'Pending Verification').length} PENDING
                 </span>
               </div>
@@ -1314,7 +1314,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       <div className="flex-1 min-w-0 flex flex-col gap-1 text-left">
                         <div className="flex items-center gap-2">
                           <span className="font-black text-xs text-white select-all">Demande {req.requestId}</span>
-                          <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-[9px] text-[#a855f7] font-black uppercase tracking-wider">
+                          <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-[9px] text-[var(--tt-accent)] font-black uppercase tracking-wider">
                             {req.paymentMethod}
                           </span>
                         </div>
@@ -1375,7 +1375,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-[#a855f7]/10 text-[#a855f7] rounded-xl">
+                  <div className="p-2 bg-[#a855f7]/10 text-[var(--tt-accent)] rounded-xl">
                     <UserCheck className="w-4 h-4 stroke-[2]" />
                   </div>
                   <div>
@@ -1383,7 +1383,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     <p className="text-[9px] text-white/40 font-bold uppercase tracking-wider">Débloque la recharge crypto du client</p>
                   </div>
                 </div>
-                <span className="bg-orange-500/10 text-[#a855f7] border border-orange-500/20 px-2 py-0.5 rounded-md text-[9px] font-black uppercase">
+                <span className="bg-orange-500/10 text-[var(--tt-accent)] border border-orange-500/20 px-2 py-0.5 rounded-md text-[9px] font-black uppercase">
                   {pendingKycRequests.filter(r => r.status === 'pending').length} PENDING
                 </span>
               </div>
@@ -1404,7 +1404,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       <div className="flex-1 min-w-0 flex flex-col gap-1 text-left">
                         <div className="flex items-center gap-2">
                           <span className="font-black text-xs text-white select-all">Demande {req.requestId}</span>
-                          <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-[9px] text-[#a855f7] font-black uppercase tracking-wider">
+                          <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-[9px] text-[var(--tt-accent)] font-black uppercase tracking-wider">
                             KYC
                           </span>
                         </div>
@@ -1487,12 +1487,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[#a855f7]/10 to-transparent rounded-full blur-xl pointer-events-none"></div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] text-white/40 font-black uppercase tracking-wider">{t.statPendingOrders}</span>
-                <div className="p-2 bg-[#a855f7]/10 text-[#a855f7] rounded-lg">
+                <div className="p-2 bg-[#a855f7]/10 text-[var(--tt-accent)] rounded-lg">
                   <Clock className="w-4 h-4" />
                 </div>
               </div>
               <div>
-                <p className="text-2xl font-black text-[#a855f7] tabular-nums">{pendingOrdersCount}</p>
+                <p className="text-2xl font-black text-[var(--tt-accent)] tabular-nums">{pendingOrdersCount}</p>
                 <p className="text-[10px] text-white/30 font-medium mt-0.5">En cours de traitement</p>
               </div>
             </div>
@@ -1522,7 +1522,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 </div>
               </div>
               <div>
-                <p className="text-md font-black text-[#a855f7] truncate">
+                <p className="text-md font-black text-[var(--tt-accent)] truncate">
                   {lang === 'FR' ? loyalty.nameFR.split(' ')[0] : loyalty.nameHT.split(' ')[0]}
                 </p>
                 <p className="text-[10px] text-white/30 font-medium mt-0.5">Rang de Fidélité</p>
@@ -1537,7 +1537,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           <div className="bg-[#1c1030] border border-white/[0.08] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <h3 className="text-lg font-black text-white flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[#a855f7]" />
+                <TrendingUp className="w-5 h-5 text-[var(--tt-accent)]" />
                 {t.transactionsTitle}
               </h3>
               
@@ -1679,7 +1679,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               ========================================== */}
           <div className="bg-[#1c1030] border border-white/[0.08] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
             <h3 className="text-lg font-black text-white flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-[#a855f7]" />
+              <ShoppingBag className="w-5 h-5 text-[var(--tt-accent)]" />
               {t.orderHistory}
             </h3>
 
@@ -1715,18 +1715,18 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                               {order.orderId || order.id?.substring(0, 8)}
                             </span>
                           </div>
-                          <p className="text-[10px] text-[#a855f7] font-black mt-0.5 uppercase tracking-wide">
+                          <p className="text-[10px] text-[var(--tt-accent)] font-black mt-0.5 uppercase tracking-wide">
                             {order.amount || order.product || 'Standard'}
                           </p>
                           {(order.freeFirePlayerId || order.playerUID || order.playerId) && (
                             <p className="text-[9px] text-white/40 font-bold mt-1">
-                              Player ID: <strong className="text-[#a855f7] font-mono">{order.freeFirePlayerId || order.playerUID || order.playerId}</strong>
+                              Player ID: <strong className="text-[var(--tt-accent)] font-mono">{order.freeFirePlayerId || order.playerUID || order.playerId}</strong>
                             </p>
                           )}
                         </div>
 
                         <div className="flex items-center justify-between border-t border-white/[0.04] pt-2 mt-2">
-                          <span className="text-xs font-black text-[#a855f7]">
+                          <span className="text-xs font-black text-[var(--tt-accent)]">
                             {order.priceUSD ? `${(order.priceUSD * 145).toLocaleString()} HTG` : (order.amount || '—')}
                           </span>
                           
@@ -1806,7 +1806,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                         <div className="mt-2 pt-3 border-t border-white/[0.04] flex flex-col gap-2">
                           <div className="flex items-center justify-between text-[9px] font-mono tracking-wider text-white/30 uppercase">
                             <span>{lang === 'FR' ? 'Suivi de commande' : 'Swiv kòmande'}</span>
-                            <span className="text-[#a855f7] font-black">
+                            <span className="text-[var(--tt-accent)] font-black">
                               {isCompleted ? '100%' : isFailed ? '0%' : '50%'}
                             </span>
                           </div>
@@ -1840,8 +1840,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                               } else if (step.state === 'active') {
                                 bgClass = 'bg-[#a855f7]/10 animate-pulse';
                                 borderClass = 'border-[#a855f7]/50';
-                                textClass = 'text-[#a855f7]';
-                                iconClass = 'text-[#a855f7]';
+                                textClass = 'text-[var(--tt-accent)]';
+                                iconClass = 'text-[var(--tt-accent)]';
                               } else if (step.state === 'failed') {
                                 bgClass = 'bg-red-500/10';
                                 borderClass = 'border-red-500/40';
@@ -1878,7 +1878,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       <div className="mt-3.5 p-2 bg-[var(--tt-bg)] rounded-2xl border border-white/[0.04] flex flex-col gap-2">
                         <div className="flex items-center justify-between text-[8px] font-bold text-white/40 uppercase tracking-widest">
                           <span className="flex items-center gap-1">
-                            <Sparkles className="w-2.5 h-2.5 text-[#a855f7]" />
+                            <Sparkles className="w-2.5 h-2.5 text-[var(--tt-accent)]" />
                             {lang === 'FR' ? 'Simulateur (Temps Réel)' : 'Similatè (Tan Reyèl)'}
                           </span>
                           <button
@@ -1947,7 +1947,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               ========================================== */}
           <div className="bg-[#1c1030] border border-white/[0.08] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
             <h3 className="text-lg font-black text-white flex items-center gap-2">
-              <Shield className="w-5 h-5 text-[#a855f7]" />
+              <Shield className="w-5 h-5 text-[var(--tt-accent)]" />
               {t.accountSettings}
             </h3>
 
@@ -1959,7 +1959,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 className="w-full p-4 bg-black/20 hover:bg-black/30 border border-white/[0.04] hover:border-white/10 rounded-2xl flex items-center justify-between text-left transition-all group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-500/10 text-[#a855f7] rounded-xl group-hover:bg-[#a855f7] group-hover:text-black transition-all">
+                  <div className="p-2 bg-orange-500/10 text-[var(--tt-accent)] rounded-xl group-hover:bg-[#a855f7] group-hover:text-black transition-all">
                     <User className="w-4 h-4" />
                   </div>
                   <div>
@@ -2022,7 +2022,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   </div>
                   <div>
                     <p className="font-black text-white">{t.language}</p>
-                    <p className="text-[10px] text-white/40 font-bold uppercase text-[#a855f7]">
+                    <p className="text-[10px] text-white/40 font-bold uppercase text-[var(--tt-accent)]">
                       {lang === 'FR' ? 'Français (FR)' : 'Kreyòl (HT)'}
                     </p>
                   </div>
@@ -2138,7 +2138,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   placeholder="Ex. Ouvrez l'App Store (région USA) &gt; votre compte &gt; Utiliser une carte cadeau &gt; saisissez le code."
                   className="mt-1 w-full bg-black/30 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:border-[#a855f7] outline-none resize-none" />
               </div>
-              {fulfillMsg && <p className="text-xs font-bold text-[#a855f7]">{fulfillMsg}</p>}
+              {fulfillMsg && <p className="text-xs font-bold text-[var(--tt-accent)]">{fulfillMsg}</p>}
               <button onClick={handleFulfill} disabled={fulfilling || !fulfillCode.trim()}
                 className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase tracking-wider text-sm rounded-xl py-3 transition-colors">
                 {fulfilling ? 'Envoi…' : 'Enregistrer et envoyer le code'}
@@ -2164,7 +2164,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               </button>
 
               <h3 className="text-lg font-black text-white mb-4 flex items-center gap-2">
-                <User className="w-5 h-5 text-[#a855f7]" />
+                <User className="w-5 h-5 text-[var(--tt-accent)]" />
                 {t.editProfile}
               </h3>
 
@@ -2279,7 +2279,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               </button>
 
               <h3 className="text-lg font-black text-white mb-2 flex items-center gap-2">
-                <Plus className="w-5 h-5 text-[#a855f7]" />
+                <Plus className="w-5 h-5 text-[var(--tt-accent)]" />
                 {t.addFundsTitle}
               </h3>
 
@@ -2362,18 +2362,18 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                           <button
                             type="button"
                             onClick={() => handleCopyToClipboard(depositAccounts.moncashName, 'moncash-name')}
-                            className="absolute right-2 top-3 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[#a855f7] rounded-lg"
+                            className="absolute right-2 top-3 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[var(--tt-accent)] rounded-lg"
                           >
                             {copiedField === 'moncash-name' ? <span className="text-[8px] font-black text-emerald-400">COPIÉ</span> : <Copy className="w-3.5 h-3.5" />}
                           </button>
                         </div>
                         <div className="bg-[#0c0714] border border-white/[0.04] p-2.5 rounded-xl flex flex-col relative">
                           <span className="text-[9px] text-white/30 font-bold">NUMÉRO</span>
-                          <span className="text-[#a855f7] font-black text-xs mt-0.5">{depositAccounts.moncashNumber}</span>
+                          <span className="text-[var(--tt-accent)] font-black text-xs mt-0.5">{depositAccounts.moncashNumber}</span>
                           <button
                             type="button"
                             onClick={() => handleCopyToClipboard(depositAccounts.moncashNumber, 'moncash-num')}
-                            className="absolute right-2 top-3 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[#a855f7] rounded-lg"
+                            className="absolute right-2 top-3 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[var(--tt-accent)] rounded-lg"
                           >
                             {copiedField === 'moncash-num' ? <span className="text-[8px] font-black text-emerald-400">COPIÉ</span> : <Copy className="w-3.5 h-3.5" />}
                           </button>
@@ -2394,18 +2394,18 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                           <button
                             type="button"
                             onClick={() => handleCopyToClipboard(depositAccounts.natcashName, 'natcash-name')}
-                            className="absolute right-2 top-3 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[#a855f7] rounded-lg"
+                            className="absolute right-2 top-3 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[var(--tt-accent)] rounded-lg"
                           >
                             {copiedField === 'natcash-name' ? <span className="text-[8px] font-black text-emerald-400">COPIÉ</span> : <Copy className="w-3.5 h-3.5" />}
                           </button>
                         </div>
                         <div className="bg-[#0c0714] border border-white/[0.04] p-2.5 rounded-xl flex flex-col relative">
                           <span className="text-[9px] text-white/30 font-bold">NUMÉRO</span>
-                          <span className="text-[#a855f7] font-black text-xs mt-0.5">{depositAccounts.natcashNumber}</span>
+                          <span className="text-[var(--tt-accent)] font-black text-xs mt-0.5">{depositAccounts.natcashNumber}</span>
                           <button
                             type="button"
                             onClick={() => handleCopyToClipboard(depositAccounts.natcashNumber, 'natcash-num')}
-                            className="absolute right-2 top-3 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[#a855f7] rounded-lg"
+                            className="absolute right-2 top-3 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[var(--tt-accent)] rounded-lg"
                           >
                             {copiedField === 'natcash-num' ? <span className="text-[8px] font-black text-emerald-400">COPIÉ</span> : <Copy className="w-3.5 h-3.5" />}
                           </button>
@@ -2421,11 +2421,11 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       </p>
                       <div className="bg-[#0c0714] border border-white/[0.04] p-2.5 rounded-xl flex flex-col relative">
                         <span className="text-[9px] text-white/30 font-bold">BINANCE PAY ID</span>
-                        <span className="text-[#a855f7] font-black text-xs mt-0.5">{depositAccounts.binancePayId}</span>
+                        <span className="text-[var(--tt-accent)] font-black text-xs mt-0.5">{depositAccounts.binancePayId}</span>
                         <button
                           type="button"
                           onClick={() => handleCopyToClipboard(depositAccounts.binancePayId, 'binance-payid')}
-                          className="absolute right-2 top-3.5 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[#a855f7] rounded-lg"
+                          className="absolute right-2 top-3.5 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[var(--tt-accent)] rounded-lg"
                         >
                           {copiedField === 'binance-payid' ? <span className="text-[8px] font-black text-emerald-400">COPIÉ</span> : <Copy className="w-3.5 h-3.5" />}
                         </button>
@@ -2440,11 +2440,11 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       </p>
                       <div className="bg-[#0c0714] border border-white/[0.04] p-2.5 rounded-xl flex flex-col relative">
                         <span className="text-[9px] text-white/30 font-bold">PAYPAL EMAIL</span>
-                        <span className="text-[#a855f7] font-black text-xs mt-0.5">{depositAccounts.paypalEmail}</span>
+                        <span className="text-[var(--tt-accent)] font-black text-xs mt-0.5">{depositAccounts.paypalEmail}</span>
                         <button
                           type="button"
                           onClick={() => handleCopyToClipboard(depositAccounts.paypalEmail, 'paypal-email')}
-                          className="absolute right-2 top-3.5 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[#a855f7] rounded-lg"
+                          className="absolute right-2 top-3.5 p-1.5 bg-white/[0.03] hover:bg-white/[0.08] text-[var(--tt-accent)] rounded-lg"
                         >
                           {copiedField === 'paypal-email' ? <span className="text-[8px] font-black text-emerald-400">COPIÉ</span> : <Copy className="w-3.5 h-3.5" />}
                         </button>
@@ -2471,7 +2471,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                         onClick={() => setDepositAmount(amt)}
                         className={`py-2 rounded-lg text-center transition-all border ${
                           depositAmount === amt
-                            ? 'bg-[#a855f7]/10 border-[#a855f7] text-[#a855f7]'
+                            ? 'bg-[#a855f7]/10 border-[#a855f7] text-[var(--tt-accent)]'
                             : 'bg-black/20 border-white/[0.05] text-white/50 hover:bg-black/30'
                         }`}
                       >
@@ -2567,7 +2567,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     }}
                     className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${
                       isDragActive 
-                        ? 'border-[#a855f7] bg-[#a855f7]/5 text-[#a855f7]' 
+                        ? 'border-[#a855f7] bg-[#a855f7]/5 text-[var(--tt-accent)]' 
                         : depositScreenshot 
                           ? 'border-emerald-500 bg-emerald-500/[0.02] text-emerald-400' 
                           : 'border-white/10 hover:border-white/20 bg-black/10 text-white/50'
@@ -2656,7 +2656,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                                 onClick={() => setCryptoAmountUsd(amt)}
                                 className={`py-2 rounded-lg text-center transition-all border ${
                                   cryptoAmountUsd === amt
-                                    ? 'bg-[#a855f7]/10 border-[#a855f7] text-[#a855f7]'
+                                    ? 'bg-[#a855f7]/10 border-[#a855f7] text-[var(--tt-accent)]'
                                     : 'bg-black/20 border-white/[0.05] text-white/50 hover:bg-black/30'
                                 }`}
                               >
@@ -2694,7 +2694,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     ) : (
                       <div className="flex flex-col gap-3">
                         <div className="bg-black/20 border border-white/[0.05] rounded-2xl p-4 flex flex-col items-center gap-3 text-center">
-                          <div className="w-10 h-10 rounded-xl bg-[#a855f7]/10 flex items-center justify-center text-[#a855f7]">
+                          <div className="w-10 h-10 rounded-xl bg-[#a855f7]/10 flex items-center justify-center text-[var(--tt-accent)]">
                             <Loader2 className="w-5 h-5 animate-spin" />
                           </div>
                           <div>
@@ -2742,7 +2742,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               exit={{ scale: 0.9, opacity: 0 }}
               className="bg-[#1c1030] border border-white/10 w-full max-w-sm rounded-3xl p-6 relative text-center flex flex-col items-center gap-4 text-xs"
             >
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-[#a855f7]">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-[var(--tt-accent)]">
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <div>
@@ -2782,7 +2782,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               </button>
 
               <h3 className="text-lg font-black text-white mb-4 flex items-center gap-2">
-                <Lock className="w-5 h-5 text-[#a855f7]" />
+                <Lock className="w-5 h-5 text-[var(--tt-accent)]" />
                 {t.changePassword}
               </h3>
 
@@ -2880,7 +2880,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               
               <div>
                 <h4 className="text-md font-black text-white">Thie Thie Services</h4>
-                <p className="text-[10px] text-[#a855f7] font-black tracking-widest uppercase mt-0.5">Gaming Center App</p>
+                <p className="text-[10px] text-[var(--tt-accent)] font-black tracking-widest uppercase mt-0.5">Gaming Center App</p>
                 
                 <p className="text-[11px] text-white/60 leading-relaxed mt-3 px-2">
                   La plateforme de recharge de jeux vidéo et de services de streaming la plus rapide et fiable en Haïti.
@@ -2893,7 +2893,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-white/40">Serveur de Base de Données</span>
-                    <span className="text-[#a855f7] font-black">Firebase Firestore</span>
+                    <span className="text-[var(--tt-accent)] font-black">Firebase Firestore</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-white/40">Développement</span>
@@ -2934,7 +2934,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
               <div className="text-left">
                 <h4 className="text-sm font-black text-white flex items-center gap-2">
-                  <Camera className="w-4 h-4 text-[#a855f7]" />
+                  <Camera className="w-4 h-4 text-[var(--tt-accent)]" />
                   Preuve de dépôt — {selectedRequest.requestId}
                 </h4>
                 <p className="text-[10px] text-white/40 mt-0.5">Vérifiez la transaction de {selectedRequest.amount} HTG via {selectedRequest.paymentMethod}</p>
@@ -2950,7 +2950,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   href={selectedRequest.screenshotURL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute bottom-3 right-3 bg-black/75 hover:bg-black/90 text-[#a855f7] px-3 py-1.5 rounded-lg text-[10px] font-black flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all"
+                  className="absolute bottom-3 right-3 bg-black/75 hover:bg-black/90 text-[var(--tt-accent)] px-3 py-1.5 rounded-lg text-[10px] font-black flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   Ouvrir en grand
@@ -3009,7 +3009,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               </button>
 
               <h3 className="text-lg font-black text-white mb-2 flex items-center gap-2">
-                <UserCheck className="w-5 h-5 text-[#a855f7]" />
+                <UserCheck className="w-5 h-5 text-[var(--tt-accent)]" />
                 Vérification d'identité
               </h3>
               <p className="text-[11px] text-white/50 mb-4 font-semibold">
@@ -3122,7 +3122,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
               <div className="text-left">
                 <h4 className="text-sm font-black text-white flex items-center gap-2">
-                  <UserCheck className="w-4 h-4 text-[#a855f7]" />
+                  <UserCheck className="w-4 h-4 text-[var(--tt-accent)]" />
                   Pièces KYC — {selectedKycRequest.requestId}
                 </h4>
                 <p className="text-[10px] text-white/40 mt-0.5">{selectedKycRequest.fullName}</p>
@@ -3134,7 +3134,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   <div className="w-full h-40 overflow-hidden rounded-2xl border border-white/10 bg-black/40 flex items-center justify-center relative group">
                     <img src={selectedKycRequest.idPhotoURL} alt="ID" className="w-full h-full object-contain" />
                     <a href={selectedKycRequest.idPhotoURL} target="_blank" rel="noopener noreferrer"
-                      className="absolute bottom-2 right-2 bg-black/75 hover:bg-black/90 text-[#a855f7] p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
+                      className="absolute bottom-2 right-2 bg-black/75 hover:bg-black/90 text-[var(--tt-accent)] p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>
@@ -3144,7 +3144,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   <div className="w-full h-40 overflow-hidden rounded-2xl border border-white/10 bg-black/40 flex items-center justify-center relative group">
                     <img src={selectedKycRequest.selfiePhotoURL} alt="Selfie" className="w-full h-full object-contain" />
                     <a href={selectedKycRequest.selfiePhotoURL} target="_blank" rel="noopener noreferrer"
-                      className="absolute bottom-2 right-2 bg-black/75 hover:bg-black/90 text-[#a855f7] p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
+                      className="absolute bottom-2 right-2 bg-black/75 hover:bg-black/90 text-[var(--tt-accent)] p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>

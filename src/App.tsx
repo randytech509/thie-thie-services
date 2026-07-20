@@ -2769,7 +2769,7 @@ export default function App() {
           SÉCURISATION DU PROFIL...
         </p>
         <div className="flex items-center gap-2 mt-6 px-4 py-2 bg-white/[0.02] border border-white/[0.05] rounded-full">
-          <Loader2 className="w-4 h-4 text-[#a855f7] animate-spin" />
+          <Loader2 className="w-4 h-4 text-[var(--tt-accent)] animate-spin" />
           <span className="text-xs font-semibold text-white/60">Veuillez patienter</span>
         </div>
       </div>
@@ -2814,7 +2814,7 @@ export default function App() {
               <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-none bg-gradient-to-r from-white via-white to-[#a855f7] bg-clip-text text-transparent uppercase">
                 Thie Thie Services
               </h1>
-              <span className="block text-xs font-bold tracking-widest text-[#a855f7] mt-1.5 uppercase font-mono">
+              <span className="block text-xs font-bold tracking-widest text-[var(--tt-accent)] mt-1.5 uppercase font-mono">
                 Gaming Recharge & Points
               </span>
 
@@ -2841,7 +2841,7 @@ export default function App() {
                   onClick={() => { setCurrentPage('register-screen'); setRegisterError(null); }}
                   className="w-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/20 text-white font-extrabold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 hover:-translate-y-0.5 transition-all cursor-pointer"
                 >
-                  <UserCheck className="w-4 h-4 text-[#a855f7]" />
+                  <UserCheck className="w-4 h-4 text-[var(--tt-accent)]" />
                   <span>{lang === 'FR' ? 'Créer un Compte' : 'Kreye yon Kont'}</span>
                 </button>
 
@@ -2888,9 +2888,9 @@ export default function App() {
                 <button
                   id="welcome-guest-btn"
                   onClick={() => setCurrentPage('home')}
-                  className="w-full mt-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border border-amber-500/30 hover:border-amber-500/50 text-[#a855f7] font-black text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 transition-all cursor-pointer"
+                  className="w-full mt-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border border-amber-500/30 hover:border-amber-500/50 text-[var(--tt-accent)] font-black text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 transition-all cursor-pointer"
                 >
-                  <Globe className="w-4 h-4 text-[#a855f7]" />
+                  <Globe className="w-4 h-4 text-[var(--tt-accent)]" />
                   <span>{lang === 'FR' ? 'Visiter la boutique (Invité)' : 'Vizite boutik la (Envite)'}</span>
                 </button>
               </div>
@@ -2950,7 +2950,7 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => { setCurrentPage('forgot-password-screen'); setForgotError(null); setForgotSuccess(false); }}
-                      className="text-[10px] text-[#a855f7] hover:underline font-extrabold cursor-pointer"
+                      className="text-[10px] text-[var(--tt-accent)] hover:underline font-extrabold cursor-pointer"
                     >
                       {lang === 'FR' ? 'Mot de passe oublié ?' : 'Mo de pas bliye ?'}
                     </button>
@@ -3376,7 +3376,7 @@ export default function App() {
                               setRecentSearches([]);
                               localStorage.removeItem('recentSearches');
                             }}
-                            className="text-[9px] font-black text-[#a855f7] hover:text-[#a855f7]/85 transition-colors uppercase tracking-wider"
+                            className="text-[9px] font-black text-[var(--tt-accent)] hover:text-[var(--tt-accent)]/85 transition-colors uppercase tracking-wider"
                           >
                             {lang === 'FR' ? 'Effacer tout' : 'Klè tout'}
                           </button>
@@ -3396,7 +3396,7 @@ export default function App() {
                             }}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <History className="w-3.5 h-3.5 text-white/30 group-hover/item:text-[#a855f7] transition-colors" />
+                              <History className="w-3.5 h-3.5 text-white/30 group-hover/item:text-[var(--tt-accent)] transition-colors" />
                               <span className="text-xs font-semibold text-white/85 truncate">{term}</span>
                             </div>
                             <button
@@ -3750,7 +3750,7 @@ export default function App() {
                         <IconComponent className="w-6 h-6 text-black" />
                       </div>
 
-                      <h4 className="text-sm font-extrabold text-white group-hover:text-[#a855f7] transition-colors truncate w-full">
+                      <h4 className="text-sm font-extrabold text-white group-hover:text-[var(--tt-accent)] transition-colors truncate w-full">
                         {cat.name}
                       </h4>
                       <p className="text-[10px] text-white/40 font-semibold mt-1">
@@ -3765,7 +3765,7 @@ export default function App() {
             {/* EXCLUSIVE OFFERS */}
             <section id="exclusive-offers-section" className="max-w-7xl mx-auto px-4 mt-20">
               <div className="text-center mb-12">
-                <span className="text-[#a855f7] text-xs font-black tracking-widest uppercase bg-[#a855f7]/10 px-3.5 py-1.5 rounded-full">
+                <span className="text-[var(--tt-accent)] text-xs font-black tracking-widest uppercase bg-[#a855f7]/10 px-3.5 py-1.5 rounded-full">
                   {t('exclusiveTitle')}
                 </span>
                 <h3 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight mt-3">
@@ -3805,7 +3805,7 @@ export default function App() {
                       >
                         <Heart
                           className={`w-4.5 h-4.5 ${
-                            wishlist.includes(p.id) ? 'fill-[#a855f7] text-[#a855f7]' : 'text-white'
+                            wishlist.includes(p.id) ? 'fill-[#a855f7] text-[var(--tt-accent)]' : 'text-white'
                           }`}
                         />
                       </button>
@@ -3821,7 +3821,7 @@ export default function App() {
                       <p className="text-[10px] font-bold text-[#8b5cf6] uppercase tracking-wider">
                         {p.regions[0]}
                       </p>
-                      <h4 className="text-sm font-extrabold text-white mt-1 group-hover:text-[#a855f7] transition-colors truncate">
+                      <h4 className="text-sm font-extrabold text-white mt-1 group-hover:text-[var(--tt-accent)] transition-colors truncate">
                         {p.name}
                       </h4>
                       
@@ -3891,15 +3891,15 @@ export default function App() {
                         onClick={(e) => toggleWishlist(p.id, e)}
                         className="absolute top-2 right-2 p-1.5 rounded bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-colors"
                       >
-                        <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[#a855f7]' : 'text-white'}`} />
+                        <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[var(--tt-accent)]' : 'text-white'}`} />
                       </button>
                     </div>
 
                     <div className="p-3">
-                      <span className="text-[9px] font-bold text-[#a855f7] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase">
+                      <span className="text-[9px] font-bold text-[var(--tt-accent)] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase">
                         {p.regions[0]}
                       </span>
-                      <h4 className="text-xs font-extrabold text-white mt-1.5 truncate group-hover:text-[#a855f7] transition-colors">
+                      <h4 className="text-xs font-extrabold text-white mt-1.5 truncate group-hover:text-[var(--tt-accent)] transition-colors">
                         {p.name}
                       </h4>
                       <div className="mt-2 text-xs font-bold text-[#10b981] tabular-nums">
@@ -3926,7 +3926,7 @@ export default function App() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="bg-[#1c1030] border border-white/[0.06] rounded-2xl p-6 relative overflow-hidden group">
-                    <div className="w-12 h-12 rounded-xl bg-[#a855f7]/10 flex items-center justify-center text-[#a855f7] mb-5">
+                    <div className="w-12 h-12 rounded-xl bg-[#a855f7]/10 flex items-center justify-center text-[var(--tt-accent)] mb-5">
                       <Zap className="w-6 h-6" />
                     </div>
                     <h4 className="text-base font-extrabold text-white mb-2">{t('instantDelivery')}</h4>
@@ -3953,7 +3953,7 @@ export default function App() {
                 {/* Animated Stats banner */}
                 <div className="grid grid-cols-3 gap-4 bg-[#1c1030] border border-white/[0.06] rounded-2xl mt-12 p-6 md:p-8 text-center">
                   <div>
-                    <p className="text-2xl md:text-4xl font-black text-[#a855f7] tabular-nums">1000+</p>
+                    <p className="text-2xl md:text-4xl font-black text-[var(--tt-accent)] tabular-nums">1000+</p>
                     <p className="text-[10px] md:text-xs text-white/40 font-bold uppercase mt-1">Commandes</p>
                   </div>
                   <div>
@@ -4039,7 +4039,7 @@ export default function App() {
             <div className="mb-6 flex items-center gap-2 text-xs text-white/40 font-semibold">
               <span className="cursor-pointer hover:text-white" onClick={() => navigateToPage('home')}>{t('accueil')}</span>
               <span>/</span>
-              <span className="text-[#a855f7]">
+              <span className="text-[var(--tt-accent)]">
                 {lang === 'FR' ? 'Mes Favoris' : 'Favori Mwen'}
               </span>
             </div>
@@ -4047,9 +4047,9 @@ export default function App() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-5 border-b border-white/[0.06]">
               <div>
                 <h2 className="text-xl md:text-3xl font-black text-white tracking-tight flex items-center gap-3">
-                  <Heart className="w-6 h-6 md:w-8 md:h-8 text-[#a855f7] fill-[#a855f7]" />
+                  <Heart className="w-6 h-6 md:w-8 md:h-8 text-[var(--tt-accent)] fill-[#a855f7]" />
                   <span>{lang === 'FR' ? 'Mes Favoris' : 'Favori Mwen'}</span>
-                  <span className="text-xs bg-[#a855f7]/10 text-[#a855f7] px-2.5 py-1 rounded-full font-extrabold border border-[#a855f7]/20">
+                  <span className="text-xs bg-[#a855f7]/10 text-[var(--tt-accent)] px-2.5 py-1 rounded-full font-extrabold border border-[#a855f7]/20">
                     {wishlist.length} {wishlist.length > 1 ? 'Articles' : 'Article'}
                   </span>
                 </h2>
@@ -4080,7 +4080,7 @@ export default function App() {
             {wishlist.length === 0 ? (
               <div id="empty-wishlist-view" className="text-center py-20 px-6 bg-[#1c1030]/50 border border-white/[0.06] rounded-3xl max-w-2xl mx-auto my-12 backdrop-blur-sm">
                 <div className="w-16 h-16 rounded-full bg-[#a855f7]/10 border border-[#a855f7]/20 flex items-center justify-center mx-auto mb-6 animate-pulse">
-                  <Heart className="w-8 h-8 text-[#a855f7]" />
+                  <Heart className="w-8 h-8 text-[var(--tt-accent)]" />
                 </div>
                 <h3 className="text-lg md:text-xl font-black text-white">
                   {lang === 'FR' ? 'Votre liste est vide' : 'Lis ou a vid'}
@@ -4157,7 +4157,7 @@ export default function App() {
                               {t('stock')}
                             </span>
                           </div>
-                          <h3 className="text-xs md:text-sm font-extrabold text-white mt-2.5 group-hover:text-[#a855f7] transition-colors truncate">
+                          <h3 className="text-xs md:text-sm font-extrabold text-white mt-2.5 group-hover:text-[var(--tt-accent)] transition-colors truncate">
                             {p.name}
                           </h3>
                           <p className="text-[10px] text-white/50 mt-1 line-clamp-2 leading-relaxed">
@@ -4223,7 +4223,7 @@ export default function App() {
             <div className="mb-6 flex items-center gap-2 text-xs text-white/40 font-semibold">
               <span className="cursor-pointer hover:text-white" onClick={() => navigateToPage('home')}>{t('accueil')}</span>
               <span>/</span>
-              <span className="text-[#a855f7]">
+              <span className="text-[var(--tt-accent)]">
                 {selectedCategorySlug 
                   ? CATEGORIES.find(c => c.slug === selectedCategorySlug)?.name 
                   : searchQuery 
@@ -4297,7 +4297,7 @@ export default function App() {
                               setRecentSearches([]);
                               localStorage.removeItem('recentSearches');
                             }}
-                            className="text-[9px] font-black text-[#a855f7] hover:text-[#a855f7]/85 transition-colors uppercase tracking-wider"
+                            className="text-[9px] font-black text-[var(--tt-accent)] hover:text-[var(--tt-accent)]/85 transition-colors uppercase tracking-wider"
                           >
                             {lang === 'FR' ? 'Effacer tout' : 'Klè tout'}
                           </button>
@@ -4313,7 +4313,7 @@ export default function App() {
                             }}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <History className="w-3.5 h-3.5 text-white/30 group-hover/item:text-[#a855f7] transition-colors" />
+                              <History className="w-3.5 h-3.5 text-white/30 group-hover/item:text-[var(--tt-accent)] transition-colors" />
                               <span className="text-xs font-semibold text-white/85 truncate">{term}</span>
                             </div>
                             <button
@@ -4350,7 +4350,7 @@ export default function App() {
                 <div className="flex flex-wrap gap-2.5">
                   {[
                     { id: 'ALL', Icon: null, labelFR: 'Tout', labelHT: 'Tout', color: 'border-white/[0.08] hover:bg-white/[0.02]' },
-                    { id: 'PROMO', Icon: Percent, labelFR: 'Promo', labelHT: 'Promo', color: 'border-[#a855f7]/25 hover:bg-[#a855f7]/5 text-[#a855f7]' },
+                    { id: 'PROMO', Icon: Percent, labelFR: 'Promo', labelHT: 'Promo', color: 'border-[#a855f7]/25 hover:bg-[#a855f7]/5 text-[var(--tt-accent)]' },
                     { id: 'POPULAR', Icon: Flame, labelFR: 'Plus Populaire', labelHT: 'Pli Popilè', color: 'border-amber-500/25 hover:bg-amber-500/5 text-amber-400' },
                     { id: 'UNDER_10', Icon: Coins, labelFR: `Prix < ${formatPrice(10)}`, labelHT: `Pri < ${formatPrice(10)}`, color: 'border-emerald-500/25 hover:bg-emerald-500/5 text-emerald-400' },
                     { id: 'LATEST', Icon: Sparkles, labelFR: 'Nouveautés', labelHT: 'Dènye Pwodwi', color: 'border-indigo-500/25 hover:bg-indigo-500/5 text-indigo-400' }
@@ -4383,7 +4383,7 @@ export default function App() {
               {/* Sidebar Filters */}
               <aside className="w-full lg:w-64 shrink-0 bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 h-fit">
                 <div className="flex items-center gap-2 pb-4 border-b border-[var(--tt-border)] mb-5">
-                  <Filter className="w-4 h-4 text-[#a855f7]" />
+                  <Filter className="w-4 h-4 text-[var(--tt-accent)]" />
                   <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--tt-text)]">
                     {t('filters')}
                   </h4>
@@ -4486,7 +4486,7 @@ export default function App() {
                             onClick={(e) => toggleWishlist(p.id, e)}
                             className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/40 text-[var(--tt-text)] backdrop-blur-sm hover:bg-black/60 transition-colors"
                           >
-                            <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[#a855f7]' : 'text-[var(--tt-text)]'}`} />
+                            <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[var(--tt-accent)]' : 'text-[var(--tt-text)]'}`} />
                           </button>
                           {p.isPromo && (
                             <span className="absolute top-2 left-2 bg-[#a855f7] text-black font-black text-[9px] uppercase px-2 py-0.5 rounded">
@@ -4500,7 +4500,7 @@ export default function App() {
                             <span className="text-[9px] font-bold text-[#8b5cf6] uppercase tracking-wider bg-[#8b5cf6]/10 px-2 py-0.5 rounded">
                               {p.regions[0] || 'Global'}
                             </span>
-                            <h3 className="text-xs md:text-sm font-extrabold text-[var(--tt-text)] mt-2 group-hover:text-[#a855f7] transition-colors truncate">
+                            <h3 className="text-xs md:text-sm font-extrabold text-[var(--tt-text)] mt-2 group-hover:text-[var(--tt-accent)] transition-colors truncate">
                               {p.name}
                             </h3>
                             <p className="text-[10px] text-[var(--tt-text-muted)] mt-1 line-clamp-2">
@@ -4513,7 +4513,7 @@ export default function App() {
                               <p className="text-[9px] text-[var(--tt-text-faint)] font-bold uppercase">{lang === 'FR' ? 'À partir de' : 'Kòmanse nan'}</p>
                               <p className="text-sm font-black text-[var(--tt-text)] tabular-nums">{priceLabel(p)}</p>
                             </div>
-                            <span className="text-[10px] text-[#a855f7] font-black group-hover:underline flex items-center gap-0.5">
+                            <span className="text-[10px] text-[var(--tt-accent)] font-black group-hover:underline flex items-center gap-0.5">
                               {lang === 'FR' ? 'Commander' : 'Achte'}
                             </span>
                           </div>
@@ -4555,7 +4555,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left mb-12">
               <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-6 md:p-8">
-                <h3 className="text-lg font-bold text-[#a855f7] mb-3 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-[var(--tt-accent)] mb-3 flex items-center gap-2">
                   <Star className="w-5 h-5 fill-current" />
                   {t('ourStory')}
                 </h3>
@@ -4579,21 +4579,21 @@ export default function App() {
               <h3 className="text-lg font-bold text-[var(--tt-text)] mb-4">Nos Valeurs Clés</h3>
               <ul className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-[var(--tt-text)]">
                 <li className="flex gap-2.5 items-start">
-                  <Check className="w-4 h-4 text-[#a855f7] flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-[var(--tt-accent)] flex-shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-[var(--tt-text)]">Rapidité Absolute</strong>
                     <p className="text-[var(--tt-text-muted)] mt-1">Livraison garantie de vos codes de jeux sous 5 minutes par e-mail.</p>
                   </div>
                 </li>
                 <li className="flex gap-2.5 items-start">
-                  <Check className="w-4 h-4 text-[#a855f7] flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-[var(--tt-accent)] flex-shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-[var(--tt-text)]">Sécurité Maximale</strong>
                     <p className="text-[var(--tt-text-muted)] mt-1">Transactions validées via les systèmes financiers officiels locaux MonCash/NatCash.</p>
                   </div>
                 </li>
                 <li className="flex gap-2.5 items-start">
-                  <Check className="w-4 h-4 text-[#a855f7] flex-shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-[var(--tt-accent)] flex-shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-[var(--tt-text)]">Service Transparent</strong>
                     <p className="text-[var(--tt-text-muted)] mt-1">Aucuns frais d'enregistrement ou coûts cachés additionnels sur vos forfaits.</p>
@@ -4630,7 +4630,7 @@ export default function App() {
                   </div>
                   <div>
                     <p className="text-[10px] text-white/40 uppercase font-bold">WhatsApp Direct</p>
-                    <a href="https://wa.me/50943231463" className="text-sm font-black text-white hover:text-[#a855f7] transition-colors">+509 43 23 1463</a>
+                    <a href="https://wa.me/50943231463" className="text-sm font-black text-white hover:text-[var(--tt-accent)] transition-colors">+509 43 23 1463</a>
                   </div>
                 </div>
 
@@ -4640,12 +4640,12 @@ export default function App() {
                   </div>
                   <div>
                     <p className="text-[10px] text-white/40 uppercase font-bold">Email Support</p>
-                    <a href="mailto:support@thie-thie-services.com" className="text-sm font-black text-white hover:text-[#a855f7] transition-colors">support@thie-thie.com</a>
+                    <a href="mailto:support@thie-thie-services.com" className="text-sm font-black text-white hover:text-[var(--tt-accent)] transition-colors">support@thie-thie.com</a>
                   </div>
                 </div>
 
                 <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-5 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#a855f7]/10 flex items-center justify-center text-[#a855f7]">
+                  <div className="w-10 h-10 rounded-xl bg-[#a855f7]/10 flex items-center justify-center text-[var(--tt-accent)]">
                     <Clock className="w-5 h-5" />
                   </div>
                   <div>
@@ -4763,7 +4763,7 @@ export default function App() {
                       <strong className="text-xs md:text-sm text-white font-extrabold leading-snug">
                         {lang === 'FR' ? faq.qFR : faq.qHT}
                       </strong>
-                      <span className={`text-[#a855f7] font-black text-base transition-transform duration-300 ${isExpanded ? 'rotate-45' : ''}`}>
+                      <span className={`text-[var(--tt-accent)] font-black text-base transition-transform duration-300 ${isExpanded ? 'rotate-45' : ''}`}>
                         +
                       </span>
                     </button>
@@ -4984,7 +4984,7 @@ export default function App() {
                     <div>
                       {/* Out of Stock Header */}
                       <div className="flex items-center gap-2 mb-4">
-                        <Info className="w-5 h-5 text-[#a855f7]" />
+                        <Info className="w-5 h-5 text-[var(--tt-accent)]" />
                         <h3 className="text-base font-black text-white">
                           {lang === 'FR' ? "Produit en rupture de stock" : "Pwodwi sa a fini nan stòk"}
                         </h3>
@@ -5066,9 +5066,9 @@ export default function App() {
                       <div className="mt-2 text-center">
                         <button
                           onClick={() => setShowReportForm(true)}
-                          className="text-[10px] text-white/35 hover:text-[#a855f7] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
+                          className="text-[10px] text-white/35 hover:text-[var(--tt-accent)] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
                         >
-                          <AlertTriangle className="w-3.5 h-3.5 text-[#a855f7]/50" />
+                          <AlertTriangle className="w-3.5 h-3.5 text-[var(--tt-accent)]/50" />
                           <span>{lang === 'FR' ? "Signaler un problème" : "Rapòte yon pwoblèm"}</span>
                         </button>
                       </div>
@@ -5082,7 +5082,7 @@ export default function App() {
                       {/* Game Player ID Input */}
                       {isGameCategoryRequiringPlayerId(selectedProduct.categorySlug) && (
                         <div className="mb-6">
-                          <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[#a855f7] mb-2 flex items-center gap-1">
+                          <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-accent)] mb-2 flex items-center gap-1">
                             <span>
                               {selectedProduct.categorySlug === 'free-fire' ? 'Free Fire Player ID' : 
                                selectedProduct.categorySlug === 'pubg' ? 'PUBG Mobile Player ID' : 
@@ -5174,7 +5174,7 @@ export default function App() {
                                 </span>
                                 <span className="text-xs font-extrabold">{opt.amount}</span>
                               </div>
-                              <span className="text-xs font-black text-[#a855f7] tabular-nums">
+                              <span className="text-xs font-black text-[var(--tt-accent)] tabular-nums">
                                 {formatPrice(priceOf(selectedProduct, idx))}
                               </span>
                             </div>
@@ -5245,7 +5245,7 @@ export default function App() {
                             <span className="text-[10px] uppercase tracking-wider font-extrabold text-white/40">
                               {lang === 'FR' ? 'Solde Wallet' : 'Balans Wallet'}
                             </span>
-                            <span className="text-sm font-black text-[#a855f7] tabular-nums">
+                            <span className="text-sm font-black text-[var(--tt-accent)] tabular-nums">
                               {(walletBalanceCents / 100).toLocaleString('fr-FR')} HTG
                             </span>
                           </div>
@@ -5312,7 +5312,7 @@ export default function App() {
                                 {isCard && validAmount && unitCents > 0 && (
                                   <p className="text-[11px] text-white/50 mb-2 tabular-nums flex items-center justify-between">
                                     <span>{qty > 1 ? `${formatPrice(unitCents / 14500)} × ${qty}` : (lang === 'FR' ? 'Prix' : 'Pri')}</span>
-                                    <span className="text-[#a855f7] font-black">{formatPrice(totalUsd)}</span>
+                                    <span className="text-[var(--tt-accent)] font-black">{formatPrice(totalUsd)}</span>
                                   </p>
                                 )}
                                 <button
@@ -5373,9 +5373,9 @@ export default function App() {
                       <div className="mt-3.5 text-center">
                         <button
                           onClick={() => setShowReportForm(true)}
-                          className="text-[10px] text-white/35 hover:text-[#a855f7] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
+                          className="text-[10px] text-white/35 hover:text-[var(--tt-accent)] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
                         >
-                          <AlertTriangle className="w-3.5 h-3.5 text-[#a855f7]/50" />
+                          <AlertTriangle className="w-3.5 h-3.5 text-[var(--tt-accent)]/50" />
                           <span>{lang === 'FR' ? "Signaler un problème" : "Rapòte yon pwoblèm"}</span>
                         </button>
                       </div>
@@ -5434,7 +5434,7 @@ export default function App() {
             </div>
 
             <h3 className="text-xl font-black text-white mb-2 tracking-tight flex items-center gap-2">
-              <Lock className="w-5 h-5 text-[#a855f7]" />
+              <Lock className="w-5 h-5 text-[var(--tt-accent)]" />
               {authMode === 'login' 
                 ? (lang === 'FR' ? 'Bon retour parmi nous !' : 'Byenveni ankò !') 
                 : (lang === 'FR' ? 'Créer un compte Joueur' : 'Kreye yon kont Jwè')
@@ -5563,7 +5563,7 @@ export default function App() {
           >
             <div className="flex items-center justify-between p-5 border-b border-white/[0.06]">
               <h3 className="font-black text-lg flex items-center gap-2">
-                <ShoppingCart className="w-5 h-5 text-[#a855f7]" />
+                <ShoppingCart className="w-5 h-5 text-[var(--tt-accent)]" />
                 {lang === 'FR' ? 'Mon panier' : 'Panye mwen'}
                 <span className="text-white/40 text-sm font-bold tabular-nums">({cartCount})</span>
               </h3>
@@ -5586,7 +5586,7 @@ export default function App() {
                           {l.optionLabel}
                           {l.playerId && <span className="text-white/30"> · ID {l.playerId}</span>}
                         </p>
-                        <p className="text-[11px] text-[#a855f7] font-black tabular-nums mt-0.5">{formatPrice((l.unitCents * l.qty) / 14500)}</p>
+                        <p className="text-[11px] text-[var(--tt-accent)] font-black tabular-nums mt-0.5">{formatPrice((l.unitCents * l.qty) / 14500)}</p>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
                         <button onClick={() => cartSetQty(l.key, l.qty - 1)} className="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/10 font-black" aria-label="−">−</button>
@@ -5603,7 +5603,7 @@ export default function App() {
                 <div className="p-5 border-t border-white/[0.06] flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-white/60">{lang === 'FR' ? 'Total' : 'Total'}</span>
-                    <span className="text-xl font-black text-[#a855f7] tabular-nums">{formatPrice(cartTotalCents / 14500)}</span>
+                    <span className="text-xl font-black text-[var(--tt-accent)] tabular-nums">{formatPrice(cartTotalCents / 14500)}</span>
                   </div>
                   <div className="flex items-center justify-between text-[11px] text-white/40">
                     <span>{lang === 'FR' ? 'Solde wallet' : 'Balans wallet'}</span>
@@ -5641,17 +5641,17 @@ export default function App() {
         >
           <div className="w-12 h-12 rounded-full bg-[#a855f7]/10 border border-[#a855f7]/30 flex items-center justify-center text-[#c084fc] relative flex-shrink-0">
             <Coins className="w-6 h-6 animate-spin" style={{ animationDuration: '4s' }} />
-            <Sparkles className="w-3.5 h-3.5 text-[#a855f7] absolute -top-1 -right-1 animate-pulse" />
+            <Sparkles className="w-3.5 h-3.5 text-[var(--tt-accent)] absolute -top-1 -right-1 animate-pulse" />
           </div>
           <div className="flex-grow">
-            <h4 className="text-xs font-black text-[#a855f7] uppercase tracking-wider mb-0.5">
+            <h4 className="text-xs font-black text-[var(--tt-accent)] uppercase tracking-wider mb-0.5">
               {lang === 'FR' ? 'Points Gagnés !' : 'Pwen jwenn !'}
             </h4>
             <p className="text-[11px] text-white font-medium leading-relaxed">
               {pointsToast.msg}
             </p>
             <div className="flex items-center gap-1 mt-1 text-[9px] text-[#c084fc] font-extrabold uppercase tracking-widest">
-              <Award className="w-3.5 h-3.5 text-[#a855f7]" />
+              <Award className="w-3.5 h-3.5 text-[var(--tt-accent)]" />
               <span>{lang === 'FR' ? 'Nouveau total : ' : 'Nouvo total : '} {thieThiePoints} PTS</span>
             </div>
           </div>
@@ -5714,7 +5714,7 @@ export default function App() {
           className="fixed left-1/2 -translate-x-1/2 bottom-16 lg:bottom-6 z-50 flex items-center gap-3 bg-[var(--tt-surface)] border border-[#a855f7]/40 rounded-2xl shadow-2xl shadow-black/50 px-4 py-3 max-w-[92vw]"
         >
           <span className="w-8 h-8 rounded-full bg-[#a855f7]/15 border border-[#a855f7]/30 flex items-center justify-center shrink-0">
-            <Check className="w-4 h-4 text-[#a855f7]" />
+            <Check className="w-4 h-4 text-[var(--tt-accent)]" />
           </span>
           <p className="text-[12px] font-bold text-white truncate">
             {lang === 'FR' ? 'Ajouté au panier' : 'Mete nan panye a'}
@@ -5723,7 +5723,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => { setCartToast(null); setCartOpen(true); }}
-            className="shrink-0 text-[11px] font-black uppercase tracking-wider text-[#a855f7] hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-white/[0.06]"
+            className="shrink-0 text-[11px] font-black uppercase tracking-wider text-[var(--tt-accent)] hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-white/[0.06]"
           >
             {lang === 'FR' ? 'Voir le panier' : 'Wè panye a'}
           </button>
@@ -5806,10 +5806,10 @@ export default function App() {
           <div>
             <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-4">Navigation</h4>
             <ul className="flex flex-col gap-2 font-medium">
-              <li><button onClick={() => navigateToPage('home')} className="hover:text-[#a855f7] transition-colors">{t('accueil')}</button></li>
-              <li><button onClick={() => navigateToPage('about')} className="hover:text-[#a855f7] transition-colors">{lang === 'FR' ? 'À Propos' : 'Kiyès nou ye'}</button></li>
-              <li><button onClick={() => navigateToPage('contact')} className="hover:text-[#a855f7] transition-colors">{t('contact')}</button></li>
-              <li><button onClick={() => navigateToPage('faq')} className="hover:text-[#a855f7] transition-colors">{t('faqTitle')}</button></li>
+              <li><button onClick={() => navigateToPage('home')} className="hover:text-[var(--tt-accent)] transition-colors">{t('accueil')}</button></li>
+              <li><button onClick={() => navigateToPage('about')} className="hover:text-[var(--tt-accent)] transition-colors">{lang === 'FR' ? 'À Propos' : 'Kiyès nou ye'}</button></li>
+              <li><button onClick={() => navigateToPage('contact')} className="hover:text-[var(--tt-accent)] transition-colors">{t('contact')}</button></li>
+              <li><button onClick={() => navigateToPage('faq')} className="hover:text-[var(--tt-accent)] transition-colors">{t('faqTitle')}</button></li>
             </ul>
           </div>
 
@@ -5817,8 +5817,8 @@ export default function App() {
           <div>
             <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-4">Légal</h4>
             <ul className="flex flex-col gap-2 font-medium">
-              <li><button onClick={() => navigateToPage('privacy')} className="hover:text-[#a855f7] transition-colors">{t('privacyTitle')}</button></li>
-              <li><button onClick={() => navigateToPage('terms')} className="hover:text-[#a855f7] transition-colors">{t('termsTitle')}</button></li>
+              <li><button onClick={() => navigateToPage('privacy')} className="hover:text-[var(--tt-accent)] transition-colors">{t('privacyTitle')}</button></li>
+              <li><button onClick={() => navigateToPage('terms')} className="hover:text-[var(--tt-accent)] transition-colors">{t('termsTitle')}</button></li>
             </ul>
           </div>
 
@@ -5893,7 +5893,7 @@ export default function App() {
           <div className="flex flex-col gap-3 bg-[var(--tt-surface)] border border-[var(--tt-border)] p-4 rounded-2xl shadow-xl">
             <div className="flex items-center justify-between">
               <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5">
-                <Coins className="w-3.5 h-3.5 text-[#a855f7]" />
+                <Coins className="w-3.5 h-3.5 text-[var(--tt-accent)]" />
                 <span>{lang === 'FR' ? 'Convertisseur' : 'Konvètisè'}</span>
               </h4>
               <span className="text-[8px] bg-[var(--tt-surface-2)] border border-[var(--tt-border)] px-2 py-0.5 rounded-full text-[var(--tt-text-muted)] font-black uppercase tracking-wider">
@@ -5923,7 +5923,7 @@ export default function App() {
                 />
                 <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-[var(--tt-text-faint)]">USD ($)</span>
                 {calcMode === 'USD' && (
-                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[#a855f7] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
+                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[var(--tt-accent)] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
                     {lang === 'FR' ? 'Actif' : 'Aktif'}
                   </span>
                 )}
@@ -5932,7 +5932,7 @@ export default function App() {
               {/* Arrow Indicator */}
               <div className="flex justify-center -my-1">
                 <div className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] p-0.5 rounded-full text-[var(--tt-text-muted)]">
-                  <ArrowUpDown className="w-3 h-3 text-[#a855f7]" />
+                  <ArrowUpDown className="w-3 h-3 text-[var(--tt-accent)]" />
                 </div>
               </div>
 
@@ -5946,13 +5946,13 @@ export default function App() {
                   placeholder="0"
                   className={`w-full bg-[var(--tt-bg)] border text-[11px] px-2.5 py-2 pl-14 rounded-xl font-extrabold transition-all duration-300 focus:outline-none ${
                     calcMode === 'HTG' 
-                      ? 'border-[#a855f7] bg-[#a855f7]/5 text-[#a855f7] shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
-                      : 'border-[var(--tt-border)] text-[#a855f7]/70 opacity-70 hover:opacity-100'
+                      ? 'border-[#a855f7] bg-[#a855f7]/5 text-[var(--tt-accent)] shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
+                      : 'border-[var(--tt-border)] text-[var(--tt-accent)]/70 opacity-70 hover:opacity-100'
                   }`}
                 />
                 <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-[var(--tt-text-faint)]">HTG (G)</span>
                 {calcMode === 'HTG' && (
-                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[#a855f7] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
+                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[var(--tt-accent)] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
                     {lang === 'FR' ? 'Actif' : 'Aktif'}
                   </span>
                 )}
@@ -5971,7 +5971,7 @@ export default function App() {
                       handlePresetClick(preset);
                       setCalcMode('USD');
                     }}
-                    className="text-[9px] bg-[var(--tt-surface-2)] hover:bg-[#a855f7]/10 hover:text-[#a855f7] hover:border-[#a855f7]/30 border border-[var(--tt-border)] px-1.5 py-0.5 rounded-md text-[var(--tt-text)] font-extrabold transition-all"
+                    className="text-[9px] bg-[var(--tt-surface-2)] hover:bg-[#a855f7]/10 hover:text-[var(--tt-accent)] hover:border-[#a855f7]/30 border border-[var(--tt-border)] px-1.5 py-0.5 rounded-md text-[var(--tt-text)] font-extrabold transition-all"
                   >
                     ${preset}
                   </button>
