@@ -35,10 +35,6 @@ export function AppInfoSection({ lang }: AppInfoSectionProps) {
         </span>
       ),
     },
-    {
-      label: t('Développement', 'Devlopman'),
-      value: <span className="font-bold">Thie Thie Pro Team</span>,
-    },
   ];
 
   return (
@@ -71,8 +67,11 @@ export function AppInfoSection({ lang }: AppInfoSectionProps) {
       </dl>
 
       <div className="mt-7 pt-6 border-t border-[var(--tt-border)]">
+        {/* Un seul crédit, et il est exact : la plateforme est conçue et développée par
+            RandyTech Solutions. Une ligne « Développement : Thie Thie Pro Team » figurait ici
+            par erreur — cette équipe n'a pas écrit la plateforme. */}
         <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tt-text-faint)]">
-          {t('Propulsé par', 'Pwopilse pa')}
+          {t('Conçu et développé par', 'Konsevwa e devlope pa')}
         </p>
         {/* Lien suivable à dessein : c'est le backlink du portfolio. Surtout pas de
             rel="nofollow", qui en annulerait tout l'intérêt de référencement. */}
