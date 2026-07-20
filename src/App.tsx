@@ -5698,7 +5698,9 @@ export default function App() {
       {cartToast && (
         <div
           role="status"
-          className="fixed left-1/2 -translate-x-1/2 bottom-6 z-50 flex items-center gap-3 bg-[#150b28] border border-[#a855f7]/40 rounded-2xl shadow-2xl shadow-black/50 px-4 py-3 max-w-[92vw]"
+          // sous lg, BottomTabBar (fixed bottom-0, ~51 px) occupe le bas de l'écran : ancré à
+          // bottom-6 le bandeau passait dessous, « Voir le panier » à moitié masqué.
+          className="fixed left-1/2 -translate-x-1/2 bottom-16 lg:bottom-6 z-50 flex items-center gap-3 bg-[#150b28] border border-[#a855f7]/40 rounded-2xl shadow-2xl shadow-black/50 px-4 py-3 max-w-[92vw]"
         >
           <span className="w-8 h-8 rounded-full bg-[#a855f7]/15 border border-[#a855f7]/30 flex items-center justify-center shrink-0">
             <Check className="w-4 h-4 text-[#a855f7]" />
@@ -5726,7 +5728,9 @@ export default function App() {
       )}
 
       {/* FLOAT ACTIONS (PANIER, SCROLL TO TOP & WHATSAPP) */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3 items-end">
+      {/* bottom-32 sous lg : laisse passer la BottomTabBar (~51 px) ET le bandeau d'ajout au
+          panier (bottom-16, ~58 px de haut), qui sinon se recouvraient pendant ses 4 s. */}
+      <div className="fixed bottom-32 lg:bottom-6 right-6 z-40 flex flex-col gap-3 items-end">
         {/* Le panier vit DANS cette pile : en position fixe indépendante (bottom-28) il était
             recouvert par le bouton « remonter en haut » — même z-index, rendu après, donc c'est
             le scroll-top qui recevait le clic sur la zone commune. */}
