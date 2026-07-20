@@ -1,5 +1,6 @@
 import { onRequest } from 'firebase-functions/v2/https';
 import { getFirestore, FieldValue, Firestore } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
 import { timingSafeEqual } from 'node:crypto';
 import { parseSms, SmsProvider } from './lib/sms';
 import { reconcileSms } from './lib/deposit-reconcile';
@@ -16,13 +17,18 @@ import {
  * entrant et le POST ici. On parse → journalise (`sms_inbox`) → tente un rapprochement auto
  * (crédit idempotent via `creditWallet`) ; sinon on laisse en attente de rapprochement manuel.
  *
- * SÉCURITÉ : endpoint public → protégé par un secret partagé `SMS_HOOK_SECRET` (Secret Manager).
- * Pas d'App Check possible sur un onRequest ; le secret + le rapprochement strict (txId+montant)
- * limitent les abus. Ne JAMAIS créditer sur un SMS non concordant.
+ * SÉCURITÉ : endpoint public → deux moyens d'authentification acceptés pendant la migration :
+ *   1. `Authorization: Bearer <idToken Firebase>` avec le claim `smsForwarder` — PRÉFÉRÉ ;
+ *   2. secret partagé `SMS_HOOK_SECRET` dans le corps — HÉRITÉ, à retirer une fois les
+ *      appareils migrés.
+ * L'authentification dit QUI peut soumettre, jamais si le SMS est VRAI : c'est le
+ * rapprochement strict (txId + montant + sens `in`) qui protège l'argent. Ne JAMAIS créditer
+ * sur un SMS non concordant, quel que soit le porteur.
  * Rate-limit par IP (flood) + compteur strict sur les secrets erronés (brute-force) — cf.
  * `lib/rate-limit.ts`. Le limiteur est fail-open : il ne doit jamais bloquer un vrai dépôt.
  *
- * Corps attendu (JSON) : { secret, provider: 'MonCash'|'NatCash', text: '<SMS brut>', from?: '<n°>' }
+ * Corps attendu (JSON) : { provider: 'MonCash'|'NatCash', text: '<SMS brut>', from?: '<n°>',
+ *                          secret? } — `secret` inutile si un jeton Bearer est fourni.
  */
 export const ingestSms = onRequest({ cors: false }, async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ ok: false, error: 'POST requis' }); return; }
@@ -31,14 +37,47 @@ export const ingestSms = onRequest({ cors: false }, async (req, res) => {
   const ip = clientIp(req);
   if (await rejectIfRateLimited(db, res, `sms:ip:${ip}`, WEBHOOK_IP_RULE)) return;
 
-  const secret = process.env.SMS_HOOK_SECRET;
-  if (!secret) { res.status(503).json({ ok: false, error: 'SMS_HOOK_SECRET non configuré' }); return; }
-
   const body = (typeof req.body === 'string' ? safeJson(req.body) : req.body) ?? {};
-  if (typeof body.secret !== 'string' || !safeEqualSecret(body.secret, secret)) {
-    // Un secret erroné consomme le quota d'échecs : 10 essais / 15 min et par IP.
+
+  // --- Authentification : jeton Firebase (préféré) OU secret partagé (hérité) -------------
+  // Les DEUX sont acceptés pendant la migration. Une bascule brutale exigerait de mettre à
+  // jour le téléphone à la seconde près, sous peine d'interrompre les dépôts — c'est
+  // exactement ce qui s'est produit lors de la rotation du secret. Le secret partagé sera
+  // retiré une fois tous les appareils passés au jeton.
+  //
+  // Le jeton est PRÉFÉRABLE : durée de vie d'une heure, renouvelé seul, révocable par
+  // appareil en désactivant le compte — là où le secret impose une manipulation physique.
+  let submitter = 'unknown';
+  let authOk = false;
+
+  const bearer = req.header('authorization');
+  if (bearer?.startsWith('Bearer ')) {
+    try {
+      const decoded = await getAuth().verifyIdToken(bearer.slice(7).trim());
+      // Le claim dédié est indispensable : un compte client valide ne doit PAS pouvoir
+      // injecter de SMS de dépôt sous prétexte qu'il est authentifié.
+      if (decoded.smsForwarder === true) {
+        authOk = true;
+        submitter = `uid:${decoded.uid}`;
+      }
+    } catch {
+      /* jeton absent, expiré ou falsifié : on retombe sur le secret partagé */
+    }
+  }
+
+  const secret = process.env.SMS_HOOK_SECRET;
+  if (!authOk) {
+    if (!secret) { res.status(503).json({ ok: false, error: 'aucun moyen d’authentification configuré' }); return; }
+    if (typeof body.secret === 'string' && safeEqualSecret(body.secret, secret)) {
+      authOk = true;
+      submitter = 'secret-partage';
+    }
+  }
+
+  if (!authOk) {
+    // Un échec consomme le quota dédié : 10 essais / 15 min et par IP.
     if (await rejectIfRateLimited(db, res, `sms:authfail:${ip}`, WEBHOOK_AUTH_FAIL_RULE)) return;
-    res.status(401).json({ ok: false, error: 'secret invalide' }); return;
+    res.status(401).json({ ok: false, error: 'authentification refusée' }); return;
   }
 
   const provider = body.provider as SmsProvider;
@@ -81,6 +120,8 @@ export const ingestSms = onRequest({ cors: false }, async (req, res) => {
     merchantBalanceCents: parsed.balanceCents ?? null,
     raw: parsed.raw,
     from: body.from ?? null,
+    // Qui a soumis : le registre disait quoi, jamais qui.
+    submittedBy: submitter,
     status,
     requestId: result.requestId ?? null,
     reason: result.reason ?? null,
