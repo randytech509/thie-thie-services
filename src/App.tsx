@@ -2799,6 +2799,10 @@ export default function App() {
   if (!user && isAuthPage) {
     return (
       <div className="min-h-screen bg-[var(--tt-bg)] text-white flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
+        {/* Le bandeau doit AUSSI vivre ici : cette branche retourne tôt et court-circuite la
+            mise en page principale. Sans lui, l'écran d'entrée — celui où l'on perd le plus de
+            visiteurs — ne serait jamais mesuré, faute d'avoir pu poser la question. */}
+        <ConsentBanner lang={lang} />
         {/* Ambient background glows */}
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#a855f7]/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#7c3aed]/5 rounded-full blur-[120px] pointer-events-none"></div>
