@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { User as FirebaseUser } from 'firebase/auth';
-import { collection, query, orderBy, onSnapshot, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, getDocs, limit } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts, type PricingConfig } from '../lib/api';
@@ -8,6 +8,7 @@ import { getPasskeyStatus, enrollPasskey, verifyPasskey } from '../lib/passkey';
 import {
   LayoutDashboard, ShoppingBag, Wallet, ShieldCheck, Bell, Settings, KeyRound,
   Check, X, Loader2, Mail, ChevronLeft, Fingerprint, Send, Trash2, ExternalLink, ImagePlus, Boxes, Calculator, DownloadCloud, RefreshCw, Coins,
+  Users, ScrollText, Search,
 } from 'lucide-react';
 
 interface AdminPanelProps {
@@ -16,13 +17,15 @@ interface AdminPanelProps {
   formatPrice?: (priceUSD: number) => string;
 }
 
-type Tab = 'dashboard' | 'orders' | 'deposits' | 'kyc' | 'notifications' | 'supplier' | 'pricing' | 'settings' | 'security';
+type Tab = 'dashboard' | 'orders' | 'deposits' | 'kyc' | 'users' | 'audit' | 'notifications' | 'supplier' | 'pricing' | 'settings' | 'security';
 
 const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
   { id: 'orders', label: 'Commandes', icon: ShoppingBag },
   { id: 'deposits', label: 'Dépôts', icon: Wallet },
   { id: 'kyc', label: 'KYC', icon: ShieldCheck },
+  { id: 'users', label: 'Utilisateurs', icon: Users },
+  { id: 'audit', label: 'Journal d’audit', icon: ScrollText },
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'supplier', label: 'Fournisseur', icon: Boxes },
   { id: 'pricing', label: 'Tarification', icon: Calculator },
@@ -32,11 +35,28 @@ const TABS: { id: Tab; label: string; icon: any }[] = [
 
 const htg = (cents: number) => `${Math.round((cents || 0) / 100).toLocaleString()} HTG`;
 
+/** Firestore mélange Timestamp, ISO et millisecondes selon l'écrivain : on normalise. */
+const toMillis = (v: any): number => {
+  if (!v) return 0;
+  if (typeof v?.toMillis === 'function') return v.toMillis();
+  if (typeof v === 'number') return v;
+  const parsed = Date.parse(String(v));
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+const fmtAuditDate = (v: any): string => {
+  const ms = toMillis(v);
+  return ms ? new Date(ms).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+};
+
 export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
   const [tab, setTab] = useState<Tab>('dashboard');
   const [orders, setOrders] = useState<any[]>([]);
   const [deposits, setDeposits] = useState<any[]>([]);
   const [kyc, setKyc] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [audit, setAudit] = useState<any[]>([]);
+  const [userSearch, setUserSearch] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -79,11 +99,41 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         (s) => setDeposits(s.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {}),
       onSnapshot(query(collection(db, 'kyc_requests'), orderBy('createdAt', 'desc')),
         (s) => setKyc(s.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {}),
+      // PAS d'orderBy ici : le schéma utilisateur n'a pas de `createdAt` (il a `memberSince`,
+      // une chaîne, et facultative). Firestore EXCLUT silencieusement les documents dépourvus
+      // du champ trié — la liste serait donc vide sans que rien ne le signale.
+      onSnapshot(collection(db, 'users'),
+        (s) => setUsers(s.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {}),
+      // Journal borné à 200 entrées : il grossit sans fin, et un admin consulte les récentes.
+      // Le champ est `createdAt` (cf. functions/src/lib/audit.ts), pas `at`.
+      onSnapshot(query(collection(db, 'admin_audit'), orderBy('createdAt', 'desc'), limit(200)),
+        (s) => setAudit(s.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {}),
     ];
     return () => subs.forEach((u) => u());
   }, [user]);
 
   const flash = (m: string) => { setToast(m); setTimeout(() => setToast(null), 3000); };
+
+  // --- Utilisateurs -------------------------------------------------------
+  // « Actif » a besoin d'une définition explicite, sinon le chiffre ne veut rien dire.
+  // On la fonde sur les COMMANDES et non sur la connexion : aucun champ `lastLoginAt`
+  // n'est écrit nulle part dans le projet, un compteur bâti dessus afficherait donc
+  // toujours 0 — un chiffre faux est pire que pas de chiffre. Client actif = au moins
+  // une commande sur 30 jours, ce qui se mesure avec les données réellement présentes.
+  const usersTotal = users.length;
+  const activeSince = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const usersActive30d = new Set(
+    orders.filter((o) => toMillis(o.createdAt) >= activeSince).map((o) => o.uid).filter(Boolean),
+  ).size;
+  const usersVerified = users.filter((u) => u.kycStatus === 'verified').length;
+  const usersFunded = users.filter((u) => (u.walletBalanceCents || 0) > 0).length;
+  const usersFiltered = (() => {
+    const q = userSearch.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter((u) =>
+      [u.fullName, u.displayName, u.email, u.id].some((f) => String(f || '').toLowerCase().includes(q)),
+    );
+  })();
 
   const ordersToFulfill = orders.filter((o) => !o.fulfilledAt && !o.deliveryCode);
   const depositsPending = deposits.filter((d) => {
@@ -239,6 +289,98 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                     <button disabled={busy === k.id} onClick={() => doReviewKyc(k.id, 'approve')} className="bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40">{busy === k.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}Approuver</button>
                     <button disabled={busy === k.id} onClick={() => doReviewKyc(k.id, 'reject')} className="bg-red-500/80 hover:bg-red-500 text-white text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40"><X className="w-3 h-3" />Rejeter</button>
                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab === 'users' && (
+          <div>
+            <h2 className="text-2xl font-black mb-1">Utilisateurs</h2>
+            <p className="text-xs text-white/40 mb-5">
+              « Actif » = au moins une commande sur les 30 derniers jours. La connexion n’est
+              pas encore horodatée dans le profil, elle ne peut donc pas servir de critère.
+            </p>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+              {[
+                { l: 'Total', v: usersTotal },
+                { l: 'Actifs (30 j)', v: usersActive30d, c: 'var(--tt-good)' },
+                { l: 'KYC vérifiés', v: usersVerified, c: 'var(--tt-accent)' },
+                { l: 'Avec solde', v: usersFunded, c: 'var(--tt-warn)' },
+              ].map((s) => (
+                <div key={s.l} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4">
+                  <p className="text-2xl font-black tabular-nums" style={{ color: s.c }}>{s.v.toLocaleString()}</p>
+                  <p className="text-[11px] text-white/40 mt-0.5">{s.l}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="relative mb-4">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+              <input
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                placeholder="Rechercher par nom, e-mail ou identifiant…"
+                className="w-full bg-[var(--tt-surface)] border border-white/[0.06] rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none focus:border-[var(--tt-accent)]"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {usersFiltered.length === 0 && <p className="text-white/40 text-sm">Aucun utilisateur ne correspond.</p>}
+              {usersFiltered.slice(0, 100).map((u) => (
+                <div key={u.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm truncate">
+                      {u.fullName || u.displayName || 'Sans nom'}
+                      {u.role === 'admin' && <span className="ml-2 text-[10px] font-black text-[var(--tt-accent)]">ADMIN</span>}
+                    </p>
+                    <p className="text-[11px] text-white/40 truncate">{u.email || '—'}</p>
+                    <p className="text-[10px] text-white/25 font-mono truncate">{u.id}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-black tabular-nums">{htg(u.walletBalanceCents || 0)}</p>
+                    <p className="text-[10px] text-white/40">
+                      {u.kycStatus === 'verified' ? 'KYC vérifié' : u.kycStatus || 'KYC non soumis'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {usersFiltered.length > 100 && (
+                <p className="text-[11px] text-white/30 text-center py-2">
+                  100 premiers affichés sur {usersFiltered.length} — affinez la recherche.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {tab === 'audit' && (
+          <div>
+            <h2 className="text-2xl font-black mb-1">Journal d’audit</h2>
+            <p className="text-xs text-white/40 mb-5">
+              Écrit uniquement par le serveur et non modifiable, y compris par un administrateur.
+              200 entrées les plus récentes.
+            </p>
+            <div className="flex flex-col gap-2">
+              {audit.length === 0 && <p className="text-white/40 text-sm">Aucune entrée pour le moment.</p>}
+              {audit.map((a) => (
+                <div key={a.id} className="bg-[var(--tt-surface)] border border-white/[0.06] rounded-2xl p-4">
+                  <div className="flex items-center justify-between gap-3 mb-1">
+                    <p className="font-black text-xs text-[var(--tt-accent)] truncate">{a.action || '—'}</p>
+                    <p className="text-[10px] text-white/30 shrink-0 tabular-nums">{fmtAuditDate(a.at)}</p>
+                  </div>
+                  <p className="text-[11px] text-white/50 truncate">
+                    par <span className="font-mono">{a.actorUid || '—'}</span>
+                    {a.targetUid && <> → <span className="font-mono">{a.targetUid}</span></>}
+                    {typeof a.amountCents === 'number' && <> · <span className="font-bold">{htg(a.amountCents)}</span></>}
+                  </p>
+                  {a.meta && (
+                    <pre className="mt-2 text-[10px] text-white/35 whitespace-pre-wrap break-all font-mono">
+                      {JSON.stringify(a.meta)}
+                    </pre>
+                  )}
                 </div>
               ))}
             </div>
@@ -683,8 +825,8 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
             {[
               { l: 'USDT à déposer', v: `$${funding.usdtToDeposit}`, c: '#a855f7' },
               { l: 'Capital HTG', v: `${funding.htgCapital.toLocaleString()} G`, c: '#f97316' },
-              { l: 'CA potentiel', v: `${funding.potentialRevenueHtg.toLocaleString()} G`, c: '#34d399' },
-              { l: 'Marge projetée', v: `${funding.projectedMarginHtg.toLocaleString()} G`, c: '#fbbf24' },
+              { l: 'CA potentiel', v: `${funding.potentialRevenueHtg.toLocaleString()} G`, c: '#29d3a2' },
+              { l: 'Marge projetée', v: `${funding.projectedMarginHtg.toLocaleString()} G`, c: '#f7bc45' },
             ].map((s) => (
               <div key={s.l} className="bg-[var(--tt-surface-2)] rounded-xl p-3">
                 <p className="text-lg font-black tabular-nums" style={{ color: s.c }}>{s.v}</p>

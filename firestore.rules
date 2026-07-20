@@ -262,6 +262,17 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // 4bis. Journal d'audit administrateur
+    // Écrit exclusivement côté serveur (l'Admin SDK contourne ces règles). Il n'avait AUCUNE
+    // règle : il tombait donc dans le default-deny et restait illisible, y compris pour un
+    // admin — un journal que personne ne peut consulter ne sert à rien.
+    // Lecture ouverte aux seuls admins ; écriture fermée à TOUT LE MONDE côté client, sinon
+    // un administrateur compromis pourrait réécrire la trace de ses propres actions.
+    match /admin_audit/{entryId} {
+      allow get, list: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
     // 5. Wallet Requests Collection
     // Le client CRÉE une demande (montant + statut initial figés). Toute TRANSITION
     // (Completed/Rejected/...) est serveur-only via Function — interdite au client (invariant 3).

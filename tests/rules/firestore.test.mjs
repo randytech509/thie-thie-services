@@ -291,6 +291,25 @@ describe('wallet_transactions — ledger serveur-only', () => {
   });
 });
 
+describe('admin_audit — lisible par un admin, jamais écrit côté client', () => {
+  test('REFUS: un utilisateur ordinaire lit le journal d’audit', async () => {
+    const db = authedDb(USER);
+    await assertFails(getDoc(doc(db, 'admin_audit', 'A1')));
+  });
+
+  test('OK: un admin lit le journal d’audit', async () => {
+    const db = authedDb(ADMIN, { admin: true });
+    await assertSucceeds(getDoc(doc(db, 'admin_audit', 'A1')));
+  });
+
+  test('REFUS: même un admin ÉCRIT dans le journal (sinon il efface sa propre trace)', async () => {
+    const db = authedDb(ADMIN, { admin: true });
+    await assertFails(
+      setDoc(doc(db, 'admin_audit', 'A2'), { action: 'faux', actorUid: ADMIN.uid })
+    );
+  });
+});
+
 describe('wallet_requests — transitions serveur-only', () => {
   // NB (fix drift 2026-07-16) : la seule valeur réellement écrite par l'app
   // (UserProfile.tsx handleSubmitDeposit) est 'Pending Verification' — pas 'PendingReview'.
