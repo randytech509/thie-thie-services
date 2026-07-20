@@ -40,6 +40,12 @@ export const autoFulfillOrder = onDocumentCreated('orders/{orderId}', async (eve
     });
     const cards = await reloadly.getOrderCards(tx.transactionId);
     const first = Array.isArray(cards) ? cards[0] : cards;
+    // Une carte cadeau se rachète souvent avec DEUX éléments : un numéro de carte ET un PIN.
+    // Les écraser dans un seul champ perdait l'un des deux et rendait la carte inutilisable
+    // — on conserve donc chacun séparément. `deliveryCode` reste renseigné pour les commandes
+    // et les écrans antérieurs à ce changement.
+    const pin = first?.pinCode ? String(first.pinCode) : null;
+    const cardNumber = first?.cardNumber ? String(first.cardNumber) : null;
     const code = String(first?.pinCode || first?.cardNumber || '');
     const instructions = first?.cardNumber && first?.pinCode ? `Référence : ${first.cardNumber}` : undefined;
     const html = orderDeliveryHtml({ productName: order.productName || 'votre commande', optionLabel: order.optionLabel, code, instructions });
@@ -47,6 +53,8 @@ export const autoFulfillOrder = onDocumentCreated('orders/{orderId}', async (eve
 
     await snap.ref.update({
       deliveryCode: code,
+      deliveryPin: pin,
+      deliveryCardNumber: cardNumber,
       deliveryInstructions: instructions ?? null,
       fulfilledAt: FieldValue.serverTimestamp(),
       autoFulfilled: true,

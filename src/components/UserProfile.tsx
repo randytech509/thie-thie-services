@@ -23,6 +23,7 @@ import { enablePushNotifications } from '../lib/push';
 import { SkeletonList } from './Skeleton';
 import { AdminShieldIcon, VerifiedSealIcon, PendingClockIcon, RejectedIcon, UnverifiedIcon } from './BadgeIcons';
 import { db, auth, storage } from '../firebase';
+import { DeliveryPanel } from './DeliveryPanel';
 import moncashLogo from '../assets/images/moncash.png';
 import natcashLogo from '../assets/images/natcash.png';
 
@@ -1822,7 +1823,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       </div>
                     </div>
 
-                    {/* ADMIN : livraison du code par e-mail */}
+                    {/* CLIENT : le contenu livré, dans son propre compte.
+                        Auparavant il n'existait que dans un e-mail — invisible ici, et perdu
+                        si le courriel n'arrivait pas. */}
+                    <DeliveryPanel order={order} lang={lang} />
+
+                    {/* ADMIN : livraison du code */}
                     {isAdminClaim && (
                       (order.fulfilledAt || order.deliveryCode) ? (
                         <div className="text-[9px] font-bold text-emerald-400/80 bg-emerald-500/5 rounded-lg px-2.5 py-1.5">
