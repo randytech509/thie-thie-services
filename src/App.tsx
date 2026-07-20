@@ -5813,9 +5813,8 @@ export default function App() {
           {/* Logo Description */}
           <div className="flex flex-col gap-4 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#a855f7] to-[#7c3aed] flex items-center justify-center text-black font-extrabold text-xs">
-                TT
-              </div>
+              {/* Le vrai logo, pas les initiales : c'etait le dernier placeholder texte. */}
+              <ThieThieLogo variant="icon" size={36} />
               <span className="font-extrabold text-lg tracking-wider text-[var(--tt-text)]">THIE THIE SERVICES</span>
             </div>
             <p className="text-[var(--tt-text-muted)] leading-relaxed text-[11px]">
