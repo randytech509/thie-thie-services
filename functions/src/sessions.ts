@@ -1,5 +1,6 @@
 import { onCall } from 'firebase-functions/v2/https';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
 import { callOpts, requireAuth } from './lib/guards';
 
 /**
@@ -88,4 +89,36 @@ export const endSession = onCall(callOpts, async (req) => {
     { ended: true, endedAt: FieldValue.serverTimestamp() }, { merge: true },
   );
   return { ok: true };
+});
+
+/**
+ * Déconnecte tous les AUTRES appareils.
+ *
+ * HONNÊTETÉ SUR LA LIMITE : Firebase Auth ne sait pas révoquer le jeton d'UN appareil précis —
+ * `revokeRefreshTokens` invalide TOUS les jetons de rafraîchissement du compte. Concrètement :
+ * chaque appareil (y compris celui-ci) devra se ré-authentifier au prochain renouvellement de
+ * jeton (au plus une heure), et immédiatement si le client vérifie la révocation. Il n'existe
+ * pas de vraie « déconnexion d'un seul appareil » côté serveur avec Firebase Auth ; retirer une
+ * ligne de la liste sans révoquer serait cosmétique et donnerait un faux sentiment de sécurité.
+ *
+ * C'est donc l'action à présenter comme réelle : « déconnecter partout ». On garde la session
+ * de CET appareil dans le journal (l'utilisateur vient de s'en servir) et on clôt les autres.
+ */
+export const revokeOtherSessions = onCall(callOpts, async (req) => {
+  const actor = requireAuth(req);
+  const currentDeviceId = safeId(String(req.data?.deviceId ?? ''));
+  const auth = getAuth();
+  await auth.revokeRefreshTokens(actor.uid);
+
+  const db = getFirestore();
+  const snap = await db.collection('user_sessions').where('uid', '==', actor.uid).get();
+  const batch = db.batch();
+  let closes = 0;
+  for (const d of snap.docs) {
+    if (d.id === `${actor.uid}_${currentDeviceId}`) continue; // garder l'appareil courant
+    batch.set(d.ref, { ended: true, endedAt: FieldValue.serverTimestamp(), revoked: true }, { merge: true });
+    closes++;
+  }
+  await batch.commit();
+  return { ok: true, closes };
 });

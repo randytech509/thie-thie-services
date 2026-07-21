@@ -16,7 +16,7 @@ setGlobalOptions({ region: process.env.FUNCTIONS_REGION ?? 'us-central1', maxIns
 export { reviewDeposit } from './deposits';
 export { placeOrderCallable, placeCartOrderCallable } from './orders';
 export { setAdminRole, setSmsForwarderRole } from './admin';
-export { recordSession, endSession } from './sessions';
+export { recordSession, endSession, revokeOtherSessions } from './sessions';
 // `seedProducts` retiré du déploiement (2026-07-19) : semait le catalogue codé en dur, déjà
 // fait en prod, et jamais appelé par l'app (scripts émulateur uniquement). Libère du quota CPU.
 // Le code reste dans ./products si un re-seed devenait nécessaire.

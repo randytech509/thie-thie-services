@@ -24,6 +24,7 @@ import { SkeletonList } from './Skeleton';
 import { AdminShieldIcon, VerifiedSealIcon, PendingClockIcon, RejectedIcon, UnverifiedIcon } from './BadgeIcons';
 import { db, auth, storage } from '../firebase';
 import { DeliveryPanel } from './DeliveryPanel';
+import { SessionsPanel } from './admin/SessionsPanel';
 import { ThieThieLogo } from './ThieThieLogo';
 
 /**
@@ -1905,6 +1906,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 </div>
                 <ChevronRight className="w-4 h-4 text-[var(--tt-text-faint)] group-hover:text-[var(--tt-text)] transition-all" />
               </button>
+
+              {/* Sécurité du compte : sessions gérables par l'utilisateur lui-même —
+                  visible aussi sur mobile, contrairement au panneau du back-office admin. */}
+              <div className="pt-1">
+                <SessionsPanel uid={user.uid} variant="profile" />
+              </div>
 
               {/* Option 6: Terms & Conditions */}
               <button
