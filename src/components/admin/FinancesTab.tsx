@@ -67,7 +67,13 @@ export function FinancesTab({ orders, deposits }: FinancesTabProps) {
       const ordersF = orders.filter((o) => complete(o) && toMillis(o.createdAt) >= depuis);
       const depositsF = deposits.filter((d) => credite(d) && toMillis(d.createdAt) >= depuis);
       const ca = ordersF.reduce((s, o) => s + (o.priceCents || 0), 0);
-      const entrees = depositsF.reduce((s, d) => s + (d.amountCents || d.expectedAmountCentimes || 0), 0);
+      // `wallet_requests` stocke le montant crédité sous `amount`, en HTG ENTIERS (pas en
+      // centimes) — d'où la conversion ×100. Les rares docs récents portant `amountCents`
+      // sont pris tels quels. Se tromper de champ ici donnait 0 partout (bug corrigé).
+      const entrees = depositsF.reduce((s, d) => {
+        const cents = typeof d.amountCents === 'number' ? d.amountCents : Math.round(Number(d.amount || 0) * 100);
+        return s + (Number.isFinite(cents) ? cents : 0);
+      }, 0);
       // Marge estimée : recette − coût courant, uniquement sur les commandes dont on connaît
       // le coût du produit. Les autres sont exclues du calcul de coût mais RESTENT dans le CA.
       let coutConnu = 0; let caCouvert = 0;
