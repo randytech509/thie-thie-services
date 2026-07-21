@@ -273,6 +273,17 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // 4ter. Journal des sessions d'appareil
+    // Écrit exclusivement par les callables (recordSession/endSession, Admin SDK) : l'IP et le
+    // user-agent doivent être CONSTATÉS par le serveur, pas déclarés par le client. Écriture
+    // fermée à tout le monde côté client, sinon un utilisateur falsifierait son IP ou lirait
+    // celle des autres en écrivant leurs documents.
+    // Lecture : chacun ses propres sessions ; un admin voit toutes les sessions.
+    match /user_sessions/{sessionId} {
+      allow get, list: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create, update, delete: if false;
+    }
+
     // 5. Wallet Requests Collection
     // Le client CRÉE une demande (montant + statut initial figés). Toute TRANSITION
     // (Completed/Rejected/...) est serveur-only via Function — interdite au client (invariant 3).

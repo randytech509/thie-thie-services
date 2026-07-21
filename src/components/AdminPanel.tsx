@@ -4,6 +4,7 @@ import { collection, query, orderBy, onSnapshot, getDocs, limit } from 'firebase
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { FinancesTab } from './admin/FinancesTab';
+import { SessionsPanel } from './admin/SessionsPanel';
 import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts, type PricingConfig } from '../lib/api';
 import { getPasskeyStatus, enrollPasskey, verifyPasskey } from '../lib/passkey';
 import {
@@ -232,6 +233,10 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                   <p className="text-xs text-[var(--tt-text-muted)] font-bold mt-1">{s.label}</p>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-6 max-w-2xl">
+              <SessionsPanel uid={user.uid} />
             </div>
           </div>
         )}

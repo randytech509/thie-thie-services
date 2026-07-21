@@ -79,6 +79,7 @@ const LazyFallback = () => (
 import { ThieThieLogo } from './components/ThieThieLogo';
 import { AppInfoSection } from './components/AppInfoSection';
 import { ConsentBanner } from './components/ConsentBanner';
+import { touchSession, endSession } from './lib/session';
 import { tagSession } from './lib/analytics';
 import { Sidebar } from './components/Sidebar';
 import { BottomTabBar } from './components/BottomTabBar';
@@ -1536,9 +1537,15 @@ export default function App() {
 
   // Listen to Auth State Changes
   useEffect(() => {
+    // Rafraîchit la session quand l'onglet reprend le focus (throttle 5 min géré côté module).
+    const onFocus = () => { if (auth.currentUser) touchSession(); };
+    window.addEventListener('focus', onFocus);
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        // Enregistre la session dès la connexion (IP + appareil constatés serveur).
+        // `force` court-circuite le throttle ; l'échec éventuel est avalé côté module.
+        touchSession(true);
         setProfileLoading(true);
         try {
           const userRef = doc(db, 'users', currentUser.uid);
@@ -1641,7 +1648,7 @@ export default function App() {
       }
     });
     
-    return () => unsubscribe();
+    return () => { unsubscribe(); window.removeEventListener('focus', onFocus); };
   }, []);
 
   // Notifications push (FCM) — affiche les messages reçus pendant que l'onglet est au premier
@@ -1916,6 +1923,9 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
+      // Marquer la session terminée AVANT signOut : après, le jeton n'existe plus et le
+      // callable serait rejeté. L'échec est ignoré, la déconnexion locale prime.
+      await endSession();
       await signOut(auth);
       navigateToPage('home');
     } catch (err) {

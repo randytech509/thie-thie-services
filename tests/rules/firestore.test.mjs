@@ -310,6 +310,45 @@ describe('admin_audit — lisible par un admin, jamais écrit côté client', ()
   });
 });
 
+describe('user_sessions — chacun les siennes, admin toutes, écriture serveur-only', () => {
+  const withSeed = async (fn) => {
+    // Seed via contexte admin (les règles écrites interdisent l'écriture cliente).
+    const ctx = testEnv;
+    await ctx.withSecurityRulesDisabled(async (c) => {
+      const d = c.firestore();
+      await setDoc(doc(d, 'user_sessions', `${USER.uid}_dev1`), { uid: USER.uid, ip: '1.2.3.4', device: 'Android · Chrome' });
+      await setDoc(doc(d, 'user_sessions', `${ADMIN.uid}_dev2`), { uid: ADMIN.uid, ip: '5.6.7.8', device: 'macOS · Safari' });
+    });
+    await fn();
+  };
+
+  test('OK: l’utilisateur lit SA session', async () => {
+    await withSeed(async () => {
+      const db = authedDb(USER);
+      await assertSucceeds(getDoc(doc(db, 'user_sessions', `${USER.uid}_dev1`)));
+    });
+  });
+
+  test('REFUS: l’utilisateur lit la session d’un AUTRE', async () => {
+    await withSeed(async () => {
+      const db = authedDb(USER);
+      await assertFails(getDoc(doc(db, 'user_sessions', `${ADMIN.uid}_dev2`)));
+    });
+  });
+
+  test('OK: un admin lit la session de n’importe qui', async () => {
+    await withSeed(async () => {
+      const db = authedDb(ADMIN, { admin: true });
+      await assertSucceeds(getDoc(doc(db, 'user_sessions', `${USER.uid}_dev1`)));
+    });
+  });
+
+  test('REFUS: le client ÉCRIT une session (l’IP doit être constatée serveur)', async () => {
+    const db = authedDb(USER);
+    await assertFails(setDoc(doc(db, 'user_sessions', `${USER.uid}_faux`), { uid: USER.uid, ip: '9.9.9.9' }));
+  });
+});
+
 describe('wallet_requests — transitions serveur-only', () => {
   // NB (fix drift 2026-07-16) : la seule valeur réellement écrite par l'app
   // (UserProfile.tsx handleSubmitDeposit) est 'Pending Verification' — pas 'PendingReview'.
