@@ -870,7 +870,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   });
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 animate-fadeIn text-left text-[var(--tt-text)] bg-[#0c0714] min-h-screen">
+    <div className="max-w-6xl mx-auto px-4 py-8 animate-fadeIn text-left text-[var(--tt-text)] bg-[var(--tt-bg)] min-h-screen">
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         
         {/* ==========================================
@@ -879,7 +879,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         <div className="w-full lg:w-1/3 flex flex-col gap-6">
           
           {/* Main User Card */}
-          <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-3xl p-6 relative overflow-hidden shadow-2xl">
+          <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl p-6 relative overflow-hidden shadow-2xl">
             <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-[#a855f7]/10 to-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
             {/* Avatar & Photo Upload */}
@@ -899,7 +899,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <div className="w-full h-full rounded-[14px] bg-[#0c0714] flex items-center justify-center">
+                    <div className="w-full h-full rounded-[14px] bg-[var(--tt-bg)] flex items-center justify-center">
                       <span className="text-3xl font-black text-[var(--tt-accent)]">
                         {(dbUser.fullName || user.email || 'U').charAt(0).toUpperCase()}
                       </span>
@@ -910,7 +910,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-1 right-1 bg-[#a855f7] hover:bg-orange-500 text-black p-1.5 rounded-lg shadow-md transition-all scale-95 hover:scale-105 active:scale-95"
+                  className="absolute bottom-1 right-1 bg-[var(--tt-accent)] hover:bg-orange-500 text-[var(--tt-on-accent)] p-1.5 rounded-lg shadow-md transition-all scale-95 hover:scale-105 active:scale-95"
                   title={t.changeAvatar}
                 >
                   <Camera className="w-4 h-4" />
@@ -985,7 +985,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               {isAdminClaim && (
                 <button
                   onClick={() => navigateToPage('admin')}
-                  className="mt-4 w-full flex items-center justify-center gap-2 bg-[#a855f7] hover:bg-[#b56ff5] text-black font-black uppercase tracking-wider text-xs rounded-xl py-3 transition-colors"
+                  className="mt-4 w-full flex items-center justify-center gap-2 bg-[var(--tt-accent)] hover:bg-[#b56ff5] text-[var(--tt-on-accent)] font-black uppercase tracking-wider text-xs rounded-xl py-3 transition-colors"
                 >
                   <LayoutDashboard className="w-4 h-4" /> Ouvrir le back-office
                 </button>
@@ -1029,10 +1029,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           </div>
 
           {/* Loyalty Points Progress Box */}
-          <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-3xl p-6 relative overflow-hidden shadow-2xl flex flex-col gap-4">
+          <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl p-6 relative overflow-hidden shadow-2xl flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2.5 bg-[#a855f7]/10 rounded-xl text-[var(--tt-accent)]">
+                <div className="p-2.5 bg-[var(--tt-accent)]/10 rounded-xl text-[var(--tt-accent)]">
                   <Coins className="w-5 h-5" />
                 </div>
                 <div>
@@ -1078,7 +1078,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
             <button
               onClick={() => navigateToPage('home')}
-              className="w-full py-3 bg-[var(--tt-overlay)] hover:bg-[#a855f7] hover:text-black border border-[var(--tt-border)] hover:border-transparent text-white text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+              className="w-full py-3 bg-[var(--tt-overlay)] hover:bg-[var(--tt-accent)] hover:text-[var(--tt-on-accent)] border border-[var(--tt-border)] hover:border-transparent text-[var(--tt-text)] text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
               <ShoppingBag className="w-4 h-4" />
               <span>{t.shopCTA}</span>
@@ -1095,7 +1095,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           {/* ==========================================
               WALLET SECTION
               ========================================== */}
-          <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+          <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl p-6 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-[#a855f7]/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
             
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -1111,7 +1111,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               <div className="flex items-center gap-2.5 w-full md:w-auto">
                 <button
                   onClick={() => setAddFundsOpen(true)}
-                  className="flex-1 md:flex-none px-5 py-3.5 bg-[#a855f7] hover:bg-orange-500 text-black font-black text-xs rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#a855f7]/10"
+                  className="flex-1 md:flex-none px-5 py-3.5 bg-[var(--tt-accent)] hover:bg-orange-500 text-[var(--tt-on-accent)] font-black text-xs rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#a855f7]/10"
                 >
                   <Plus className="w-4 h-4 stroke-[3]" />
                   <span>{t.addFunds}</span>
@@ -1153,11 +1153,11 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           {/* ==========================================
               KYC — DÉBLOQUE LA RECHARGE CRYPTO
               ========================================== */}
-          <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-3xl p-5 shadow-2xl flex items-center justify-between gap-4 flex-wrap">
+          <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl p-5 shadow-2xl flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3">
               <div className={`p-2.5 rounded-xl ${
                 kycStatus === 'approved' ? 'bg-emerald-500/10 text-emerald-400'
-                : kycStatus === 'pending' ? 'bg-[#a855f7]/10 text-[var(--tt-accent)]'
+                : kycStatus === 'pending' ? 'bg-[var(--tt-accent)]/10 text-[var(--tt-accent)]'
                 : kycStatus === 'rejected' ? 'bg-red-500/10 text-red-400'
                 : 'bg-[var(--tt-overlay)] text-[var(--tt-text-faint)]'
               }`}>
@@ -1179,7 +1179,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <CheckCircle className="w-3.5 h-3.5" /> Vérifié
               </span>
             ) : kycStatus === 'pending' ? (
-              <span className="bg-[#a855f7]/10 text-[var(--tt-accent)] border border-[#a855f7]/20 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">
+              <span className="bg-[var(--tt-accent)]/10 text-[var(--tt-accent)] border border-[var(--tt-accent)]/20 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">
                 En attente
               </span>
             ) : (
@@ -1196,13 +1196,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           {/* ==========================================
               LIVE NOTIFICATIONS & ACTIVITY CENTER
               ========================================== */}
-          <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
+          <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black text-[var(--tt-text)] flex items-center gap-2">
                 <Bell className="w-4 h-4 text-[var(--tt-accent)]" />
                 Centre d'Activités & Notifications
                 {notifications.filter(n => !n.read).length > 0 && (
-                  <span className="bg-red-500 text-white font-black text-[9px] px-1.5 py-0.5 rounded-full">
+                  <span className="bg-red-500 text-[var(--tt-text)] font-black text-[9px] px-1.5 py-0.5 rounded-full">
                     {notifications.filter(n => !n.read).length} NEW
                   </span>
                 )}
@@ -1233,7 +1233,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                           : detail || "Échec inconnu.",
                       );
                     }}
-                    className="text-[9px] font-black uppercase tracking-wider text-[var(--tt-accent)] hover:text-[var(--tt-text)] border border-[#a855f7]/25 hover:border-[#a855f7] rounded-lg px-2.5 py-1.5 transition-all disabled:opacity-40 cursor-pointer"
+                    className="text-[9px] font-black uppercase tracking-wider text-[var(--tt-accent)] hover:text-[var(--tt-text)] border border-[var(--tt-accent)]/25 hover:border-[var(--tt-accent)] rounded-lg px-2.5 py-1.5 transition-all disabled:opacity-40 cursor-pointer"
                   >
                     {pushStatus === 'loading' ? 'Activation…' : 'Activer les notifications'}
                   </button>
@@ -1282,10 +1282,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                           className={`p-3 rounded-xl border transition-all text-left flex items-start gap-2.5 cursor-pointer ${
                             notif.read
                               ? 'bg-black/15 border-[var(--tt-border)] text-[var(--tt-text-muted)]'
-                              : 'bg-gradient-to-r from-[#a855f7]/5 to-transparent border-[#a855f7]/25 text-white shadow-sm hover:from-[#a855f7]/10'
+                              : 'bg-gradient-to-r from-[#a855f7]/5 to-transparent border-[var(--tt-accent)]/25 text-[var(--tt-text)] shadow-sm hover:from-[#a855f7]/10'
                           }`}
                         >
-                          <div className={`p-1.5 rounded-lg mt-0.5 ${notif.read ? 'bg-[var(--tt-overlay)] text-[var(--tt-text-faint)]' : 'bg-[#a855f7]/10 text-[var(--tt-accent)]'}`}>
+                          <div className={`p-1.5 rounded-lg mt-0.5 ${notif.read ? 'bg-[var(--tt-overlay)] text-[var(--tt-text-faint)]' : 'bg-[var(--tt-accent)]/10 text-[var(--tt-accent)]'}`}>
                             <Sparkles className="w-3.5 h-3.5" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -1327,7 +1327,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             
             {/* Stat 1: Total Orders */}
-            <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-2xl p-4 flex flex-col justify-between shadow-lg relative overflow-hidden group">
+            <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4 flex flex-col justify-between shadow-lg relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-500/10 to-transparent rounded-full blur-xl pointer-events-none"></div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] text-[var(--tt-text-faint)] font-black uppercase tracking-wider">{t.statTotalOrders}</span>
@@ -1342,7 +1342,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             </div>
 
             {/* Stat 2: Completed Orders */}
-            <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-2xl p-4 flex flex-col justify-between shadow-lg relative overflow-hidden group">
+            <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4 flex flex-col justify-between shadow-lg relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-full blur-xl pointer-events-none"></div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] text-[var(--tt-text-faint)] font-black uppercase tracking-wider">{t.statCompletedOrders}</span>
@@ -1357,11 +1357,11 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             </div>
 
             {/* Stat 3: Pending Orders */}
-            <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-2xl p-4 flex flex-col justify-between shadow-lg col-span-2 sm:col-span-1 relative overflow-hidden group">
+            <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4 flex flex-col justify-between shadow-lg col-span-2 sm:col-span-1 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[#a855f7]/10 to-transparent rounded-full blur-xl pointer-events-none"></div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] text-[var(--tt-text-faint)] font-black uppercase tracking-wider">{t.statPendingOrders}</span>
-                <div className="p-2 bg-[#a855f7]/10 text-[var(--tt-accent)] rounded-lg">
+                <div className="p-2 bg-[var(--tt-accent)]/10 text-[var(--tt-accent)] rounded-lg">
                   <Clock className="w-4 h-4" />
                 </div>
               </div>
@@ -1372,7 +1372,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             </div>
 
             {/* Stat 4: Favorite Game */}
-            <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-2xl p-4 flex flex-col justify-between shadow-lg col-span-2 relative overflow-hidden group">
+            <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4 flex flex-col justify-between shadow-lg col-span-2 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500/10 to-transparent rounded-full blur-xl pointer-events-none"></div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] text-[var(--tt-text-faint)] font-black uppercase tracking-wider">{t.statFavGame}</span>
@@ -1387,7 +1387,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             </div>
 
             {/* Stat 5: Points Level */}
-            <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-2xl p-4 flex flex-col justify-between shadow-lg relative overflow-hidden group">
+            <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4 flex flex-col justify-between shadow-lg relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-orange-500/10 to-transparent rounded-full blur-xl pointer-events-none"></div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] text-[var(--tt-text-faint)] font-black uppercase tracking-wider">Level</span>
@@ -1408,7 +1408,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           {/* ==========================================
               TRANSACTION HISTORY SECTION
               ========================================== */}
-          <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
+          <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <h3 className="text-lg font-black text-[var(--tt-text)] flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-[var(--tt-accent)]" />
@@ -1420,7 +1420,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <select
                   value={filterDateSelected}
                   onChange={(e) => setFilterDateSelected(e.target.value as any)}
-                  className="bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-[var(--tt-text)] px-2 py-1.5 rounded-lg text-xs font-semibold focus:outline-none"
+                  className="bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-[var(--tt-text)] px-2 py-1.5 rounded-lg text-xs font-semibold focus:outline-none"
                 >
                   <option value="all">Toutes les dates</option>
                   <option value="today">Aujourd'hui</option>
@@ -1431,7 +1431,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <select
                   value={filterGameSelected}
                   onChange={(e) => setFilterGameSelected(e.target.value)}
-                  className="bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-[var(--tt-text)] px-2 py-1.5 rounded-lg text-xs font-semibold focus:outline-none"
+                  className="bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-[var(--tt-text)] px-2 py-1.5 rounded-lg text-xs font-semibold focus:outline-none"
                 >
                   <option value="all">Tous types</option>
                   <option value="deposit">Dépôts (+)</option>
@@ -1441,7 +1441,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <select
                   value={filterStatusSelected}
                   onChange={(e) => setFilterStatusSelected(e.target.value)}
-                  className="bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-[var(--tt-text)] px-2 py-1.5 rounded-lg text-xs font-semibold focus:outline-none"
+                  className="bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-[var(--tt-text)] px-2 py-1.5 rounded-lg text-xs font-semibold focus:outline-none"
                 >
                   <option value="all">Tous statuts</option>
                   <option value="pending">En attente</option>
@@ -1462,7 +1462,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               <div className="overflow-x-auto border border-[var(--tt-border)] rounded-2xl bg-black/10">
                 <table className="w-full text-left text-xs min-w-[550px]">
                   <thead>
-                    <tr className="bg-[#0c0714] border-b border-[var(--tt-border)] text-[var(--tt-text-faint)] uppercase font-black tracking-widest text-[9px] select-none">
+                    <tr className="bg-[var(--tt-bg)] border-b border-[var(--tt-border)] text-[var(--tt-text-faint)] uppercase font-black tracking-widest text-[9px] select-none">
                       <th className="py-3 px-4">Transaction ID</th>
                       <th className="py-3 px-4">Date & Heure</th>
                       <th className="py-3 px-4">Type / Produit</th>
@@ -1538,7 +1538,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           {/* ==========================================
               ORDER HISTORY SECTION (Cards Design)
               ========================================== */}
-          <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
+          <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
             <h3 className="text-lg font-black text-[var(--tt-text)] flex items-center gap-2">
               <ShoppingBag className="w-5 h-5 text-[var(--tt-accent)]" />
               {t.orderHistory}
@@ -1558,7 +1558,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 {orders.map((order) => (
                   <div key={order.id} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] hover:border-[var(--tt-border)] rounded-2xl p-4 flex flex-col gap-3.5 transition-all hover:scale-[1.01]">
                     <div className="flex gap-4">
-                      <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-[#0c0714] border border-[var(--tt-border)]">
+                      <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-[var(--tt-bg)] border border-[var(--tt-border)]">
                         <img 
                           src={getGameImage(order.productName || order.game)} 
                           alt="Game image" 
@@ -1761,7 +1761,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                             }}
                             className={`py-1 text-[8px] font-black rounded-lg transition-all cursor-pointer ${
                               order.status === 'Pending Verification'
-                                ? 'bg-[#a855f7] text-black shadow'
+                                ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)] shadow'
                                 : 'bg-[var(--tt-overlay)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text)] hover:bg-[var(--tt-overlay)]'
                             }`}
                           >
@@ -1785,7 +1785,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                             }}
                             className={`py-1 text-[8px] font-black rounded-lg transition-all cursor-pointer ${
                               order.status === 'Failed' || order.status === 'failed' || order.status === 'cancelled' || order.status === 'rejected'
-                                ? 'bg-red-500 text-white shadow'
+                                ? 'bg-red-500 text-[var(--tt-text)] shadow'
                                 : 'bg-[var(--tt-overlay)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text)] hover:bg-[var(--tt-overlay)]'
                             }`}
                           >
@@ -1804,7 +1804,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           {/* ==========================================
               ACCOUNT SETTINGS SECTION
               ========================================== */}
-          <div className="bg-[#1c1030] border border-[var(--tt-border)] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
+          <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
             <h3 className="text-lg font-black text-[var(--tt-text)] flex items-center gap-2">
               <Shield className="w-5 h-5 text-[var(--tt-accent)]" />
               {t.accountSettings}
@@ -1818,7 +1818,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 className="w-full p-4 bg-[var(--tt-surface-2)] hover:bg-[var(--tt-surface-2)] border border-[var(--tt-border)] hover:border-[var(--tt-border)] rounded-2xl flex items-center justify-between text-left transition-all group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-500/10 text-[var(--tt-accent)] rounded-xl group-hover:bg-[#a855f7] group-hover:text-black transition-all">
+                  <div className="p-2 bg-orange-500/10 text-[var(--tt-accent)] rounded-xl group-hover:bg-[var(--tt-accent)] group-hover:text-[var(--tt-on-accent)] transition-all">
                     <User className="w-4 h-4" />
                   </div>
                   <div>
@@ -1861,7 +1861,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <button 
                   onClick={toggleNotifications}
                   className={`w-11 h-6 rounded-full p-0.5 transition-all relative ${
-                    notificationsEnabled ? 'bg-[#a855f7]' : 'bg-[var(--tt-overlay-strong)]'
+                    notificationsEnabled ? 'bg-[var(--tt-accent)]' : 'bg-[var(--tt-overlay-strong)]'
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full bg-white shadow-md transition-all ${
@@ -1961,7 +1961,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
             <button
               onClick={onLogout}
-              className="mt-4 w-full py-3.5 bg-red-500/10 hover:bg-red-500 border border-red-500/20 hover:border-transparent text-red-500 hover:text-white text-xs font-black rounded-2xl transition-all flex items-center justify-center gap-2 shadow-md shadow-red-500/5 cursor-pointer"
+              className="mt-4 w-full py-3.5 bg-red-500/10 hover:bg-red-500 border border-red-500/20 hover:border-transparent text-red-500 hover:text-[var(--tt-text)] text-xs font-black rounded-2xl transition-all flex items-center justify-center gap-2 shadow-md shadow-red-500/5 cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
               <span>{t.logout}</span>
@@ -1983,7 +1983,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#1c1030] border border-[var(--tt-border)] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-6 relative"
+              className="bg-[var(--tt-surface)] border border-[var(--tt-border)] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl p-6 relative"
             >
               <button 
                 onClick={() => setEditModalOpen(false)}
@@ -2016,7 +2016,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       onChange={(e) => setEditFullName(e.target.value)}
                       placeholder="Jean Thierry"
                       required
-                      className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
                     />
                     <User className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                   </div>
@@ -2032,7 +2032,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       value={editPhone}
                       onChange={(e) => setEditPhone(e.target.value)}
                       placeholder="+509 3737-3737"
-                      className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
                     />
                     <Phone className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                   </div>
@@ -2048,7 +2048,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       value={editFreeFirePlayerId}
                       onChange={(e) => setEditFreeFirePlayerId(e.target.value)}
                       placeholder={lang === 'FR' ? "Entrez votre ID de joueur" : "Antre ID jwè ou"}
-                      className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
                     />
                     <User className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                   </div>
@@ -2071,7 +2071,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <button
                   type="submit"
                   disabled={editingProfile}
-                  className="mt-2 w-full py-3.5 bg-[#a855f7] hover:bg-orange-500 text-black font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="mt-2 w-full py-3.5 bg-[var(--tt-accent)] hover:bg-orange-500 text-[var(--tt-on-accent)] font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {editingProfile ? (
                     <>
@@ -2098,7 +2098,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#1c1030] border border-[var(--tt-border)] w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl p-6 relative text-xs"
+              className="bg-[var(--tt-surface)] border border-[var(--tt-border)] w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl p-6 relative text-xs"
             >
               <button 
                 onClick={() => setAddFundsOpen(false)}
@@ -2149,7 +2149,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                           }}
                           className={`p-2 rounded-xl border text-center transition-all flex flex-col items-center gap-0.5 ${
                             depositPaymentMethod === method
-                              ? 'bg-[#a855f7]/10 border-[#a855f7] text-white'
+                              ? 'bg-[var(--tt-accent)]/10 border-[var(--tt-accent)] text-[var(--tt-text)]'
                               : locked
                                 ? 'bg-[var(--tt-surface-2)] border-[var(--tt-border)] text-[var(--tt-text-faint)]'
                                 : 'bg-[var(--tt-surface-2)] border-[var(--tt-border)] text-[var(--tt-text-muted)] hover:border-[var(--tt-border)]'
@@ -2194,7 +2194,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                         Envoyez le montant MonCash au numéro ci-dessous ({depositAccounts.moncashName}). Après le transfert, indiquez votre numéro d'envoi et téléchargez la preuve.
                       </p>
                       <div className="grid grid-cols-2 gap-2 mt-1">
-                        <div className="bg-[#0c0714] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
+                        <div className="bg-[var(--tt-bg)] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
                           <span className="text-[9px] text-[var(--tt-text-faint)] font-bold">NOM REVEVEUR</span>
                           <span className="text-[var(--tt-text)] font-black text-xs mt-0.5">{depositAccounts.moncashName}</span>
                           <button
@@ -2205,7 +2205,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                             {copiedField === 'moncash-name' ? <span className="text-[8px] font-black text-emerald-400">COPIÉ</span> : <Copy className="w-3.5 h-3.5" />}
                           </button>
                         </div>
-                        <div className="bg-[#0c0714] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
+                        <div className="bg-[var(--tt-bg)] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
                           <span className="text-[9px] text-[var(--tt-text-faint)] font-bold">NUMÉRO</span>
                           <span className="text-[var(--tt-accent)] font-black text-xs mt-0.5">{depositAccounts.moncashNumber}</span>
                           <button
@@ -2226,7 +2226,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                         Envoyez le transfert NatCash au numéro ci-dessous ({depositAccounts.natcashName}). Après le transfert, indiquez votre numéro d'envoi et téléchargez la preuve.
                       </p>
                       <div className="grid grid-cols-2 gap-2 mt-1">
-                        <div className="bg-[#0c0714] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
+                        <div className="bg-[var(--tt-bg)] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
                           <span className="text-[9px] text-[var(--tt-text-faint)] font-bold">NOM REVEVEUR</span>
                           <span className="text-[var(--tt-text)] font-black text-xs mt-0.5">{depositAccounts.natcashName}</span>
                           <button
@@ -2237,7 +2237,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                             {copiedField === 'natcash-name' ? <span className="text-[8px] font-black text-emerald-400">COPIÉ</span> : <Copy className="w-3.5 h-3.5" />}
                           </button>
                         </div>
-                        <div className="bg-[#0c0714] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
+                        <div className="bg-[var(--tt-bg)] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
                           <span className="text-[9px] text-[var(--tt-text-faint)] font-bold">NUMÉRO</span>
                           <span className="text-[var(--tt-accent)] font-black text-xs mt-0.5">{depositAccounts.natcashNumber}</span>
                           <button
@@ -2257,7 +2257,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       <p className="text-[11px] text-[var(--tt-text-muted)] leading-relaxed font-medium">
                         Envoyez vos USDT par Binance Pay à l'aide de l'identifiant (Pay ID) ci-dessous. Indiquez ensuite le TxID de la transaction.
                       </p>
-                      <div className="bg-[#0c0714] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
+                      <div className="bg-[var(--tt-bg)] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
                         <span className="text-[9px] text-[var(--tt-text-faint)] font-bold">BINANCE PAY ID</span>
                         <span className="text-[var(--tt-accent)] font-black text-xs mt-0.5">{depositAccounts.binancePayId}</span>
                         <button
@@ -2276,7 +2276,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       <p className="text-[11px] text-[var(--tt-text-muted)] leading-relaxed font-medium">
                         Réglez de manière sécurisée via PayPal Checkout officiel à {depositAccounts.moncashName}. Saisissez votre adresse email ou référence PayPal de la transaction.
                       </p>
-                      <div className="bg-[#0c0714] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
+                      <div className="bg-[var(--tt-bg)] border border-[var(--tt-border)] p-2.5 rounded-xl flex flex-col relative">
                         <span className="text-[9px] text-[var(--tt-text-faint)] font-bold">PAYPAL EMAIL</span>
                         <span className="text-[var(--tt-accent)] font-black text-xs mt-0.5">{depositAccounts.paypalEmail}</span>
                         <button
@@ -2309,7 +2309,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                         onClick={() => setDepositAmount(amt)}
                         className={`py-2 rounded-lg text-center transition-all border ${
                           depositAmount === amt
-                            ? 'bg-[#a855f7]/10 border-[#a855f7] text-[var(--tt-accent)]'
+                            ? 'bg-[var(--tt-accent)]/10 border-[var(--tt-accent)] text-[var(--tt-accent)]'
                             : 'bg-[var(--tt-surface-2)] border-[var(--tt-border)] text-[var(--tt-text-muted)] hover:bg-[var(--tt-surface-2)]'
                         }`}
                       >
@@ -2328,7 +2328,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       min="10"
                       max="1000000"
                       inputMode="numeric"
-                      className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pr-12 font-bold"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pr-12 font-bold"
                     />
                     <span className="text-[var(--tt-text-faint)] absolute right-4 top-3.5 text-xs font-black">HTG</span>
                   </div>
@@ -2343,7 +2343,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-widest mb-1.5 font-black">Transaction ID (TransCode)</label>
                       <div className="relative">
                         <input type="text" value={depositTxId} onChange={(e) => setDepositTxId(e.target.value)} placeholder="Ex. 26070198044868" required
-                          className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10" />
+                          className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10" />
                         <CreditCard className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                       </div>
                     </div>
@@ -2351,12 +2351,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       <div>
                         <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-widest mb-1.5 font-black">Nom de l'expéditeur</label>
                         <input type="text" value={depositSenderName} onChange={(e) => setDepositSenderName(e.target.value)} placeholder="Ex. Jean Pierre" required maxLength={80}
-                          className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all" />
+                          className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all" />
                       </div>
                       <div>
                         <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-widest mb-1.5 font-black">Numéro de l'expéditeur</label>
                         <input type="text" inputMode="numeric" value={depositPhoneRef} onChange={(e) => { const v = e.target.value; if (v === '' || /^[\d +-]{0,15}$/.test(v)) setDepositPhoneRef(v); }} placeholder="Ex. 43457660" required maxLength={15}
-                          className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all tabular-nums" />
+                          className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all tabular-nums" />
                       </div>
                     </div>
                   </div>
@@ -2372,7 +2372,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                         onChange={(e) => depositPaymentMethod === 'Binance Pay' ? setDepositTxId(e.target.value) : setDepositPhoneRef(e.target.value)}
                         placeholder={depositPaymentMethod === 'Binance Pay' ? "Ex. 29108429012" : "Ex. email@example.com"}
                         required
-                        className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
+                        className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
                       />
                       {depositPaymentMethod === 'Binance Pay' ? (
                         <CreditCard className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
@@ -2405,7 +2405,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     }}
                     className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${
                       isDragActive 
-                        ? 'border-[#a855f7] bg-[#a855f7]/5 text-[var(--tt-accent)]' 
+                        ? 'border-[var(--tt-accent)] bg-[var(--tt-accent)]/5 text-[var(--tt-accent)]' 
                         : depositScreenshot 
                           ? 'border-emerald-500 bg-emerald-500/[0.02] text-emerald-400' 
                           : 'border-[var(--tt-border)] hover:border-[var(--tt-border)] bg-black/10 text-[var(--tt-text-muted)]'
@@ -2454,7 +2454,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <button
                   type="submit"
                   disabled={submittingDeposit}
-                  className="mt-2 w-full py-3.5 bg-[#a855f7] hover:bg-orange-500 text-black font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="mt-2 w-full py-3.5 bg-[var(--tt-accent)] hover:bg-orange-500 text-[var(--tt-on-accent)] font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {submittingDeposit ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -2494,7 +2494,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                                 onClick={() => setCryptoAmountUsd(amt)}
                                 className={`py-2 rounded-lg text-center transition-all border ${
                                   cryptoAmountUsd === amt
-                                    ? 'bg-[#a855f7]/10 border-[#a855f7] text-[var(--tt-accent)]'
+                                    ? 'bg-[var(--tt-accent)]/10 border-[var(--tt-accent)] text-[var(--tt-accent)]'
                                     : 'bg-[var(--tt-surface-2)] border-[var(--tt-border)] text-[var(--tt-text-muted)] hover:bg-[var(--tt-surface-2)]'
                                 }`}
                               >
@@ -2511,7 +2511,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                               min="5"
                               max="1000"
                               inputMode="numeric"
-                              className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pr-12 font-bold"
+                              className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pr-12 font-bold"
                             />
                             <span className="text-[var(--tt-text-faint)] absolute right-4 top-3.5 text-xs font-black">USD</span>
                           </div>
@@ -2523,7 +2523,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                           type="button"
                           onClick={handleCreateCryptoInvoice}
                           disabled={creatingCryptoInvoice || !cryptoAmountUsd}
-                          className="mt-1 w-full py-3.5 bg-[#a855f7] hover:bg-orange-500 text-black font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                          className="mt-1 w-full py-3.5 bg-[var(--tt-accent)] hover:bg-orange-500 text-[var(--tt-on-accent)] font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                         >
                           {creatingCryptoInvoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Coins className="w-4 h-4" />}
                           <span>{creatingCryptoInvoice ? 'Génération...' : 'Générer une facture de paiement'}</span>
@@ -2532,7 +2532,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     ) : (
                       <div className="flex flex-col gap-3">
                         <div className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-2xl p-4 flex flex-col items-center gap-3 text-center">
-                          <div className="w-10 h-10 rounded-xl bg-[#a855f7]/10 flex items-center justify-center text-[var(--tt-accent)]">
+                          <div className="w-10 h-10 rounded-xl bg-[var(--tt-accent)]/10 flex items-center justify-center text-[var(--tt-accent)]">
                             <Loader2 className="w-5 h-5 animate-spin" />
                           </div>
                           <div>
@@ -2545,7 +2545,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                             href={cryptoInvoice.paymentUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full py-3 bg-[#a855f7] hover:bg-orange-500 text-black font-black text-xs rounded-xl transition-all flex items-center justify-center gap-2"
+                            className="w-full py-3 bg-[var(--tt-accent)] hover:bg-orange-500 text-[var(--tt-on-accent)] font-black text-xs rounded-xl transition-all flex items-center justify-center gap-2"
                           >
                             <ExternalLink className="w-4 h-4" />
                             Payer maintenant
@@ -2578,7 +2578,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#1c1030] border border-[var(--tt-border)] w-full max-w-sm rounded-3xl p-6 relative text-center flex flex-col items-center gap-4 text-xs"
+              className="bg-[var(--tt-surface)] border border-[var(--tt-border)] w-full max-w-sm rounded-3xl p-6 relative text-center flex flex-col items-center gap-4 text-xs"
             >
               <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-[var(--tt-accent)]">
                 <AlertTriangle className="w-6 h-6" />
@@ -2610,7 +2610,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#1c1030] border border-[var(--tt-border)] w-full max-w-md rounded-3xl p-6 relative text-xs"
+              className="bg-[var(--tt-surface)] border border-[var(--tt-border)] w-full max-w-md rounded-3xl p-6 relative text-xs"
             >
               <button 
                 onClick={() => setPasswordModalOpen(false)}
@@ -2650,7 +2650,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
                     />
                     <Lock className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                     <button
@@ -2674,7 +2674,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all pl-10"
                     />
                     <Lock className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                   </div>
@@ -2683,7 +2683,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <button
                   type="submit"
                   disabled={changingPassword}
-                  className="mt-2 w-full py-3.5 bg-[#a855f7] hover:bg-orange-500 text-black font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="mt-2 w-full py-3.5 bg-[var(--tt-accent)] hover:bg-orange-500 text-[var(--tt-on-accent)] font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {changingPassword ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -2710,7 +2710,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#1c1030] border border-[var(--tt-border)] w-full max-w-sm rounded-3xl p-6 relative text-center flex flex-col items-center gap-4 text-xs font-semibold"
+              className="bg-[var(--tt-surface)] border border-[var(--tt-border)] w-full max-w-sm rounded-3xl p-6 relative text-center flex flex-col items-center gap-4 text-xs font-semibold"
             >
               {/* Le vrai logo, pas un placeholder texte : le dégradé violet-orange
                   ne correspondait plus à la palette depuis l'alignement sur les tokens. */}
@@ -2773,7 +2773,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#1c1030] border border-[var(--tt-border)] w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl p-6 relative text-xs"
+              className="bg-[var(--tt-surface)] border border-[var(--tt-border)] w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl p-6 relative text-xs"
             >
               <button
                 onClick={() => setKycModalOpen(false)}
@@ -2813,7 +2813,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     onChange={(e) => setKycFullName(e.target.value)}
                     placeholder="Ex. Jean Baptiste"
                     required
-                    className="w-full bg-[#0c0714] border border-[var(--tt-border)] focus:border-[#a855f7] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all"
+                    className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all"
                   />
                 </div>
 
@@ -2864,7 +2864,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <button
                   type="submit"
                   disabled={submittingKyc || !kycIdFile || !kycSelfieFile || !kycFullName.trim()}
-                  className="w-full py-3.5 bg-[#a855f7] hover:bg-orange-500 disabled:opacity-40 disabled:cursor-not-allowed text-black font-black text-xs rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3.5 bg-[var(--tt-accent)] hover:bg-orange-500 disabled:opacity-40 disabled:cursor-not-allowed text-[var(--tt-on-accent)] font-black text-xs rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {submittingKyc ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
                   <span>{submittingKyc ? 'Envoi...' : 'Soumettre pour vérification'}</span>
@@ -2890,7 +2890,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-6 right-6 z-50 bg-[#1c1030] border border-[var(--tt-border)] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold"
+            className="fixed bottom-6 right-6 z-50 bg-[var(--tt-surface)] border border-[var(--tt-border)] px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold"
           >
             <div className={`p-1.5 rounded-lg ${notificationsEnabled ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
               <Bell className="w-4 h-4" />

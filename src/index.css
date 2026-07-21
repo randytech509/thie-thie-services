@@ -57,12 +57,23 @@
   --tt-surface-2: #1f1338;
   --tt-surface-3: #2a1a48;
   --tt-border: rgba(255, 255, 255, 0.08);
+  /* Bordure appuyée : états survolés et contours à mettre en avant, là où le
+     code figé montait de white/[0.08] à white/20. Un seul --tt-border aurait
+     aplati cette hiérarchie. */
+  --tt-border-strong: rgba(255, 255, 255, 0.2);
   --tt-text: #f5f7fa;
   --tt-text-muted: #93a1b8;
   /* #667088 ne donnait que 3.71:1 sur --tt-surface : conforme pour du texte large,
      PAS pour les libellés 9-11 px sur lesquels il est employé. WCAG AA = 4.5:1. */
   --tt-text-faint: #78839b;
   --tt-accent: #a855f7;
+  /* Texte POSÉ SUR --tt-accent. Doit s'inverser avec lui : l'accent sombre
+     (#a855f7) est clair, donc il porte du texte foncé (5.31:1 en noir, contre
+     3.96:1 en blanc) ; l'accent clair (#9333ea) est foncé et c'est l'exact
+     inverse (3.90 vs 5.38). Sans ce token, tout texte fixe sur un bouton
+     d'accent échoue dans l'un des deux thèmes.
+     #1a0526 plutôt que du noir pur : 4.85:1, conforme, et garde la teinte. */
+  --tt-on-accent: #1a0526;
   --tt-accent-ink: #e9d5ff;
   --tt-accent-soft: rgba(168, 85, 247, 0.14);
   /* Alignés sur la palette sémantique redéfinie plus haut (jade / vermillon / ambre). */
@@ -88,11 +99,13 @@ body.light {
   --tt-surface-2: #eef1f6;
   --tt-surface-3: #e4e8f0;
   --tt-border: #e1e5ee;
+  --tt-border-strong: #b9c1d1;
   --tt-text: #10131a;
   --tt-text-muted: #5b6478;
   /* #8891a3 = 3.17:1 sur blanc et 2.96:1 sur --tt-bg : sous le seuil AA. */
   --tt-text-faint: #646d7d;
   --tt-accent: #9333ea;
+  --tt-on-accent: #ffffff; /* 5.38:1 sur #9333ea */
   --tt-accent-ink: #4a1d75;
   --tt-accent-soft: #f3e8ff;
   /* Mêmes familles qu'en sombre, mais assombries pour le fond clair : le jade et le
@@ -238,215 +251,20 @@ body.light .tt-skeleton::after {
 .tt-toast { animation: tt-toast-in 0.22s ease-out; }
 .tt-toast-bar { animation: tt-toast-bar linear forwards; }
 
-/* ==========================================
-   HIGH-CONTRAST LIGHT MODE THEME OVERRIDES
-   ========================================== */
-
-body.light {
-  background-color: #f1f5f9 !important;
-  color: #0c0714 !important;
+/* Barre de défilement — via les tokens, donc valable dans les deux thèmes.
+   Elle n'était stylée qu'en mode clair : le mode sombre héritait de la barre
+   par défaut du navigateur. */
+::-webkit-scrollbar-track {
+  background: var(--tt-bg);
 }
 
-/* Base backgrounds */
-body.light .bg-\[\#0c0714\] {
-  background-color: #f8fafc !important;
+::-webkit-scrollbar-thumb {
+  background: var(--tt-border-strong);
+  border-radius: 4px;
 }
 
-body.light .bg-\[\#1c1030\] {
-  background-color: #ffffff !important;
-}
-
-body.light .bg-\[\#0c1017\] {
-  background-color: #f1f5f9 !important;
-}
-
-/* Semi-transparent backgrounds */
-body.light .bg-\[\#1c1030\]\/50 {
-  background-color: rgba(255, 255, 255, 0.7) !important;
-}
-
-body.light .bg-\[\#1c1030\]\/80 {
-  background-color: rgba(255, 255, 255, 0.85) !important;
-}
-
-body.light .bg-\[\#0c0714\]\/95 {
-  background-color: rgba(248, 250, 252, 0.95) !important;
-}
-
-body.light .bg-\[\#0c0714\]\/80 {
-  background-color: rgba(248, 250, 252, 0.8) !important;
-}
-
-/* Texts and titles */
-body.light .text-white {
-  color: #0c0714 !important;
-}
-
-body.light .text-white\/90 {
-  color: rgba(15, 23, 42, 0.9) !important;
-}
-
-body.light .text-white\/80 {
-  color: rgba(15, 23, 42, 0.8) !important;
-}
-
-body.light .text-white\/70 {
-  color: rgba(15, 23, 42, 0.7) !important;
-}
-
-body.light .text-white\/60 {
-  color: rgba(15, 23, 42, 0.6) !important;
-}
-
-body.light .text-white\/50 {
-  color: rgba(15, 23, 42, 0.5) !important;
-}
-
-body.light .text-white\/40 {
-  color: rgba(15, 23, 42, 0.4) !important;
-}
-
-body.light .text-white\/30 {
-  color: rgba(15, 23, 42, 0.3) !important;
-}
-
-body.light .text-white\/20 {
-  color: rgba(15, 23, 42, 0.25) !important;
-}
-
-body.light .text-\[\#c9d1d9\] {
-  color: #334155 !important;
-}
-
-/* Keep dark text on orange and vibrant CTA buttons */
-body.light .text-\[\#0c0714\] {
-  color: #0c0714 !important;
-}
-
-body.light .text-black {
-  color: #000000 !important;
-}
-
-/* Borders and lines */
-body.light .border-white\/\[0\.08\] {
-  border-color: #cbd5e1 !important;
-}
-
-body.light .border-white\/\[0\.06\] {
-  border-color: #e2e8f0 !important;
-}
-
-body.light .border-white\/\[0\.05\] {
-  border-color: #f1f5f9 !important;
-}
-
-body.light .border-white\/\[0\.1\] {
-  border-color: #94a3b8 !important;
-}
-
-/* Skeletons & placeholders */
-body.light .bg-slate-900 {
-  background-color: #e2e8f0 !important;
-}
-
-body.light .bg-slate-950 {
-  background-color: #cbd5e1 !important;
-}
-
-/* Gradients mapping to light theme backgrounds */
-body.light .from-\[\#0c0714\] {
-  --tw-gradient-from: #f1f5f9 !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(241, 245, 249, 0)) !important;
-}
-
-body.light .via-\[\#0c0714\]\/90 {
-  --tw-gradient-stops: var(--tw-gradient-from), rgba(241, 245, 249, 0.9) 50%, var(--tw-gradient-to, rgba(241, 245, 249, 0)) !important;
-}
-
-body.light .to-\[\#0c0714\] {
-  --tw-gradient-to: #f1f5f9 !important;
-}
-
-body.light .from-\[\#1c1030\] {
-  --tw-gradient-from: #ffffff !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(255, 255, 255, 0)) !important;
-}
-
-/* Hover and transitions on interactive elements */
-body.light .hover\:bg-white\/\[0\.04\]:hover {
-  background-color: rgba(15, 23, 42, 0.05) !important;
-}
-
-body.light .hover\:bg-white\/\[0\.02\]:hover {
-  background-color: rgba(15, 23, 42, 0.02) !important;
-}
-
-body.light .hover\:text-white:hover {
-  color: #0c0714 !important;
-}
-
-/* Dropdown/popover custom shadows to feel floaty in light mode */
-body.light .shadow-2xl {
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.12) !important;
-}
-
-/* Input elements placeholders */
-body.light ::placeholder {
-  color: rgba(15, 23, 42, 0.4) !important;
-}
-body.light .placeholder-white\/30::placeholder {
-  color: rgba(15, 23, 42, 0.4) !important;
-}
-body.light .placeholder-white\/40::placeholder {
-  color: rgba(15, 23, 42, 0.5) !important;
-}
-
-/* Footer & other dark layouts */
-body.light .bg-\[\#0b0e14\] {
-  background-color: #f8fafc !important;
-  border-top-color: #e2e8f0 !important;
-}
-
-body.light .bg-\[\#111827\]\/95 {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  border-color: rgba(15, 23, 42, 0.1) !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
-}
-
-body.light .bg-\[\#1c1030\]\/90 {
-  background-color: rgba(255, 255, 255, 0.9) !important;
-}
-
-body.light .bg-\[\#1c1030\]\/85 {
-  background-color: rgba(255, 255, 255, 0.85) !important;
-}
-
-body.light .bg-black\/40 {
-  background-color: rgba(15, 23, 42, 0.08) !important;
-  color: #0c0714 !important;
-}
-
-/* Fix specific texts on light backgrounds */
-body.light .hover\:text-[#a855f7]:hover {
-  color: #7e22ce !important;
-}
-
-body.light .text-[#c9d1d9] {
-  color: #475569 !important;
-}
-
-/* Scrollbar styles for light mode */
-body.light ::-webkit-scrollbar-track {
-  background: #f1f5f9 !important;
-}
-
-body.light ::-webkit-scrollbar-thumb {
-  background: #cbd5e1 !important;
-  border-radius: 4px !important;
-}
-
-body.light ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8 !important;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tt-text-faint);
 }
 
 /* Chiffres tabulaires : prix, soldes et compteurs alignés → pas de décalage de
@@ -473,18 +291,37 @@ body.light ::-webkit-scrollbar-thumb:hover {
   }
 }
 
-/* ── Sections TOUJOURS sombres (fond image/dégradé) : garder le texte CLAIR en mode jour,
-   sinon le texte s'assombrit (body.light .text-white) sur un fond resté sombre = illisible. */
-body.light #hero-slider-section [class*="text-white"],
-body.light #hero-slider-section h1,
-body.light #hero-slider-section h2,
-body.light #hero-slider-section p,
-body.light .keep-dark [class*="text-white"] {
-  color: #fff !important;
-}
-/* Le fond du hero reste sombre en mode jour (il porte une image) — ne pas l'éclaircir. */
-body.light #hero-slider-section {
-  color: #fff;
+/* ── Sections TOUJOURS sombres : elles portent une image et un voile noir, donc
+   leur fond ne s'éclaircit pas en mode jour et leur texte doit rester clair.
+
+   Ces règles ciblaient `[class*="text-white"]`. Ce sélecteur ne fonctionne plus
+   depuis que le contenu est passé aux tokens : il n'y a plus de classe
+   `text-white` à accrocher, et un `--tt-text` devenu sombre s'écrirait en noir
+   sur l'image. On redéclare donc les tokens eux-mêmes sur ces conteneurs : tout
+   descendant qui les utilise obtient les valeurs sombres, sans énumérer de
+   balises ni de classes. Les valeurs reprennent celles du thème sombre. */
+#hero-slider-section,
+.keep-dark {
+  /* Les SURFACES aussi, et pas seulement les textes : une île à moitié sombre
+     est pire que pas d'île du tout. Vérifié à l'écran — les flèches du
+     carrousel gardaient un cercle --tt-surface-2 resté blanc en mode clair
+     sous un glyphe --tt-text déjà repassé en clair : blanc sur blanc. */
+  --tt-bg: #0a0510;
+  --tt-surface: #171029;
+  --tt-surface-2: #1f1338;
+  --tt-surface-3: #2a1a48;
+  --tt-text: #f5f7fa;
+  --tt-text-muted: #d7dee9;
+  --tt-text-faint: #b3bccb;
+  --tt-border: rgba(255, 255, 255, 0.14);
+  --tt-border-strong: rgba(255, 255, 255, 0.28);
+  --tt-overlay: rgba(255, 255, 255, 0.04);
+  --tt-overlay-strong: rgba(255, 255, 255, 0.09);
+  /* L'accent aussi : sur fond sombre c'est la variante claire qui porte, et
+     c'est donc le texte foncé qui va dessus. */
+  --tt-accent: #a855f7;
+  --tt-on-accent: #1a0526;
+  color: var(--tt-text);
 }
 
 

@@ -171,13 +171,13 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
     return (
       <div className="min-h-screen bg-[var(--tt-bg)] text-[var(--tt-text)] flex items-center justify-center p-4">
         <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl w-full max-w-sm p-8 text-center flex flex-col items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#a855f7]/15 flex items-center justify-center"><Fingerprint className="w-7 h-7 text-[var(--tt-accent)]" /></div>
+          <div className="w-14 h-14 rounded-2xl bg-[var(--tt-accent)]/15 flex items-center justify-center"><Fingerprint className="w-7 h-7 text-[var(--tt-accent)]" /></div>
           <div>
             <h1 className="text-xl font-black">Back-office protégé</h1>
             <p className="text-sm text-[var(--tt-text-muted)] mt-1">Vérifie ton identité avec ton passkey pour continuer.</p>
           </div>
           {pkMsg && <p className="text-xs font-bold text-red-400">{pkMsg}</p>}
-          <button onClick={doVerifyPasskey} disabled={pkBusy} className="w-full bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">
+          <button onClick={doVerifyPasskey} disabled={pkBusy} className="w-full bg-[var(--tt-accent)] hover:bg-[#b56ff5] disabled:opacity-40 text-[var(--tt-on-accent)] font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">
             {pkBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Fingerprint className="w-4 h-4" />} Déverrouiller
           </button>
           <button onClick={() => navigateToPage('home')} className="text-xs text-[var(--tt-text-faint)] hover:text-[var(--tt-text)]">Retour au site</button>
@@ -200,9 +200,9 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
             const badge = t.id === 'orders' ? ordersToFulfill.length : t.id === 'deposits' ? depositsPending.length : t.id === 'kyc' ? kycPending.length : 0;
             return (
               <button key={t.id} onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-colors ${tab === t.id ? 'bg-[#a855f7] text-black' : 'text-[var(--tt-text-muted)] hover:bg-[var(--tt-overlay)]'}`}>
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-colors ${tab === t.id ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)]' : 'text-[var(--tt-text-muted)] hover:bg-[var(--tt-overlay)]'}`}>
                 <Icon className="w-4 h-4" /> {t.label}
-                {badge > 0 && <span className={`ml-auto text-[10px] rounded-full px-1.5 ${tab === t.id ? 'bg-[var(--tt-surface-2)]' : 'bg-[#a855f7] text-black'}`}>{badge}</span>}
+                {badge > 0 && <span className={`ml-auto text-[10px] rounded-full px-1.5 ${tab === t.id ? 'bg-[var(--tt-surface-2)]' : 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)]'}`}>{badge}</span>}
               </button>
             );
           })}
@@ -210,7 +210,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
       </aside>
 
       <main className="flex-1 min-w-0 p-4 lg:p-8">
-        {toast && <div className="fixed top-6 right-6 z-50 bg-[#1c1030] border border-[#a855f7] rounded-xl px-4 py-3 text-sm font-bold shadow-2xl">{toast}</div>}
+        {toast && <div className="fixed top-6 right-6 z-50 bg-[var(--tt-surface)] border border-[var(--tt-accent)] rounded-xl px-4 py-3 text-sm font-bold shadow-2xl">{toast}</div>}
 
         {tab === 'dashboard' && (
           <div>
@@ -245,7 +245,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                   {o.fulfilledAt || o.deliveryCode ? (
                     <span className="text-[10px] font-black text-emerald-400 shrink-0 flex items-center gap-1"><Check className="w-3 h-3" />Livré{o.emailSent === false ? ' (e-mail KO)' : ''}</span>
                   ) : (
-                    <button onClick={() => { setFx(o); setFxCode(''); setFxInstr(''); }} className="shrink-0 bg-[#a855f7] hover:bg-[#b56ff5] text-black text-[11px] font-black uppercase rounded-lg px-3 py-1.5">Livrer</button>
+                    <button onClick={() => { setFx(o); setFxCode(''); setFxInstr(''); }} className="shrink-0 bg-[var(--tt-accent)] hover:bg-[#b56ff5] text-[var(--tt-on-accent)] text-[11px] font-black uppercase rounded-lg px-3 py-1.5">Livrer</button>
                   )}
                 </div>
               ))}
@@ -266,7 +266,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <button disabled={busy === d.id} onClick={() => doReviewDeposit(d.id, 'approve')} className="bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40">{busy === d.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}Approuver</button>
-                    <button disabled={busy === d.id} onClick={() => doReviewDeposit(d.id, 'reject')} className="bg-red-500/80 hover:bg-red-500 text-white text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40"><X className="w-3 h-3" />Rejeter</button>
+                    <button disabled={busy === d.id} onClick={() => doReviewDeposit(d.id, 'reject')} className="bg-red-500/80 hover:bg-red-500 text-[var(--tt-text)] text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40"><X className="w-3 h-3" />Rejeter</button>
                   </div>
                 </div>
               ))}
@@ -287,7 +287,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <button disabled={busy === k.id} onClick={() => doReviewKyc(k.id, 'approve')} className="bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40">{busy === k.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}Approuver</button>
-                    <button disabled={busy === k.id} onClick={() => doReviewKyc(k.id, 'reject')} className="bg-red-500/80 hover:bg-red-500 text-white text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40"><X className="w-3 h-3" />Rejeter</button>
+                    <button disabled={busy === k.id} onClick={() => doReviewKyc(k.id, 'reject')} className="bg-red-500/80 hover:bg-red-500 text-[var(--tt-text)] text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40"><X className="w-3 h-3" />Rejeter</button>
                   </div>
                 </div>
               ))}
@@ -399,7 +399,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
             <h2 className="text-2xl font-black mb-4">Sécurité</h2>
             <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-[#a855f7]/15 flex items-center justify-center"><Fingerprint className="w-5 h-5 text-[var(--tt-accent)]" /></div>
+                <div className="w-10 h-10 rounded-xl bg-[var(--tt-accent)]/15 flex items-center justify-center"><Fingerprint className="w-5 h-5 text-[var(--tt-accent)]" /></div>
                 <div>
                   <h3 className="font-black text-sm">Passkey (WebAuthn)</h3>
                   <p className="text-[11px] text-[var(--tt-text-muted)]">{hasPasskey ? 'Actif — le back-office exige une vérification biométrique.' : 'Aucun passkey. Le back-office n\'est pas encore protégé par step-up.'}</p>
@@ -408,7 +408,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
               </div>
               <p className="text-[11px] text-[var(--tt-text-faint)] mb-3">Un passkey (empreinte / Face ID, stocké par Google Password Manager, Apple ou 1Password) protège l'accès au back-office et les actions sensibles (livraison, dépôts, KYC, paramètres). Tu peux en enregistrer plusieurs (téléphone + ordinateur).</p>
               {pkMsg && <p className="text-xs font-bold text-[var(--tt-accent)] mb-2">{pkMsg}</p>}
-              <button onClick={doEnrollPasskey} disabled={pkBusy} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">
+              <button onClick={doEnrollPasskey} disabled={pkBusy} className="bg-[var(--tt-accent)] hover:bg-[#b56ff5] disabled:opacity-40 text-[var(--tt-on-accent)] font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">
                 {pkBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}{hasPasskey ? 'Ajouter un autre passkey' : 'Enregistrer un passkey'}
               </button>
             </div>
@@ -427,9 +427,9 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
               </div>
               <button onClick={() => setFx(null)} className="p-2 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-overlay-strong)]" aria-label="Fermer"><X className="w-4 h-4" /></button>
             </div>
-            <input value={fxCode} onChange={(e) => setFxCode(e.target.value)} placeholder="Code / PIN" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 font-mono text-sm focus:border-[#a855f7] outline-none" />
-            <textarea value={fxInstr} onChange={(e) => setFxInstr(e.target.value)} rows={3} placeholder="Instructions d'application (optionnel)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none resize-none" />
-            <button onClick={doFulfill} disabled={busy === 'fulfill' || !fxCode.trim()} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3">{busy === 'fulfill' ? 'Envoi…' : 'Envoyer le code'}</button>
+            <input value={fxCode} onChange={(e) => setFxCode(e.target.value)} placeholder="Code / PIN" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 font-mono text-sm focus:border-[var(--tt-accent)] outline-none" />
+            <textarea value={fxInstr} onChange={(e) => setFxInstr(e.target.value)} rows={3} placeholder="Instructions d'application (optionnel)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[var(--tt-accent)] outline-none resize-none" />
+            <button onClick={doFulfill} disabled={busy === 'fulfill' || !fxCode.trim()} className="bg-[var(--tt-accent)] hover:bg-[#b56ff5] disabled:opacity-40 text-[var(--tt-on-accent)] font-black uppercase text-sm rounded-xl py-3">{busy === 'fulfill' ? 'Envoi…' : 'Envoyer le code'}</button>
           </div>
         </div>
       )}
@@ -463,8 +463,8 @@ function AdminSettings({ flash }: { flash: (m: string) => void }) {
           <h3 className="font-black text-sm mb-1">Taux de change (HTG pour 1 USD)</h3>
           <p className="text-[11px] text-[var(--tt-text-faint)] mb-3">Utilisé pour convertir les prix. Doit rester cohérent avec le catalogue.</p>
           <div className="flex gap-2">
-            <input value={rate} onChange={(e) => setRate(e.target.value)} type="number" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm w-32 focus:border-[#a855f7] outline-none" />
-            <button onClick={saveFx} disabled={busy} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4">Enregistrer</button>
+            <input value={rate} onChange={(e) => setRate(e.target.value)} type="number" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm w-32 focus:border-[var(--tt-accent)] outline-none" />
+            <button onClick={saveFx} disabled={busy} className="bg-[var(--tt-accent)] hover:bg-[#b56ff5] disabled:opacity-40 text-[var(--tt-on-accent)] font-black text-sm rounded-xl px-4">Enregistrer</button>
           </div>
         </div>
       </div>
@@ -477,10 +477,10 @@ function AdminSettings({ flash }: { flash: (m: string) => void }) {
             ['binancePayId', 'Binance Pay ID'], ['paypalEmail', 'PayPal — e-mail'],
           ].map(([k, label]) => (
             <input key={k} placeholder={label} value={(dep as any)[k]} onChange={(e) => setDep({ ...dep, [k]: e.target.value })}
-              className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+              className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[var(--tt-accent)] outline-none" />
           ))}
         </div>
-        <button onClick={saveDep} disabled={busy} className="mt-3 bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4 py-2.5">Enregistrer les coordonnées</button>
+        <button onClick={saveDep} disabled={busy} className="mt-3 bg-[var(--tt-accent)] hover:bg-[#b56ff5] disabled:opacity-40 text-[var(--tt-on-accent)] font-black text-sm rounded-xl px-4 py-2.5">Enregistrer les coordonnées</button>
         <p className="text-[10px] text-[var(--tt-text-faint)] mt-2">Laisse un champ vide pour ne pas l'écraser n'est pas supporté — remplis tous les champs.</p>
       </div>
     </div>
@@ -553,8 +553,8 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
       <div>
         <h2 className="text-2xl font-black mb-4 flex items-center gap-2"><Bell className="w-5 h-5 text-[var(--tt-accent)]" />Envoyer un push</h2>
         <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 flex flex-col gap-3">
-          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre" maxLength={60} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
-          <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message" rows={2} maxLength={160} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm resize-none focus:border-[#a855f7] outline-none" />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre" maxLength={60} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[var(--tt-accent)] outline-none" />
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message" rows={2} maxLength={160} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm resize-none focus:border-[var(--tt-accent)] outline-none" />
           {/* Image d'aperçu : upload direct (Storage public) OU coller une URL */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -564,11 +564,11 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
               </label>
               {imageUrl && <button onClick={() => setImageUrl('')} className="text-[var(--tt-text-faint)] hover:text-red-400 text-xs font-bold">retirer</button>}
             </div>
-            <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="…ou colle une URL d'image (optionnel)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+            <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="…ou colle une URL d'image (optionnel)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[var(--tt-accent)] outline-none" />
             {imageUrl && <img src={imageUrl} alt="aperçu" className="rounded-lg max-h-28 w-auto object-cover border border-[var(--tt-border)]" />}
           </div>
-          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Lien au clic (ex. page promo)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
-          <button onClick={send} disabled={sending} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}Envoyer à tous</button>
+          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Lien au clic (ex. page promo)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[var(--tt-accent)] outline-none" />
+          <button onClick={send} disabled={sending} className="bg-[var(--tt-accent)] hover:bg-[#b56ff5] disabled:opacity-40 text-[var(--tt-on-accent)] font-black uppercase text-sm rounded-xl py-3 flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}Envoyer à tous</button>
           <p className="text-[10px] text-[var(--tt-text-faint)]">Le push affiche titre + message + image ; le HTML riche va sur une page promo (ci-contre) vers laquelle pointe le lien.</p>
         </div>
       </div>
@@ -580,10 +580,10 @@ function AdminNotifications({ flash, uid }: { flash: (m: string) => void; uid: s
           <button onClick={newPromo} className="text-xs font-black bg-[var(--tt-overlay)] hover:bg-[var(--tt-overlay-strong)] rounded-lg px-3 py-1.5">+ Nouvelle</button>
         </div>
         <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 flex flex-col gap-3">
-          <input value={pTitle} onChange={(e) => setPTitle(e.target.value)} placeholder="Titre de la page" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
-          <textarea value={pHtml} onChange={(e) => setPHtml(e.target.value)} placeholder="<h1>Ma promo</h1><p>Contenu HTML…</p>" rows={7} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs font-mono resize-y focus:border-[#a855f7] outline-none" />
+          <input value={pTitle} onChange={(e) => setPTitle(e.target.value)} placeholder="Titre de la page" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[var(--tt-accent)] outline-none" />
+          <textarea value={pHtml} onChange={(e) => setPHtml(e.target.value)} placeholder="<h1>Ma promo</h1><p>Contenu HTML…</p>" rows={7} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs font-mono resize-y focus:border-[var(--tt-accent)] outline-none" />
           <label className="flex items-center gap-2 text-xs font-bold"><input type="checkbox" checked={pPub} onChange={(e) => setPPub(e.target.checked)} /> Publiée (visible publiquement)</label>
-          <button onClick={save} disabled={pBusy} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl py-2.5">{pBusy ? 'Enregistrement…' : (pId ? 'Mettre à jour' : 'Créer la page')}</button>
+          <button onClick={save} disabled={pBusy} className="bg-[var(--tt-accent)] hover:bg-[#b56ff5] disabled:opacity-40 text-[var(--tt-on-accent)] font-black text-sm rounded-xl py-2.5">{pBusy ? 'Enregistrement…' : (pId ? 'Mettre à jour' : 'Créer la page')}</button>
         </div>
         {promos.length > 0 && (
           <div className="mt-3 flex flex-col gap-2">
@@ -664,13 +664,13 @@ function AdminSupplier({ flash }: { flash: (m: string) => void }) {
       <h3 className="font-black text-sm mb-2">Mapper un produit du catalogue → Reloadly</h3>
       <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 flex flex-col gap-3">
         <div className="flex gap-2">
-          <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && search()} placeholder="Chercher un produit Reloadly (ex. Steam, Google Play, App Store)" className="flex-1 bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[#a855f7] outline-none" />
-          <button onClick={search} disabled={searching} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl px-4">{searching ? '…' : 'Chercher'}</button>
+          <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && search()} placeholder="Chercher un produit Reloadly (ex. Steam, Google Play, App Store)" className="flex-1 bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-sm focus:border-[var(--tt-accent)] outline-none" />
+          <button onClick={search} disabled={searching} className="bg-[var(--tt-accent)] hover:bg-[#b56ff5] disabled:opacity-40 text-[var(--tt-on-accent)] font-black text-sm rounded-xl px-4">{searching ? '…' : 'Chercher'}</button>
         </div>
         {results.length > 0 && (
           <div className="max-h-52 overflow-y-auto flex flex-col gap-1">
             {results.map((p) => (
-              <button key={p.productId} onClick={() => pick(p)} className={`text-left rounded-lg px-3 py-2 text-xs border ${sel?.productId === p.productId ? 'border-[#a855f7] bg-[#a855f7]/10' : 'border-[var(--tt-border)] hover:bg-[var(--tt-overlay)]'}`}>
+              <button key={p.productId} onClick={() => pick(p)} className={`text-left rounded-lg px-3 py-2 text-xs border ${sel?.productId === p.productId ? 'border-[var(--tt-accent)] bg-[var(--tt-accent)]/10' : 'border-[var(--tt-border)] hover:bg-[var(--tt-overlay)]'}`}>
                 <span className="font-bold text-[var(--tt-text)]">{p.productName}</span> <span className="text-[var(--tt-text-faint)]">· {p.recipientCurrencyCode} · {p.countryCode} · {p.denominationType}{p.discountPercentage ? ` · -${p.discountPercentage}%` : ''}</span>
                 {p.denominationType === 'FIXED' && <span className="block text-[var(--tt-text-faint)]">dénoms : {(p.fixedRecipientDenominations || []).join(', ')}</span>}
               </button>
@@ -680,10 +680,10 @@ function AdminSupplier({ flash }: { flash: (m: string) => void }) {
         {sel && (
           <div className="border-t border-[var(--tt-border)] pt-3 flex flex-col gap-2">
             <p className="text-xs text-[var(--tt-text-muted)]">Sélectionné : <strong className="text-[var(--tt-accent)]">{sel.productName}</strong> (id {sel.productId})</p>
-            <input value={catId} onChange={(e) => setCatId(e.target.value)} placeholder="ID produit catalogue (ex. apple-gift-card__0)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs font-mono focus:border-[#a855f7] outline-none" />
-            <input value={unit} onChange={(e) => setUnit(e.target.value)} placeholder={`Montant à commander (${sel.recipientCurrencyCode})`} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[#a855f7] outline-none" />
+            <input value={catId} onChange={(e) => setCatId(e.target.value)} placeholder="ID produit catalogue (ex. apple-gift-card__0)" className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs font-mono focus:border-[var(--tt-accent)] outline-none" />
+            <input value={unit} onChange={(e) => setUnit(e.target.value)} placeholder={`Montant à commander (${sel.recipientCurrencyCode})`} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-xl px-3 py-2.5 text-xs focus:border-[var(--tt-accent)] outline-none" />
             <label className="flex items-center gap-2 text-xs font-bold"><input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} /> Livraison automatique dès qu'une commande est payée</label>
-            <button onClick={save} disabled={saving} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-sm rounded-xl py-2.5">{saving ? 'Enregistrement…' : 'Mapper ce produit'}</button>
+            <button onClick={save} disabled={saving} className="bg-[var(--tt-accent)] hover:bg-[#b56ff5] disabled:opacity-40 text-[var(--tt-on-accent)] font-black text-sm rounded-xl py-2.5">{saving ? 'Enregistrement…' : 'Mapper ce produit'}</button>
           </div>
         )}
         <p className="text-[10px] text-[var(--tt-text-faint)]">Les recharges jeu (Free Fire, PUBG…) ne sont pas des cartes Reloadly → laisse-les sans mapping, elles restent en livraison manuelle.</p>
@@ -973,7 +973,7 @@ function AdminManualProducts({ flash }: { flash: (m: string) => void }) {
                 <input type="number" value={edits[p.id]?.stock ?? ''} onChange={(e) => setEdits({ ...edits, [p.id]: { ...edits[p.id], stock: e.target.value } })} className={inputCls} /></label>
               <label className="flex flex-col gap-0.5"><span className="text-[9px] text-[var(--tt-text-faint)] font-bold uppercase">Prix HTG</span>
                 <input type="number" value={edits[p.id]?.priceHtg ?? ''} onChange={(e) => setEdits({ ...edits, [p.id]: { ...edits[p.id], priceHtg: e.target.value } })} className={inputCls} /></label>
-              <button onClick={() => save(p)} disabled={busy === p.id} className="bg-[#a855f7] hover:bg-[#b56ff5] disabled:opacity-40 text-black font-black text-xs rounded-lg px-3 py-1.5">{busy === p.id ? '…' : 'Enregistrer'}</button>
+              <button onClick={() => save(p)} disabled={busy === p.id} className="bg-[var(--tt-accent)] hover:bg-[#b56ff5] disabled:opacity-40 text-[var(--tt-on-accent)] font-black text-xs rounded-lg px-3 py-1.5">{busy === p.id ? '…' : 'Enregistrer'}</button>
               <button onClick={() => toggle(p)} disabled={busy === p.id} className="bg-[var(--tt-overlay)] hover:bg-[var(--tt-overlay-strong)] disabled:opacity-40 text-[var(--tt-text)] font-bold text-xs rounded-lg px-3 py-1.5">{p.available === false ? 'Afficher' : 'Masquer'}</button>
               <button onClick={() => remove(p)} disabled={busy === p.id} className="text-[var(--tt-text-faint)] hover:text-red-400 p-1.5" aria-label="Supprimer"><Trash2 className="w-3.5 h-3.5" /></button>
             </div>

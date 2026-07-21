@@ -47,7 +47,7 @@ export function ConsentBanner({ lang }: { lang: 'FR' | 'HT' }) {
         </button>
         <button
           onClick={() => { grantAndInit(); setVisible(false); }}
-          className="flex-1 rounded-xl bg-[var(--tt-accent)] px-4 py-2.5 text-xs font-bold text-white hover:opacity-90 transition-opacity"
+          className="flex-1 rounded-xl bg-[var(--tt-accent)] px-4 py-2.5 text-xs font-bold text-[var(--tt-on-accent)] hover:opacity-90 transition-opacity"
         >
           {t('Accepter', 'Aksepte')}
         </button>

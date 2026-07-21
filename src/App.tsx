@@ -73,7 +73,7 @@ const PromoPage = lazy(() => import('./components/PromoPage').then((m) => ({ def
 /** Écran d'attente pendant le chargement d'un module différé. */
 const LazyFallback = () => (
   <div className="min-h-[60vh] flex items-center justify-center">
-    <div className="w-8 h-8 rounded-full border-2 border-[#a855f7] border-t-transparent animate-spin" role="status" aria-label="Chargement" />
+    <div className="w-8 h-8 rounded-full border-2 border-[var(--tt-accent)] border-t-transparent animate-spin" role="status" aria-label="Chargement" />
   </div>
 );
 import { ThieThieLogo } from './components/ThieThieLogo';
@@ -953,13 +953,13 @@ function ProductImageWithSkeleton({
     <div className={`relative overflow-hidden w-full h-full bg-[var(--tt-surface-2)] ${className}`}>
       {/* Skeleton overlay */}
       {!loaded && (
-        <div className="absolute inset-0 z-10 bg-[#0c0714] flex flex-col items-center justify-center">
+        <div className="absolute inset-0 z-10 bg-[var(--tt-bg)] flex flex-col items-center justify-center">
           {/* Shimmer sweep */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full animate-shimmer" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--tt-overlay-strong)] to-transparent -translate-x-full animate-shimmer" />
           
           {/* Pulsing indicator icon */}
-          <div className="w-8 h-8 rounded-full bg-white/[0.03] border border-white/[0.06] flex items-center justify-center animate-pulse">
-            <Gamepad2 className="w-4 h-4 text-white/20" />
+          <div className="w-8 h-8 rounded-full bg-[var(--tt-overlay)] border border-[var(--tt-border)] flex items-center justify-center animate-pulse">
+            <Gamepad2 className="w-4 h-4 text-[var(--tt-text-faint)]" />
           </div>
         </div>
       )}
@@ -980,9 +980,9 @@ function ProductImageWithSkeleton({
       />
 
       {error && (
-        <div className="absolute inset-0 z-10 bg-[#0c0714] flex flex-col items-center justify-center p-4 text-center">
-          <Info className="w-5 h-5 text-white/30 mb-1" />
-          <span className="text-[9px] text-white/40 uppercase tracking-wider">Image indisponible</span>
+        <div className="absolute inset-0 z-10 bg-[var(--tt-bg)] flex flex-col items-center justify-center p-4 text-center">
+          <Info className="w-5 h-5 text-[var(--tt-text-faint)] mb-1" />
+          <span className="text-[9px] text-[var(--tt-text-faint)] uppercase tracking-wider">Image indisponible</span>
         </div>
       )}
     </div>
@@ -1137,7 +1137,7 @@ export default function App() {
   const getLoyaltyLevel = (points: number) => {
     if (points < 250) return { nameFR: 'Joueur Bronze', nameHT: 'Jwè Bronze', color: 'text-amber-600', bg: 'bg-amber-500/10 border-amber-500/20' };
     if (points < 1000) return { nameFR: 'Gamer d\'Argent', nameHT: 'Jwè Argant', color: 'text-slate-400', bg: 'bg-slate-400/10 border-slate-400/20' };
-    if (points < 2500) return { nameFR: 'Champion d\'Or', nameHT: 'Chanpyon Lò', color: 'text-[#c084fc]', bg: 'bg-[#c084fc]/10 border-[#c084fc]/20' };
+    if (points < 2500) return { nameFR: 'Champion d\'Or', nameHT: 'Chanpyon Lò', color: 'text-[var(--tt-accent)]', bg: 'bg-[#c084fc]/10 border-[#c084fc]/20' };
     return { nameFR: 'Légende Thie Thie', nameHT: 'Lejann Thie Thie', color: 'text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' };
   };
 
@@ -2775,15 +2775,15 @@ export default function App() {
         <div className="relative flex items-center justify-center w-28 h-28 mb-4">
           <ThieThieLogo variant="icon" size={110} animated={true} />
         </div>
-        <h2 className="text-xl font-extrabold text-white mt-6 tracking-wider bg-gradient-to-r from-[var(--tt-text)] via-[var(--tt-text)] to-[var(--tt-accent)] bg-clip-text text-transparent uppercase font-sans">
+        <h2 className="text-xl font-extrabold text-[var(--tt-text)] mt-6 tracking-wider bg-gradient-to-r from-[var(--tt-text)] via-[var(--tt-text)] to-[var(--tt-accent)] bg-clip-text text-transparent uppercase font-sans">
           THIE THIE SERVICES
         </h2>
-        <p className="text-[10px] text-white/50 mt-2 font-mono uppercase tracking-widest">
+        <p className="text-[10px] text-[var(--tt-text-muted)] mt-2 font-mono uppercase tracking-widest">
           SÉCURISATION DU PROFIL...
         </p>
-        <div className="flex items-center gap-2 mt-6 px-4 py-2 bg-white/[0.02] border border-white/[0.05] rounded-full">
+        <div className="flex items-center gap-2 mt-6 px-4 py-2 bg-[var(--tt-overlay)] border border-[var(--tt-border)] rounded-full">
           <Loader2 className="w-4 h-4 text-[var(--tt-accent)] animate-spin" />
-          <span className="text-xs font-semibold text-white/60">Veuillez patienter</span>
+          <span className="text-xs font-semibold text-[var(--tt-text-muted)]">Veuillez patienter</span>
         </div>
       </div>
     );
@@ -2809,16 +2809,16 @@ export default function App() {
 
   if (!user && isAuthPage) {
     return (
-      <div className="min-h-screen bg-[var(--tt-bg)] text-white flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
+      <div className="min-h-screen bg-[var(--tt-bg)] text-[var(--tt-text)] flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
         {/* Le bandeau doit AUSSI vivre ici : cette branche retourne tôt et court-circuite la
             mise en page principale. Sans lui, l'écran d'entrée — celui où l'on perd le plus de
             visiteurs — ne serait jamais mesuré, faute d'avoir pu poser la question. */}
         <ConsentBanner lang={lang} />
         {/* Ambient background glows */}
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#a855f7]/5 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[var(--tt-accent)]/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#7c3aed]/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <div className="w-full max-w-md bg-[#1c1030]/85 backdrop-blur-xl border border-white/[0.08] rounded-3xl shadow-2xl p-6 md:p-8 relative z-10">
+        <div className="w-full max-w-md bg-[var(--tt-surface)]/85 backdrop-blur-xl border border-[var(--tt-border)] rounded-3xl shadow-2xl p-6 md:p-8 relative z-10">
           
           {/* WELCOME SCREEN */}
           {currentPage === 'welcome' && (
@@ -2835,7 +2835,7 @@ export default function App() {
                 Gaming Recharge & Points
               </span>
 
-              <p className="text-sm text-white/60 mt-6 leading-relaxed max-w-sm">
+              <p className="text-sm text-[var(--tt-text-muted)] mt-6 leading-relaxed max-w-sm">
                 {lang === 'FR' 
                   ? 'Connectez-vous pour commencer à recharger vos jeux favoris et accumuler des points Thie Thie !' 
                   : 'Konekte pou n kòmanse achte kredi jwèt ou yo epi fè pwen Thie Thie !'
@@ -2847,7 +2847,7 @@ export default function App() {
                 <button
                   id="welcome-signin-btn"
                   onClick={() => { setCurrentPage('login-screen'); setLoginError(null); }}
-                  className="w-full bg-[#a855f7] hover:bg-[#c084fc] text-black font-extrabold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer"
+                  className="w-full bg-[var(--tt-accent)] hover:bg-[#c084fc] text-[var(--tt-on-accent)] font-extrabold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer"
                 >
                   <Lock className="w-4 h-4" />
                   <span>{lang === 'FR' ? 'Se Connecter' : 'Konekte'}</span>
@@ -2856,7 +2856,7 @@ export default function App() {
                 <button
                   id="welcome-signup-btn"
                   onClick={() => { setCurrentPage('register-screen'); setRegisterError(null); }}
-                  className="w-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/20 text-white font-extrabold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 hover:-translate-y-0.5 transition-all cursor-pointer"
+                  className="w-full bg-[var(--tt-overlay-strong)] hover:bg-[var(--tt-overlay-strong)] border border-[var(--tt-border)] hover:border-[var(--tt-border-strong)] text-[var(--tt-text)] font-extrabold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 hover:-translate-y-0.5 transition-all cursor-pointer"
                 >
                   <UserCheck className="w-4 h-4 text-[var(--tt-accent)]" />
                   <span>{lang === 'FR' ? 'Créer un Compte' : 'Kreye yon Kont'}</span>
@@ -2864,9 +2864,9 @@ export default function App() {
 
                 {/* Divider */}
                 <div className="flex items-center my-3.5 select-none">
-                  <div className="flex-grow border-t border-white/[0.08]"></div>
-                  <span className="px-4 text-[10px] font-mono text-white/35 uppercase tracking-widest">OU</span>
-                  <div className="flex-grow border-t border-white/[0.08]"></div>
+                  <div className="flex-grow border-t border-[var(--tt-border)]"></div>
+                  <span className="px-4 text-[10px] font-mono text-[var(--tt-text-faint)] uppercase tracking-widest">OU</span>
+                  <div className="flex-grow border-t border-[var(--tt-border)]"></div>
                 </div>
 
                 {/* Continue with Google */}
@@ -2874,7 +2874,7 @@ export default function App() {
                   id="welcome-google-btn"
                   onClick={handleGoogleSignIn}
                   disabled={authLoading}
-                  className="w-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-surface-3)] border border-white/[0.08] hover:border-white/15 text-white font-bold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer"
+                  className="w-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-surface-3)] border border-[var(--tt-border)] hover:border-[var(--tt-border-strong)] text-[var(--tt-text)] font-bold text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {authLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -2905,7 +2905,7 @@ export default function App() {
                 <button
                   id="welcome-guest-btn"
                   onClick={() => setCurrentPage('home')}
-                  className="w-full mt-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border border-amber-500/30 hover:border-amber-500/50 text-[var(--tt-accent)] font-black text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 transition-all cursor-pointer"
+                  className="w-full mt-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 border border-[var(--tt-warn)]/30 hover:border-[var(--tt-warn)]/50 text-[var(--tt-accent)] font-black text-sm py-4 rounded-2xl text-center flex items-center justify-center gap-2.5 transition-all cursor-pointer"
                 >
                   <Globe className="w-4 h-4 text-[var(--tt-accent)]" />
                   <span>{lang === 'FR' ? 'Visiter la boutique (Invité)' : 'Vizite boutik la (Envite)'}</span>
@@ -2920,22 +2920,22 @@ export default function App() {
               <div className="flex items-center gap-3.5 mb-6">
                 <button
                   onClick={() => { setCurrentPage('welcome'); setLoginError(null); }}
-                  className="p-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] text-white transition-colors"
+                  className="p-2.5 rounded-xl bg-[var(--tt-overlay-strong)] border border-[var(--tt-border)] hover:bg-[var(--tt-overlay-strong)] text-[var(--tt-text)] transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
                 <div>
-                  <h2 className="text-xl font-black text-white leading-tight">
+                  <h2 className="text-xl font-black text-[var(--tt-text)] leading-tight">
                     {lang === 'FR' ? 'Se Connecter' : 'Konekte ou'}
                   </h2>
-                  <p className="text-xs text-white/50 font-medium font-sans">
+                  <p className="text-xs text-[var(--tt-text-muted)] font-medium font-sans">
                     {lang === 'FR' ? 'Accédez à votre compte gamer' : 'Antre sou kont jwè ou'}
                   </p>
                 </div>
               </div>
 
               {loginError && (
-                <div className="mb-4 bg-red-500/10 border border-red-500/20 text-red-400 p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2">
+                <div className="mb-4 bg-[var(--tt-danger)]/10 border border-[var(--tt-danger)]/20 text-[var(--tt-danger)] p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 shrink-0" />
                   <span>{loginError}</span>
                 </div>
@@ -2943,7 +2943,7 @@ export default function App() {
 
               <form onSubmit={handleEmailSignInSubmit} className="flex flex-col gap-4">
                 <div>
-                  <label className="block text-[10px] text-white/40 uppercase tracking-wider font-extrabold mb-1.5">
+                  <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-wider font-extrabold mb-1.5">
                     {lang === 'FR' ? 'Adresse E-mail' : 'Adrès Imel'}
                   </label>
                   <div className="relative">
@@ -2953,15 +2953,15 @@ export default function App() {
                       onChange={(e) => setLoginEmail(e.target.value)}
                       placeholder="gamer@gmail.com"
                       required
-                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
-                    <Mail className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                    <Mail className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between items-center mb-1.5">
-                    <label className="block text-[10px] text-white/40 uppercase tracking-wider font-extrabold">
+                    <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-wider font-extrabold">
                       {lang === 'FR' ? 'Mot de passe' : 'Mo de pas'}
                     </label>
                     <button
@@ -2979,16 +2979,16 @@ export default function App() {
                       onChange={(e) => setLoginPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
-                    <Lock className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                    <Lock className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                   </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={authLoading}
-                  className="w-full mt-2 bg-[#a855f7] hover:bg-[#c084fc] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full mt-2 bg-[var(--tt-accent)] hover:bg-[#c084fc] text-[var(--tt-on-accent)] font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {authLoading ? (
                     <>
@@ -3006,16 +3006,16 @@ export default function App() {
 
               {/* Divider */}
               <div className="flex items-center my-4 select-none">
-                <div className="flex-grow border-t border-white/[0.08]"></div>
-                <span className="px-4 text-[10px] font-mono text-white/35">OU</span>
-                <div className="flex-grow border-t border-white/[0.08]"></div>
+                <div className="flex-grow border-t border-[var(--tt-border)]"></div>
+                <span className="px-4 text-[10px] font-mono text-[var(--tt-text-faint)]">OU</span>
+                <div className="flex-grow border-t border-[var(--tt-border)]"></div>
               </div>
 
               {/* Google Sign-In */}
               <button
                 onClick={handleGoogleSignIn}
                 disabled={authLoading}
-                className="w-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-surface-3)] border border-white/[0.08] hover:border-white/15 text-white font-bold text-sm py-3.5 rounded-xl text-center flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer"
+                className="w-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-surface-3)] border border-[var(--tt-border)] hover:border-[var(--tt-border-strong)] text-[var(--tt-text)] font-bold text-sm py-3.5 rounded-xl text-center flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                   <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -3034,22 +3034,22 @@ export default function App() {
               <div className="flex items-center gap-3.5 mb-6">
                 <button
                   onClick={() => { setCurrentPage('welcome'); setRegisterError(null); }}
-                  className="p-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] text-white transition-colors"
+                  className="p-2.5 rounded-xl bg-[var(--tt-overlay-strong)] border border-[var(--tt-border)] hover:bg-[var(--tt-overlay-strong)] text-[var(--tt-text)] transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
                 <div>
-                  <h2 className="text-xl font-black text-white leading-tight">
+                  <h2 className="text-xl font-black text-[var(--tt-text)] leading-tight">
                     {lang === 'FR' ? "S'inscrire" : 'Kreye yon Kont'}
                   </h2>
-                  <p className="text-xs text-white/50 font-medium">
+                  <p className="text-xs text-[var(--tt-text-muted)] font-medium">
                     {lang === 'FR' ? 'Créez votre profil joueur gratuit' : 'Kreye pwofil jwè gratis ou a'}
                   </p>
                 </div>
               </div>
 
               {registerError && (
-                <div className="mb-4 bg-red-500/10 border border-red-500/20 text-red-400 p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2">
+                <div className="mb-4 bg-[var(--tt-danger)]/10 border border-[var(--tt-danger)]/20 text-[var(--tt-danger)] p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 shrink-0" />
                   <span>{registerError}</span>
                 </div>
@@ -3057,7 +3057,7 @@ export default function App() {
 
               <form onSubmit={handleEmailSignUpSubmit} className="flex flex-col gap-4">
                 <div>
-                  <label className="block text-[10px] text-white/40 uppercase tracking-wider font-extrabold mb-1.5">
+                  <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-wider font-extrabold mb-1.5">
                     {lang === 'FR' ? 'Nom Complet' : 'Non Konplè'}
                   </label>
                   <div className="relative">
@@ -3067,14 +3067,14 @@ export default function App() {
                       onChange={(e) => setRegisterFullName(e.target.value)}
                       placeholder="e.g. Jean Baptiste"
                       required
-                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
-                    <User className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                    <User className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] text-white/40 uppercase tracking-wider font-extrabold mb-1.5">
+                  <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-wider font-extrabold mb-1.5">
                     {lang === 'FR' ? 'Adresse E-mail' : 'Adrès Imel'}
                   </label>
                   <div className="relative">
@@ -3084,14 +3084,14 @@ export default function App() {
                       onChange={(e) => setRegisterEmail(e.target.value)}
                       placeholder="gamer@gmail.com"
                       required
-                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
-                    <Mail className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                    <Mail className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] text-white/40 uppercase tracking-wider font-extrabold mb-1.5">
+                  <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-wider font-extrabold mb-1.5">
                     {lang === 'FR' ? 'Mot de passe' : 'Mo de pas'}
                   </label>
                   <div className="relative">
@@ -3101,14 +3101,14 @@ export default function App() {
                       onChange={(e) => setRegisterPassword(e.target.value)}
                       placeholder="•••••••• (Min. 8 car.)"
                       required
-                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
-                    <Lock className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                    <Lock className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] text-white/40 uppercase tracking-wider font-extrabold mb-1.5">
+                  <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-wider font-extrabold mb-1.5">
                     {lang === 'FR' ? 'Confirmer le mot de passe' : 'Konfime mo de pas la'}
                   </label>
                   <div className="relative">
@@ -3118,16 +3118,16 @@ export default function App() {
                       onChange={(e) => setRegisterConfirmPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none pl-10"
                     />
-                    <Lock className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                    <Lock className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                   </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={authLoading}
-                  className="w-full mt-2 bg-[#a855f7] hover:bg-[#c084fc] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full mt-2 bg-[var(--tt-accent)] hover:bg-[#c084fc] text-[var(--tt-on-accent)] font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {authLoading ? (
                     <>
@@ -3151,22 +3151,22 @@ export default function App() {
               <div className="flex items-center gap-3.5 mb-6">
                 <button
                   onClick={() => { setCurrentPage('login-screen'); setForgotError(null); setForgotSuccess(false); }}
-                  className="p-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] text-white transition-colors"
+                  className="p-2.5 rounded-xl bg-[var(--tt-overlay-strong)] border border-[var(--tt-border)] hover:bg-[var(--tt-overlay-strong)] text-[var(--tt-text)] transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
                 <div>
-                  <h2 className="text-xl font-black text-white leading-tight">
+                  <h2 className="text-xl font-black text-[var(--tt-text)] leading-tight">
                     {lang === 'FR' ? 'Mot de passe oublié' : 'Mo de pas bliye'}
                   </h2>
-                  <p className="text-xs text-white/50 font-medium">
+                  <p className="text-xs text-[var(--tt-text-muted)] font-medium">
                     {lang === 'FR' ? 'Récupérez votre mot de passe' : 'Rekipere mo de pas ou'}
                   </p>
                 </div>
               </div>
 
               {forgotError && (
-                <div className="mb-4 bg-red-500/10 border border-red-500/20 text-red-400 p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2">
+                <div className="mb-4 bg-[var(--tt-danger)]/10 border border-[var(--tt-danger)]/20 text-[var(--tt-danger)] p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 shrink-0" />
                   <span>{forgotError}</span>
                 </div>
@@ -3174,13 +3174,13 @@ export default function App() {
 
               {forgotSuccess ? (
                 <div className="text-center py-6 flex flex-col items-center">
-                  <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4 animate-bounce">
+                  <div className="w-14 h-14 rounded-full bg-[var(--tt-good)]/10 border border-[var(--tt-good)]/20 flex items-center justify-center text-[var(--tt-good)] mb-4 animate-bounce">
                     <Check className="w-6 h-6" />
                   </div>
-                  <h3 className="text-base font-extrabold text-white">
+                  <h3 className="text-base font-extrabold text-[var(--tt-text)]">
                     {lang === 'FR' ? 'E-mail envoyé !' : 'Imel la voye !'}
                   </h3>
-                  <p className="text-xs text-white/60 mt-2 max-w-xs leading-relaxed">
+                  <p className="text-xs text-[var(--tt-text-muted)] mt-2 max-w-xs leading-relaxed">
                     {lang === 'FR' 
                       ? 'Un lien de réinitialisation a été envoyé à votre adresse e-mail. Veuillez vérifier votre boîte de réception.' 
                       : 'Nou voye yon lyen pou chanje mo de pas la sou imel ou. Tanpri verifye bwat mesaj ou.'
@@ -3188,14 +3188,14 @@ export default function App() {
                   </p>
                   <button
                     onClick={() => { setCurrentPage('login-screen'); setForgotSuccess(false); }}
-                    className="mt-6 w-full py-3.5 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/20 text-white text-xs font-extrabold rounded-xl transition-all cursor-pointer"
+                    className="mt-6 w-full py-3.5 bg-[var(--tt-overlay-strong)] hover:bg-[var(--tt-overlay-strong)] border border-[var(--tt-border)] hover:border-[var(--tt-border-strong)] text-[var(--tt-text)] text-xs font-extrabold rounded-xl transition-all cursor-pointer"
                   >
                     {lang === 'FR' ? 'Retour à la connexion' : 'Retounen nan koneksyon'}
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleForgotPasswordSubmit} className="flex flex-col gap-4">
-                  <p className="text-xs text-white/60 leading-relaxed mb-2">
+                  <p className="text-xs text-[var(--tt-text-muted)] leading-relaxed mb-2">
                     {lang === 'FR' 
                       ? 'Entrez votre adresse e-mail ci-dessous et nous vous enverrons un lien pour réinitialiser votre mot de passe.' 
                       : 'Antre imel ou anba a epi n ap voye yon lyen pou w ka chanje mo de pas ou.'
@@ -3203,7 +3203,7 @@ export default function App() {
                   </p>
 
                   <div>
-                    <label className="block text-[10px] text-white/40 uppercase tracking-wider font-extrabold mb-1.5">
+                    <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-wider font-extrabold mb-1.5">
                       {lang === 'FR' ? 'Adresse E-mail' : 'Adrès Imel'}
                     </label>
                     <div className="relative">
@@ -3213,16 +3213,16 @@ export default function App() {
                         onChange={(e) => setForgotEmail(e.target.value)}
                         placeholder="gamer@gmail.com"
                         required
-                        className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                        className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none pl-10"
                       />
-                      <Mail className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                      <Mail className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                     </div>
                   </div>
 
                   <button
                     type="submit"
                     disabled={authLoading}
-                    className="w-full mt-2 bg-[#a855f7] hover:bg-[#c084fc] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
+                    className="w-full mt-2 bg-[var(--tt-accent)] hover:bg-[#c084fc] text-[var(--tt-on-accent)] font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
                   >
                     {authLoading ? (
                       <>
@@ -3283,13 +3283,13 @@ export default function App() {
       <div className="flex-1 min-w-0 flex flex-col justify-between pb-16 lg:pb-0">
 
       {/* GLOBAL TICKER / MOCK RATE INFO */}
-      <div className="bg-gradient-to-r from-[#a855f7]/10 via-[#7c3aed]/10 to-[#8b5cf6]/10 text-xs py-1.5 px-4 text-center border-b border-white/[0.05] flex justify-center items-center gap-4 text-[#c9d1d9] overflow-hidden select-none">
+      <div className="bg-gradient-to-r from-[#a855f7]/10 via-[#7c3aed]/10 to-[#8b5cf6]/10 text-xs py-1.5 px-4 text-center border-b border-[var(--tt-border)] flex justify-center items-center gap-4 text-[var(--tt-text-muted)] overflow-hidden select-none">
         <span className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-[#a855f7] animate-pulse"></span>
-          Taux du Jour: <strong className="text-white">1 USD = {exchangeRate} HTG</strong>
+          <span className="w-2 h-2 rounded-full bg-[var(--tt-accent)] animate-pulse"></span>
+          Taux du Jour: <strong className="text-[var(--tt-text)]">1 USD = {exchangeRate} HTG</strong>
         </span>
-        <span className="hidden md:inline text-white/40">|</span>
-        <span className="hidden md:inline flex items-center gap-1 text-white">
+        <span className="hidden md:inline text-[var(--tt-text-faint)]">|</span>
+        <span className="hidden md:inline flex items-center gap-1 text-[var(--tt-text)]">
           <Zap className="w-3.5 h-3.5" /> Livraison garantie en moins de 5 min dans votre compte
         </span>
       </div>
@@ -3299,7 +3299,7 @@ export default function App() {
         id="navbar-sticky"
         className={`sticky top-0 z-50 transition-all duration-300 border-b ${
           scrolled
-            ? 'bg-[#0c0714]/95 backdrop-blur-md shadow-xl border-white/[0.08] py-3'
+            ? 'bg-[var(--tt-bg)]/95 backdrop-blur-md shadow-xl border-[var(--tt-border)] py-3'
             : 'bg-transparent border-transparent py-5'
         }`}
       >
@@ -3350,13 +3350,13 @@ export default function App() {
                     (e.target as HTMLInputElement).blur();
                   }
                 }}
-                className="bg-[#1c1030]/80 border border-white/[0.08] text-xs px-4 py-2 pl-9 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-[#a855f7]/50 focus:ring-1 focus:ring-[#a855f7]/20 w-36 lg:w-52 transition-all"
+                className="bg-[var(--tt-surface)]/80 border border-[var(--tt-border)] text-xs px-4 py-2 pl-9 rounded-xl text-[var(--tt-text)] placeholder-[var(--tt-text-faint)] focus:outline-none focus:border-[var(--tt-accent)]/50 focus:ring-1 focus:ring-[#a855f7]/20 w-36 lg:w-52 transition-all"
               />
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-white/40" />
+              <Search className="absolute left-3 top-2.5 w-4 h-4 text-[var(--tt-text-faint)]" />
               
               {/* Dynamic Search Suggestions & Recent Searches Popover */}
               {showSearchSuggestions && (
-                <div className="absolute top-12 left-0 w-full bg-[#1c1030] border border-white/[0.08] rounded-xl shadow-2xl p-2 z-50 max-h-72 overflow-y-auto">
+                <div className="absolute top-12 left-0 w-full bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl shadow-2xl p-2 z-50 max-h-72 overflow-y-auto">
                   {searchQuery ? (
                     searchSuggestions.length > 0 ? (
                       searchSuggestions.map((p) => (
@@ -3368,23 +3368,23 @@ export default function App() {
                             setSelectedRegionIndex(0);
                             setSelectedAmountIndex(Math.floor(p.options.length / 2));
                           }}
-                          className="flex items-center gap-3 p-2 hover:bg-white/[0.04] rounded-lg cursor-pointer transition-colors"
+                          className="flex items-center gap-3 p-2 hover:bg-[var(--tt-overlay-strong)] rounded-lg cursor-pointer transition-colors"
                         >
                           <img src={p.image} className="w-8 h-8 rounded object-cover" alt="" referrerPolicy="no-referrer" />
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold truncate text-white">{p.name}</p>
-                            <p className="text-[10px] text-white/50">{priceLabel(p)}</p>
+                            <p className="text-xs font-bold truncate text-[var(--tt-text)]">{p.name}</p>
+                            <p className="text-[10px] text-[var(--tt-text-muted)]">{priceLabel(p)}</p>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <p className="text-[10px] text-white/50 p-2 text-center">Aucun résultat</p>
+                      <p className="text-[10px] text-[var(--tt-text-muted)] p-2 text-center">Aucun résultat</p>
                     )
                   ) : (
                     /* Display Recent Searches when focused but empty */
                     <div className="flex flex-col gap-1 p-1">
-                      <div className="flex items-center justify-between px-1 py-1 border-b border-white/[0.04] mb-1">
-                        <span className="text-[10px] uppercase tracking-wider font-extrabold text-white/40">
+                      <div className="flex items-center justify-between px-1 py-1 border-b border-[var(--tt-border)] mb-1">
+                        <span className="text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)]">
                           {lang === 'FR' ? 'Recherches récentes' : 'Chache ki sot pase yo'}
                         </span>
                         {recentSearches.length > 0 && (
@@ -3405,7 +3405,7 @@ export default function App() {
                         recentSearches.map((term, index) => (
                           <div
                             key={index}
-                            className="flex items-center justify-between p-2 hover:bg-white/[0.04] rounded-lg cursor-pointer transition-colors group/item"
+                            className="flex items-center justify-between p-2 hover:bg-[var(--tt-overlay-strong)] rounded-lg cursor-pointer transition-colors group/item"
                             onMouseDown={() => {
                               setSearchQuery(term);
                               if (currentPage !== 'category') {
@@ -3415,8 +3415,8 @@ export default function App() {
                             }}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <History className="w-3.5 h-3.5 text-white/30 group-hover/item:text-[var(--tt-accent)] transition-colors" />
-                              <span className="text-xs font-semibold text-white/85 truncate">{term}</span>
+                              <History className="w-3.5 h-3.5 text-[var(--tt-text-faint)] group-hover/item:text-[var(--tt-accent)] transition-colors" />
+                              <span className="text-xs font-semibold text-[var(--tt-text-muted)] truncate">{term}</span>
                             </div>
                             <button
                               onMouseDown={(e) => {
@@ -3428,14 +3428,14 @@ export default function App() {
                                   return updated;
                                 });
                               }}
-                              className="p-1 opacity-0 group-hover/item:opacity-100 text-white/35 hover:text-white transition-opacity"
+                              className="p-1 opacity-0 group-hover/item:opacity-100 text-[var(--tt-text-faint)] hover:text-[var(--tt-text)] transition-opacity"
                             >
                               <X className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         ))
                       ) : (
-                        <p className="text-[10px] text-white/35 p-3 text-center italic">
+                        <p className="text-[10px] text-[var(--tt-text-faint)] p-3 text-center italic">
                           {lang === 'FR' ? 'Aucune recherche récente' : 'Pa gen ankenn chache resan'}
                         </p>
                       )}
@@ -3446,13 +3446,13 @@ export default function App() {
             </div>
 
             {/* CURRENCY TOGGLE (USD / HTG) */}
-            <div id="currency-toggle-wrapper" className="flex bg-[#1c1030] border border-white/[0.08] rounded-xl p-[3px] select-none">
+            <div id="currency-toggle-wrapper" className="flex bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl p-[3px] select-none">
               <button
                 onClick={() => setCurrency('USD')}
                 className={`px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition-all ${
                   currency === 'USD'
-                    ? 'bg-[#a855f7] text-[#0c0714] shadow-md'
-                    : 'text-[#c9d1d9] hover:text-white'
+                    ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)] shadow-md'
+                    : 'text-[var(--tt-text-muted)] hover:text-[var(--tt-text)]'
                 }`}
               >
                 USD
@@ -3461,8 +3461,8 @@ export default function App() {
                 onClick={() => setCurrency('HTG')}
                 className={`px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition-all ${
                   currency === 'HTG'
-                    ? 'bg-[#a855f7] text-[#0c0714] shadow-md'
-                    : 'text-[#c9d1d9] hover:text-white'
+                    ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)] shadow-md'
+                    : 'text-[var(--tt-text-muted)] hover:text-[var(--tt-text)]'
                 }`}
               >
                 HTG
@@ -3470,11 +3470,11 @@ export default function App() {
             </div>
 
             {/* LANGUAGE SELECTOR (mobile — desktop l'a dans la Sidebar) */}
-            <div id="language-toggle-wrapper" className="lg:hidden flex bg-[#1c1030] border border-white/[0.08] rounded-xl p-[3px] select-none">
+            <div id="language-toggle-wrapper" className="lg:hidden flex bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl p-[3px] select-none">
               <button
                 onClick={() => setLang('FR')}
                 className={`px-2 py-1 text-[11px] font-bold rounded-lg transition-all ${
-                  lang === 'FR' ? 'bg-[#8b5cf6] text-white shadow-md' : 'text-[#c9d1d9] hover:text-white'
+                  lang === 'FR' ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)] shadow-md' : 'text-[var(--tt-text-muted)] hover:text-[var(--tt-text)]'
                 }`}
               >
                 FR
@@ -3482,7 +3482,7 @@ export default function App() {
               <button
                 onClick={() => setLang('HT')}
                 className={`px-2 py-1 text-[11px] font-bold rounded-lg transition-all ${
-                  lang === 'HT' ? 'bg-[#8b5cf6] text-white shadow-md' : 'text-[#c9d1d9] hover:text-white'
+                  lang === 'HT' ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)] shadow-md' : 'text-[var(--tt-text-muted)] hover:text-[var(--tt-text)]'
                 }`}
               >
                 HT
@@ -3492,7 +3492,7 @@ export default function App() {
             {/* THEME TOGGLE (mobile — desktop l'a dans la Sidebar) */}
             <button
               onClick={toggleTheme}
-              className="lg:hidden p-2 bg-[#1c1030] border border-white/[0.08] rounded-xl text-[#c9d1d9] hover:text-white hover:bg-white/[0.04] transition-all flex items-center justify-center active:scale-95"
+              className="lg:hidden p-2 bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl text-[var(--tt-text-muted)] hover:text-[var(--tt-text)] hover:bg-[var(--tt-overlay-strong)] transition-all flex items-center justify-center active:scale-95"
               title={theme === 'dark' ? (lang === 'FR' ? 'Mode Clair' : 'Mòd Klè') : (lang === 'FR' ? 'Mode Sombre' : 'Mòd Fènwa')}
               aria-label="Toggle Theme"
             >
@@ -3515,7 +3515,7 @@ export default function App() {
             
             {/* HERO CAROUSEL */}
             <section id="hero-slider-section" className="relative max-w-7xl mx-auto px-4 mt-6">
-              <div className="relative h-[420px] md:h-[580px] lg:h-[650px] w-full rounded-3xl overflow-hidden shadow-2xl border border-white/[0.08]">
+              <div className="relative h-[420px] md:h-[580px] lg:h-[650px] w-full rounded-3xl overflow-hidden shadow-2xl border border-[var(--tt-border)]">
                 
                 {HERO_SLIDES.map((slide, idx) => {
                   const isActive = idx === currentHeroSlide;
@@ -3532,21 +3532,21 @@ export default function App() {
                       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-0" />
 
                       <div className="relative z-20 flex-1 h-full flex flex-col justify-center px-6 md:px-16 lg:px-24 text-left max-w-2xl">
-                        <span className="inline-flex items-center gap-1.5 bg-[#a855f7] text-black font-extrabold text-[10px] md:text-xs uppercase tracking-widest px-3 py-1 rounded-full mb-4 w-max">
+                        <span className="inline-flex items-center gap-1.5 bg-[var(--tt-accent)] text-[var(--tt-on-accent)] font-extrabold text-[10px] md:text-xs uppercase tracking-widest px-3 py-1 rounded-full mb-4 w-max">
                           <slide.subtitleIcon className="w-3 h-3 md:w-3.5 md:h-3.5" />
                           {slide.subtitle}
                         </span>
-                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tight mb-4 drop-shadow-md">
+                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-[var(--tt-text)] tracking-tight mb-4 drop-shadow-md">
                           {slide.title}
                         </h2>
-                        <p className="text-sm md:text-base text-white/80 max-w-lg mb-8 leading-relaxed font-medium">
+                        <p className="text-sm md:text-base text-[var(--tt-text-muted)] max-w-lg mb-8 leading-relaxed font-medium">
                           {lang === 'FR' ? slide.desc : slide.descHT}
                         </p>
                         
                         <div className="flex items-center gap-4">
                           <button
                             onClick={() => navigateToCategory(slide.slug)}
-                            className="bg-[#a855f7] hover:bg-[#a855f7]/90 text-[#0c0714] font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-xl hover:shadow-[#a855f7]/20 transition-all hover:-translate-y-0.5"
+                            className="bg-[var(--tt-accent)] hover:bg-[var(--tt-accent)]/90 text-[var(--tt-on-accent)] font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-xl hover:shadow-[#a855f7]/20 transition-all hover:-translate-y-0.5"
                           >
                             {slide.cta} {lang === 'FR' ? 'Maintenant' : 'Kounye a'}
                           </button>
@@ -3575,13 +3575,13 @@ export default function App() {
                   onClick={() =>
                     setCurrentHeroSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)
                   }
-                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[#a855f7] text-white hover:text-black flex items-center justify-center backdrop-blur-sm border border-white/10 hover:border-transparent transition-all"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-accent)] text-[var(--tt-text)] hover:text-[var(--tt-on-accent)] flex items-center justify-center backdrop-blur-sm border border-[var(--tt-border)] hover:border-transparent transition-all"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setCurrentHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[#a855f7] text-white hover:text-black flex items-center justify-center backdrop-blur-sm border border-white/10 hover:border-transparent transition-all"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-accent)] text-[var(--tt-text)] hover:text-[var(--tt-on-accent)] flex items-center justify-center backdrop-blur-sm border border-[var(--tt-border)] hover:border-transparent transition-all"
                 >
                   <ArrowRight className="w-5 h-5" />
                 </button>
@@ -3593,7 +3593,7 @@ export default function App() {
                       key={idx}
                       onClick={() => setCurrentHeroSlide(idx)}
                       className={`h-2.5 rounded-full transition-all duration-300 ${
-                        idx === currentHeroSlide ? 'bg-[#a855f7] w-8' : 'bg-white/40 w-2.5'
+                        idx === currentHeroSlide ? 'bg-[var(--tt-accent)] w-8' : 'bg-white/40 w-2.5'
                       }`}
                     />
                   ))}
@@ -3610,11 +3610,11 @@ export default function App() {
             >
               <div className="flex justify-between items-end mb-6">
                 <div>
-                  <h3 className="text-xl md:text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#a855f7] animate-pulse" />
+                  <h3 className="text-xl md:text-2xl font-black text-[var(--tt-text)] tracking-tight flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--tt-accent)] animate-pulse" />
                     {lang === 'FR' ? 'En Vedette' : 'Seksyon an Vedèt'}
                   </h3>
-                  <p className="text-xs text-white/50 mt-1">
+                  <p className="text-xs text-[var(--tt-text-muted)] mt-1">
                     {lang === 'FR' ? 'Accédez directement à nos univers gaming les plus populaires' : 'Aksè rapid sou pi bon kategori jwèt nou yo'}
                   </p>
                 </div>
@@ -3627,7 +3627,7 @@ export default function App() {
                         prev === 0 ? HIGHLIGHTED_CATEGORIES.length - 1 : prev - 1
                       );
                     }}
-                    className="w-10 h-10 rounded-xl bg-[#1c1030] border border-white/[0.08] text-white/70 hover:text-white hover:bg-[#a855f7] hover:text-black flex items-center justify-center transition-all shadow-md active:scale-95"
+                    className="w-10 h-10 rounded-xl bg-[var(--tt-surface)] border border-[var(--tt-border)] text-[var(--tt-text-muted)] hover:bg-[var(--tt-accent)] hover:text-[var(--tt-on-accent)] flex items-center justify-center transition-all shadow-md active:scale-95"
                     aria-label="Previous Highlight"
                   >
                     <ArrowLeft className="w-4 h-4" />
@@ -3636,7 +3636,7 @@ export default function App() {
                     onClick={() => {
                       setCategoryCarouselIndex((prev) => (prev + 1) % HIGHLIGHTED_CATEGORIES.length);
                     }}
-                    className="w-10 h-10 rounded-xl bg-[#1c1030] border border-white/[0.08] text-white/70 hover:text-white hover:bg-[#a855f7] hover:text-black flex items-center justify-center transition-all shadow-md active:scale-95"
+                    className="w-10 h-10 rounded-xl bg-[var(--tt-surface)] border border-[var(--tt-border)] text-[var(--tt-text-muted)] hover:bg-[var(--tt-accent)] hover:text-[var(--tt-on-accent)] flex items-center justify-center transition-all shadow-md active:scale-95"
                     aria-label="Next Highlight"
                   >
                     <ArrowRight className="w-4 h-4" />
@@ -3645,7 +3645,7 @@ export default function App() {
               </div>
 
               {/* Slider Viewport */}
-              <div className="overflow-hidden rounded-3xl border border-white/[0.06] bg-[#0c1017] relative group">
+              <div className="overflow-hidden rounded-3xl border border-[var(--tt-border)] bg-[var(--tt-bg)] relative group">
                 <div 
                   className="flex transition-transform duration-700 ease-out"
                   style={{
@@ -3671,7 +3671,7 @@ export default function App() {
                             className="w-full h-full object-cover object-center group-hover:scale-102 transition-transform duration-1000 opacity-30"
                             referrerPolicy="no-referrer"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-r from-[#0c0714] via-[#0c0714]/90 to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-r from-[var(--tt-bg)] via-[var(--tt-bg)]/90 to-transparent" />
                           <div className={`absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-gradient-to-tr ${cat.gradient} opacity-20 blur-3xl`} />
                         </div>
 
@@ -3688,12 +3688,12 @@ export default function App() {
                             </span>
                             
                             {/* Category Title */}
-                            <h4 className="text-xl md:text-3xl font-black text-white tracking-tight leading-none mb-2">
+                            <h4 className="text-xl md:text-3xl font-black text-[var(--tt-text)] tracking-tight leading-none mb-2">
                               {cat.name}
                             </h4>
                             
                             {/* Tagline */}
-                            <p className="text-xs md:text-sm text-white/60 font-medium">
+                            <p className="text-xs md:text-sm text-[var(--tt-text-muted)] font-medium">
                               {tagline}
                             </p>
                           </div>
@@ -3711,7 +3711,7 @@ export default function App() {
                         </div>
 
                         {/* Top corner slide index indicator for micro visual flair */}
-                        <div className="absolute top-6 right-8 text-[11px] font-mono text-white/20 font-bold">
+                        <div className="absolute top-6 right-8 text-[11px] font-mono text-[var(--tt-text-faint)] font-bold">
                           {String(idx + 1).padStart(2, '0')} / {String(HIGHLIGHTED_CATEGORIES.length).padStart(2, '0')}
                         </div>
                       </div>
@@ -3730,8 +3730,8 @@ export default function App() {
                       }}
                       className={`h-1.5 rounded-full transition-all duration-300 ${
                         idx === categoryCarouselIndex 
-                          ? 'bg-[#a855f7] w-6' 
-                          : 'bg-white/20 w-1.5 hover:bg-white/40'
+                          ? 'bg-[var(--tt-accent)] w-6' 
+                          : 'bg-[var(--tt-border-strong)] w-1.5 hover:bg-[var(--tt-text-faint)]'
                       }`}
                       aria-label={`Go to slide ${idx + 1}`}
                     />
@@ -3744,10 +3744,10 @@ export default function App() {
             <section id="categories-grid-section" className="max-w-7xl mx-auto px-4 mt-16">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
                 <div>
-                  <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                  <h3 className="text-2xl md:text-3xl font-black text-[var(--tt-text)] tracking-tight">
                     {lang === 'FR' ? 'Catégories Populaires' : 'Kategori ki Popilè yo'}
                   </h3>
-                  <p className="text-xs text-white/50 mt-1">
+                  <p className="text-xs text-[var(--tt-text-muted)] mt-1">
                     {lang === 'FR' ? 'Explorez nos recharges de jeux vidéo et abonnements' : 'Gade tout bèl sèvis nimerik ak jwèt videyo yo'}
                   </p>
                 </div>
@@ -3760,7 +3760,7 @@ export default function App() {
                     <TiltCard
                       key={cat.slug}
                       onClick={() => navigateToCategory(cat.slug)}
-                      className="group bg-[#1c1030] border border-white/[0.08] rounded-2xl p-5 overflow-hidden flex flex-col items-center text-center"
+                      className="group bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 overflow-hidden flex flex-col items-center text-center"
                     >
                       {/* background ambient glow */}
                       <div className={`absolute -right-8 -bottom-8 w-24 h-24 rounded-full bg-gradient-to-tr ${cat.gradient} opacity-5 blur-2xl group-hover:scale-125 transition-transform duration-500`} />
@@ -3769,10 +3769,10 @@ export default function App() {
                         <IconComponent className="w-6 h-6 text-black" />
                       </div>
 
-                      <h4 className="text-sm font-extrabold text-white group-hover:text-[var(--tt-accent)] transition-colors truncate w-full">
+                      <h4 className="text-sm font-extrabold text-[var(--tt-text)] group-hover:text-[var(--tt-accent)] transition-colors truncate w-full">
                         {cat.name}
                       </h4>
-                      <p className="text-[10px] text-white/40 font-semibold mt-1">
+                      <p className="text-[10px] text-[var(--tt-text-faint)] font-semibold mt-1">
                         {cat.count} Products
                       </p>
                     </TiltCard>
@@ -3784,10 +3784,10 @@ export default function App() {
             {/* EXCLUSIVE OFFERS */}
             <section id="exclusive-offers-section" className="max-w-7xl mx-auto px-4 mt-20">
               <div className="text-center mb-12">
-                <span className="text-[var(--tt-accent)] text-xs font-black tracking-widest uppercase bg-[#a855f7]/10 px-3.5 py-1.5 rounded-full">
+                <span className="text-[var(--tt-accent)] text-xs font-black tracking-widest uppercase bg-[var(--tt-accent)]/10 px-3.5 py-1.5 rounded-full">
                   {t('exclusiveTitle')}
                 </span>
-                <h3 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight mt-3">
+                <h3 className="text-2xl md:text-4xl font-extrabold text-[var(--tt-text)] tracking-tight mt-3">
                   {t('exclusiveSubtitle')}
                 </h3>
               </div>
@@ -3801,9 +3801,9 @@ export default function App() {
                       setSelectedRegionIndex(0);
                       setSelectedAmountIndex(Math.floor(p.options.length / 2));
                     }}
-                    className="group bg-[#1c1030] border border-white/[0.08] hover:border-[#a855f7]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-2xl"
+                    className="group bg-[var(--tt-surface)] border border-[var(--tt-border)] hover:border-[var(--tt-accent)]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-2xl"
                   >
-                    <div className="relative aspect-square overflow-hidden bg-slate-900">
+                    <div className="relative aspect-square overflow-hidden bg-[var(--tt-surface-2)]">
                       <ProductImageWithSkeleton
                         src={p.image}
                         alt={p.name}
@@ -3820,46 +3820,46 @@ export default function App() {
                       {/* Top Right Wishlist action button */}
                       <button
                         onClick={(e) => toggleWishlist(p.id, e)}
-                        className="absolute top-3 right-3 p-2 rounded-lg bg-[var(--tt-surface-2)] hover:bg-black/60 text-white backdrop-blur-sm transition-colors"
+                        className="absolute top-3 right-3 p-2 rounded-lg bg-[var(--tt-surface-2)] hover:bg-black/60 text-[var(--tt-text)] backdrop-blur-sm transition-colors"
                       >
                         <Heart
                           className={`w-4.5 h-4.5 ${
-                            wishlist.includes(p.id) ? 'fill-[#a855f7] text-[var(--tt-accent)]' : 'text-white'
+                            wishlist.includes(p.id) ? 'fill-[#a855f7] text-[var(--tt-accent)]' : 'text-[var(--tt-text)]'
                           }`}
                         />
                       </button>
 
                       {/* Rating Badge */}
-                      <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-[#0c0714]/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-[#c084fc]">
+                      <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-[var(--tt-bg)]/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-bold text-[var(--tt-accent)]">
                         <Star className="w-3 h-3 fill-current" />
                         <span>{p.rating}</span>
                       </div>
                     </div>
 
                     <div className="p-4">
-                      <p className="text-[10px] font-bold text-[#8b5cf6] uppercase tracking-wider">
+                      <p className="text-[10px] font-bold text-[var(--tt-accent)] uppercase tracking-wider">
                         {p.regions[0]}
                       </p>
-                      <h4 className="text-sm font-extrabold text-white mt-1 group-hover:text-[var(--tt-accent)] transition-colors truncate">
+                      <h4 className="text-sm font-extrabold text-[var(--tt-text)] mt-1 group-hover:text-[var(--tt-accent)] transition-colors truncate">
                         {p.name}
                       </h4>
                       
                       {/* Pricing Display */}
                       <div className="mt-3 flex items-baseline gap-2">
-                        <span className="text-base font-black text-white tabular-nums">
+                        <span className="text-base font-black text-[var(--tt-text)] tabular-nums">
                           {priceLabel(p)}
                         </span>
-                        <span className="text-xs text-white/40 line-through tabular-nums">
+                        <span className="text-xs text-[var(--tt-text-faint)] line-through tabular-nums">
                           {formatPrice(priceOf(p, 0) * 1.2)}
                         </span>
                       </div>
 
-                      <div className="mt-4 flex items-center justify-between gap-2 text-[10px] text-white/50 border-t border-white/[0.05] pt-3">
+                      <div className="mt-4 flex items-center justify-between gap-2 text-[10px] text-[var(--tt-text-muted)] border-t border-[var(--tt-border)] pt-3">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-[#c084fc]" />
+                          <Clock className="w-3.5 h-3.5 text-[var(--tt-accent)]" />
                           {p.deliveryTime}
                         </span>
-                        <span className="bg-[#12b98a]/10 text-[#12b98a] font-bold px-2 py-0.5 rounded-full uppercase">
+                        <span className="bg-[var(--tt-good)]/10 text-[var(--tt-good)] font-bold px-2 py-0.5 rounded-full uppercase">
                           {t('stock')}
                         </span>
                       </div>
@@ -3873,16 +3873,16 @@ export default function App() {
             <section id="recent-products-section" className="max-w-7xl mx-auto px-4 mt-20">
               <div className="flex justify-between items-end mb-8">
                 <div>
-                  <h3 className="text-xl md:text-3xl font-black text-white tracking-tight">
+                  <h3 className="text-xl md:text-3xl font-black text-[var(--tt-text)] tracking-tight">
                     {t('recentTitle')}
                   </h3>
-                  <p className="text-xs text-white/50 mt-1">
+                  <p className="text-xs text-[var(--tt-text-muted)] mt-1">
                     {lang === 'FR' ? 'Accès direct aux dernières nouveautés de recharge' : 'Rechaje jwèt ak dènye of yo fasil'}
                   </p>
                 </div>
                 <button
                   onClick={() => navigateToPage('category')}
-                  className="bg-white/[0.04] hover:bg-white/[0.08] text-white text-xs font-bold px-5 py-2.5 rounded-xl border border-white/[0.05] transition-all flex items-center gap-2"
+                  className="bg-[var(--tt-overlay-strong)] hover:bg-[var(--tt-overlay-strong)] text-[var(--tt-text)] text-xs font-bold px-5 py-2.5 rounded-xl border border-[var(--tt-border)] transition-all flex items-center gap-2"
                 >
                   <span>{t('viewAll')}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -3898,9 +3898,9 @@ export default function App() {
                       setSelectedRegionIndex(0);
                       setSelectedAmountIndex(Math.floor(p.options.length / 2));
                     }}
-                    className="group bg-[#1c1030] border border-white/[0.08] hover:border-[#a855f7]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl"
+                    className="group bg-[var(--tt-surface)] border border-[var(--tt-border)] hover:border-[var(--tt-accent)]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl"
                   >
-                    <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-[var(--tt-surface-2)]">
                       <ProductImageWithSkeleton
                         src={p.image}
                         alt={p.name}
@@ -3908,20 +3908,20 @@ export default function App() {
                       />
                       <button
                         onClick={(e) => toggleWishlist(p.id, e)}
-                        className="absolute top-2 right-2 p-1.5 rounded bg-[var(--tt-surface-2)] text-white backdrop-blur-sm hover:bg-black/60 transition-colors"
+                        className="absolute top-2 right-2 p-1.5 rounded bg-[var(--tt-surface-2)] text-[var(--tt-text)] backdrop-blur-sm hover:bg-black/60 transition-colors"
                       >
-                        <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[var(--tt-accent)]' : 'text-white'}`} />
+                        <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[var(--tt-accent)]' : 'text-[var(--tt-text)]'}`} />
                       </button>
                     </div>
 
                     <div className="p-3">
-                      <span className="text-[9px] font-bold text-[var(--tt-accent)] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase">
+                      <span className="text-[9px] font-bold text-[var(--tt-accent)] bg-[var(--tt-accent)]/10 px-1.5 py-0.5 rounded uppercase">
                         {p.regions[0]}
                       </span>
-                      <h4 className="text-xs font-extrabold text-white mt-1.5 truncate group-hover:text-[var(--tt-accent)] transition-colors">
+                      <h4 className="text-xs font-extrabold text-[var(--tt-text)] mt-1.5 truncate group-hover:text-[var(--tt-accent)] transition-colors">
                         {p.name}
                       </h4>
-                      <div className="mt-2 text-xs font-bold text-[#12b98a] tabular-nums">
+                      <div className="mt-2 text-xs font-bold text-[var(--tt-good)] tabular-nums">
                         {priceLabel(p)}
                       </div>
                     </div>
@@ -3931,57 +3931,57 @@ export default function App() {
             </section>
 
             {/* WHY CHOOSE US & ANIMATED STATS */}
-            <section id="why-choose-us-section" className="bg-[var(--tt-surface-2)] border-y border-white/[0.04] mt-24 py-20">
+            <section id="why-choose-us-section" className="bg-[var(--tt-surface-2)] border-y border-[var(--tt-border)] mt-24 py-20">
               <div className="max-w-7xl mx-auto px-4">
                 
                 <div className="text-center max-w-2xl mx-auto mb-16">
-                  <h3 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white">
+                  <h3 className="text-2xl md:text-4xl font-extrabold tracking-tight text-[var(--tt-text)]">
                     {t('whyChooseUs')}
                   </h3>
-                  <p className="text-xs md:text-sm text-white/50 mt-3 leading-relaxed">
+                  <p className="text-xs md:text-sm text-[var(--tt-text-muted)] mt-3 leading-relaxed">
                     {t('whySubtitle')}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="bg-[#1c1030] border border-white/[0.06] rounded-2xl p-6 relative overflow-hidden group">
-                    <div className="w-12 h-12 rounded-xl bg-[#a855f7]/10 flex items-center justify-center text-[var(--tt-accent)] mb-5">
+                  <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-6 relative overflow-hidden group">
+                    <div className="w-12 h-12 rounded-xl bg-[var(--tt-accent)]/10 flex items-center justify-center text-[var(--tt-accent)] mb-5">
                       <Zap className="w-6 h-6" />
                     </div>
-                    <h4 className="text-base font-extrabold text-white mb-2">{t('instantDelivery')}</h4>
-                    <p className="text-xs text-white/50 leading-relaxed">{t('instantDeliveryDesc')}</p>
+                    <h4 className="text-base font-extrabold text-[var(--tt-text)] mb-2">{t('instantDelivery')}</h4>
+                    <p className="text-xs text-[var(--tt-text-muted)] leading-relaxed">{t('instantDeliveryDesc')}</p>
                   </div>
 
-                  <div className="bg-[#1c1030] border border-white/[0.06] rounded-2xl p-6 relative overflow-hidden group">
-                    <div className="w-12 h-12 rounded-xl bg-[#8b5cf6]/10 flex items-center justify-center text-[#8b5cf6] mb-5">
+                  <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-6 relative overflow-hidden group">
+                    <div className="w-12 h-12 rounded-xl bg-[var(--tt-accent)]/10 flex items-center justify-center text-[var(--tt-accent)] mb-5">
                       <ShieldCheck className="w-6 h-6" />
                     </div>
-                    <h4 className="text-base font-extrabold text-white mb-2">{t('securePayments')}</h4>
-                    <p className="text-xs text-white/50 leading-relaxed">{t('securePaymentsDesc')}</p>
+                    <h4 className="text-base font-extrabold text-[var(--tt-text)] mb-2">{t('securePayments')}</h4>
+                    <p className="text-xs text-[var(--tt-text-muted)] leading-relaxed">{t('securePaymentsDesc')}</p>
                   </div>
 
-                  <div className="bg-[#1c1030] border border-white/[0.06] rounded-2xl p-6 relative overflow-hidden group">
+                  <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-6 relative overflow-hidden group">
                     <div className="w-12 h-12 rounded-xl bg-[#7c3aed]/10 flex items-center justify-center text-[#7c3aed] mb-5">
                       <HelpCircle className="w-6 h-6" />
                     </div>
-                    <h4 className="text-base font-extrabold text-white mb-2">{t('support247')}</h4>
-                    <p className="text-xs text-white/50 leading-relaxed">{t('support247Desc')}</p>
+                    <h4 className="text-base font-extrabold text-[var(--tt-text)] mb-2">{t('support247')}</h4>
+                    <p className="text-xs text-[var(--tt-text-muted)] leading-relaxed">{t('support247Desc')}</p>
                   </div>
                 </div>
 
                 {/* Animated Stats banner */}
-                <div className="grid grid-cols-3 gap-4 bg-[#1c1030] border border-white/[0.06] rounded-2xl mt-12 p-6 md:p-8 text-center">
+                <div className="grid grid-cols-3 gap-4 bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl mt-12 p-6 md:p-8 text-center">
                   <div>
                     <p className="text-2xl md:text-4xl font-black text-[var(--tt-accent)] tabular-nums">1000+</p>
-                    <p className="text-[10px] md:text-xs text-white/40 font-bold uppercase mt-1">Commandes</p>
+                    <p className="text-[10px] md:text-xs text-[var(--tt-text-faint)] font-bold uppercase mt-1">Commandes</p>
                   </div>
                   <div>
-                    <p className="text-2xl md:text-4xl font-black text-[#8b5cf6] tabular-nums">500+</p>
-                    <p className="text-[10px] md:text-xs text-white/40 font-bold uppercase mt-1">Joueurs Heureux</p>
+                    <p className="text-2xl md:text-4xl font-black text-[var(--tt-accent)] tabular-nums">500+</p>
+                    <p className="text-[10px] md:text-xs text-[var(--tt-text-faint)] font-bold uppercase mt-1">Joueurs Heureux</p>
                   </div>
                   <div>
                     <p className="text-2xl md:text-4xl font-black text-[#7c3aed] tabular-nums">24/7</p>
-                    <p className="text-[10px] md:text-xs text-white/40 font-bold uppercase mt-1">Assistance Live</p>
+                    <p className="text-[10px] md:text-xs text-[var(--tt-text-faint)] font-bold uppercase mt-1">Assistance Live</p>
                   </div>
                 </div>
 
@@ -3991,34 +3991,34 @@ export default function App() {
             {/* TESTIMONIALS */}
             <section id="testimonials-section" className="max-w-7xl mx-auto px-4 mt-20">
               <div className="text-center mb-12">
-                <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
+                <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--tt-text)]">
                   {t('testimonialsTitle')}
                 </h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {TESTIMONIALS.map((test, index) => (
-                  <div key={index} className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-6 flex flex-col justify-between">
+                  <div key={index} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-6 flex flex-col justify-between">
                     <div>
-                      <div className="flex gap-1 mb-4 text-[#c084fc]">
+                      <div className="flex gap-1 mb-4 text-[var(--tt-accent)]">
                         {[...Array(test.stars)].map((_, i) => (
                           <Star key={i} className="w-4 h-4 fill-current" />
                         ))}
                       </div>
-                      <p className="text-xs text-white/80 leading-relaxed italic">
+                      <p className="text-xs text-[var(--tt-text-muted)] leading-relaxed italic">
                         "{lang === 'FR' ? test.text : test.textHT}"
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-3 mt-6 border-t border-white/[0.05] pt-4">
+                    <div className="flex items-center gap-3 mt-6 border-t border-[var(--tt-border)] pt-4">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#a855f7] to-[#7c3aed] flex items-center justify-center font-bold text-xs text-black">
                         {test.name[0]}
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                          {test.name} <MapPin className="w-3 h-3 text-white/40" />
+                        <p className="text-xs font-bold text-[var(--tt-text)] flex items-center gap-1.5">
+                          {test.name} <MapPin className="w-3 h-3 text-[var(--tt-text-faint)]" />
                         </p>
-                        <p className="text-[10px] text-white/40 font-semibold">{test.role}</p>
+                        <p className="text-[10px] text-[var(--tt-text-faint)] font-semibold">{test.role}</p>
                       </div>
                     </div>
                   </div>
@@ -4029,14 +4029,14 @@ export default function App() {
             {/* PARTNERS */}
             <section id="partners-section" className="max-w-7xl mx-auto px-4 mt-24 mb-16 overflow-hidden">
               <div className="text-center mb-8">
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/40">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--tt-text-faint)]">
                   {t('partnersTitle')}
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 opacity-50 hover:opacity-80 transition-opacity">
                 {PARTNERS.map((partner, index) => (
-                  <span key={index} className="inline-flex items-center gap-1.5 text-xs md:text-sm font-black tracking-widest text-white select-none">
+                  <span key={index} className="inline-flex items-center gap-1.5 text-xs md:text-sm font-black tracking-widest text-[var(--tt-text)] select-none">
                     <partner.icon className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: partner.color }} />
                     {partner.name}
                   </span>
@@ -4055,24 +4055,24 @@ export default function App() {
           <div id="wishlist-catalog-view" className="max-w-7xl mx-auto px-4 py-8 animate-fadeIn">
             
             {/* Breadcrumb / Intro Header */}
-            <div className="mb-6 flex items-center gap-2 text-xs text-white/40 font-semibold">
-              <span className="cursor-pointer hover:text-white" onClick={() => navigateToPage('home')}>{t('accueil')}</span>
+            <div className="mb-6 flex items-center gap-2 text-xs text-[var(--tt-text-faint)] font-semibold">
+              <span className="cursor-pointer hover:text-[var(--tt-text)]" onClick={() => navigateToPage('home')}>{t('accueil')}</span>
               <span>/</span>
               <span className="text-[var(--tt-accent)]">
                 {lang === 'FR' ? 'Mes Favoris' : 'Favori Mwen'}
               </span>
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-5 border-b border-white/[0.06]">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-5 border-b border-[var(--tt-border)]">
               <div>
-                <h2 className="text-xl md:text-3xl font-black text-white tracking-tight flex items-center gap-3">
+                <h2 className="text-xl md:text-3xl font-black text-[var(--tt-text)] tracking-tight flex items-center gap-3">
                   <Heart className="w-6 h-6 md:w-8 md:h-8 text-[var(--tt-accent)] fill-[#a855f7]" />
                   <span>{lang === 'FR' ? 'Mes Favoris' : 'Favori Mwen'}</span>
-                  <span className="text-xs bg-[#a855f7]/10 text-[var(--tt-accent)] px-2.5 py-1 rounded-full font-extrabold border border-[#a855f7]/20">
+                  <span className="text-xs bg-[var(--tt-accent)]/10 text-[var(--tt-accent)] px-2.5 py-1 rounded-full font-extrabold border border-[var(--tt-accent)]/20">
                     {wishlist.length} {wishlist.length > 1 ? 'Articles' : 'Article'}
                   </span>
                 </h2>
-                <p className="text-xs text-white/50 mt-1.5 leading-relaxed">
+                <p className="text-xs text-[var(--tt-text-muted)] mt-1.5 leading-relaxed">
                   {lang === 'FR' 
                     ? 'Retrouvez tous vos jeux et services préférés ici. Cliquez pour voir les détails ou commander directement sur le site.' 
                     : 'Jwenn tout jwèt ak sèvis ou pi renmen yo la a. Klike pou wè detay oswa kòmande dirèkteman sou sit la.'}
@@ -4087,7 +4087,7 @@ export default function App() {
                       setWishlist([]);
                     }
                   }}
-                  className="bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 text-xs font-black px-4 py-2.5 rounded-xl border border-red-500/20 hover:border-red-500/40 transition-all flex items-center gap-2 self-start md:self-auto"
+                  className="bg-[var(--tt-danger)]/10 hover:bg-[var(--tt-danger)]/20 text-[var(--tt-danger)] hover:text-[var(--tt-danger)] text-xs font-black px-4 py-2.5 rounded-xl border border-[var(--tt-danger)]/20 hover:border-[var(--tt-danger)]/40 transition-all flex items-center gap-2 self-start md:self-auto"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>{lang === 'FR' ? 'Tout vider' : 'Tout efase'}</span>
@@ -4097,14 +4097,14 @@ export default function App() {
 
             {/* Check if wishlist is empty */}
             {wishlist.length === 0 ? (
-              <div id="empty-wishlist-view" className="text-center py-20 px-6 bg-[#1c1030]/50 border border-white/[0.06] rounded-3xl max-w-2xl mx-auto my-12 backdrop-blur-sm">
-                <div className="w-16 h-16 rounded-full bg-[#a855f7]/10 border border-[#a855f7]/20 flex items-center justify-center mx-auto mb-6 animate-pulse">
+              <div id="empty-wishlist-view" className="text-center py-20 px-6 bg-[var(--tt-surface)]/50 border border-[var(--tt-border)] rounded-3xl max-w-2xl mx-auto my-12 backdrop-blur-sm">
+                <div className="w-16 h-16 rounded-full bg-[var(--tt-accent)]/10 border border-[var(--tt-accent)]/20 flex items-center justify-center mx-auto mb-6 animate-pulse">
                   <Heart className="w-8 h-8 text-[var(--tt-accent)]" />
                 </div>
-                <h3 className="text-lg md:text-xl font-black text-white">
+                <h3 className="text-lg md:text-xl font-black text-[var(--tt-text)]">
                   {lang === 'FR' ? 'Votre liste est vide' : 'Lis ou a vid'}
                 </h3>
-                <p className="text-xs text-white/50 mt-3 max-w-md mx-auto leading-relaxed font-medium">
+                <p className="text-xs text-[var(--tt-text-muted)] mt-3 max-w-md mx-auto leading-relaxed font-medium">
                   {lang === 'FR'
                     ? 'Ajoutez des jeux, des abonnements de streaming ou des cartes cadeaux à vos favoris en cliquant sur l\'icône de cœur pour les retrouver rapidement ici.'
                     : 'Ajoute jwèt, abònman streaming, oswa kat kado nan favori w yo lè w klike sou ikòn kè a pou w ka jwenn yo pi fasil la a.'}
@@ -4123,7 +4123,7 @@ export default function App() {
                   </button>
                   <button
                     onClick={() => navigateToPage('home')}
-                    className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white font-bold text-xs px-6 py-3.5 rounded-xl border border-white/10 transition-colors flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto bg-[var(--tt-overlay)] hover:bg-[var(--tt-overlay-strong)] text-[var(--tt-text)] font-bold text-xs px-6 py-3.5 rounded-xl border border-[var(--tt-border)] transition-colors flex items-center justify-center gap-2"
                   >
                     <span>{lang === 'FR' ? 'Retour à l\'accueil' : 'Retounen sou paj dakyèy'}</span>
                   </button>
@@ -4141,10 +4141,10 @@ export default function App() {
                         setSelectedRegionIndex(0);
                         setSelectedAmountIndex(Math.floor(p.options.length / 2));
                       }}
-                      className="group bg-[#1c1030]/85 border border-white/[0.08] hover:border-[#a855f7]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-2xl flex flex-col justify-between"
+                      className="group bg-[var(--tt-surface)]/85 border border-[var(--tt-border)] hover:border-[var(--tt-accent)]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1.5 hover:scale-[1.03] hover:shadow-2xl flex flex-col justify-between"
                     >
                       {/* Product Image Panel */}
-                      <div className="relative aspect-square overflow-hidden bg-slate-900">
+                      <div className="relative aspect-square overflow-hidden bg-[var(--tt-surface-2)]">
                         <ProductImageWithSkeleton
                           src={p.image}
                           alt={p.name}
@@ -4169,28 +4169,28 @@ export default function App() {
                       <div className="p-4 flex-grow flex flex-col justify-between">
                         <div>
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[9px] font-black text-[#8b5cf6] uppercase tracking-wider bg-[#8b5cf6]/10 px-2 py-0.5 rounded-md border border-[#8b5cf6]/10">
+                            <span className="text-[9px] font-black text-[var(--tt-accent)] uppercase tracking-wider bg-[var(--tt-accent)]/10 px-2 py-0.5 rounded-md border border-[#8b5cf6]/10">
                               {p.regions[0] || 'Global'}
                             </span>
-                            <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold px-2 py-0.5 rounded uppercase">
+                            <span className="text-[9px] bg-[var(--tt-good)]/10 text-[var(--tt-good)] border border-[var(--tt-good)]/20 font-bold px-2 py-0.5 rounded uppercase">
                               {t('stock')}
                             </span>
                           </div>
-                          <h3 className="text-xs md:text-sm font-extrabold text-white mt-2.5 group-hover:text-[var(--tt-accent)] transition-colors truncate">
+                          <h3 className="text-xs md:text-sm font-extrabold text-[var(--tt-text)] mt-2.5 group-hover:text-[var(--tt-accent)] transition-colors truncate">
                             {p.name}
                           </h3>
-                          <p className="text-[10px] text-white/50 mt-1 line-clamp-2 leading-relaxed">
+                          <p className="text-[10px] text-[var(--tt-text-muted)] mt-1 line-clamp-2 leading-relaxed">
                             {lang === 'FR' ? p.descriptionFR : p.descriptionHT}
                           </p>
                         </div>
 
-                        <div className="mt-4 border-t border-white/[0.05] pt-3">
+                        <div className="mt-4 border-t border-[var(--tt-border)] pt-3">
                           <div className="flex items-center justify-between mb-3">
                             <div>
-                              <p className="text-[9px] text-white/40 font-bold uppercase tracking-wide">
+                              <p className="text-[9px] text-[var(--tt-text-faint)] font-bold uppercase tracking-wide">
                                 {lang === 'FR' ? 'À partir de' : 'Kòmanse nan'}
                               </p>
-                              <p className="text-sm font-black text-white tabular-nums">{priceLabel(p)}</p>
+                              <p className="text-sm font-black text-[var(--tt-text)] tabular-nums">{priceLabel(p)}</p>
                             </div>
                           </div>
 
@@ -4201,9 +4201,9 @@ export default function App() {
                                 e.stopPropagation();
                                 toggleWishlist(p.id);
                               }}
-                              className="text-white/60 hover:text-white bg-white/5 hover:bg-white/10 text-[10px] font-bold py-2 rounded-xl transition-colors border border-white/5 flex items-center justify-center gap-1"
+                              className="text-[var(--tt-text-muted)] hover:text-[var(--tt-text)] bg-[var(--tt-overlay)] hover:bg-[var(--tt-overlay-strong)] text-[10px] font-bold py-2 rounded-xl transition-colors border border-[var(--tt-border)] flex items-center justify-center gap-1"
                             >
-                              <HeartCrack className="w-3.5 h-3.5 text-red-400" />
+                              <HeartCrack className="w-3.5 h-3.5 text-[var(--tt-danger)]" />
                               <span>{lang === 'FR' ? 'Retirer' : 'Retire'}</span>
                             </button>
 
@@ -4215,7 +4215,7 @@ export default function App() {
                                 setSelectedRegionIndex(0);
                                 setSelectedAmountIndex(Math.floor(p.options.length / 2));
                               }}
-                              className="bg-[#a855f7] text-black text-[10px] font-black py-2 rounded-xl hover:bg-[#a855f7]/90 transition-all flex items-center justify-center gap-1 shadow-md shadow-[#a855f7]/5"
+                              className="bg-[var(--tt-accent)] text-[var(--tt-on-accent)] text-[10px] font-black py-2 rounded-xl hover:bg-[var(--tt-accent)]/90 transition-all flex items-center justify-center gap-1 shadow-md shadow-[#a855f7]/5"
                             >
                               <Send className="w-3 h-3" />
                               <span>{lang === 'FR' ? 'Acheter' : 'Achte'}</span>
@@ -4239,8 +4239,8 @@ export default function App() {
           <div id="category-catalog-view" className="max-w-7xl mx-auto px-4 py-8 animate-fadeIn">
             
             {/* Breadcrumb / Intro Header */}
-            <div className="mb-6 flex items-center gap-2 text-xs text-white/40 font-semibold">
-              <span className="cursor-pointer hover:text-white" onClick={() => navigateToPage('home')}>{t('accueil')}</span>
+            <div className="mb-6 flex items-center gap-2 text-xs text-[var(--tt-text-faint)] font-semibold">
+              <span className="cursor-pointer hover:text-[var(--tt-text)]" onClick={() => navigateToPage('home')}>{t('accueil')}</span>
               <span>/</span>
               <span className="text-[var(--tt-accent)]">
                 {selectedCategorySlug 
@@ -4253,25 +4253,25 @@ export default function App() {
             </div>
 
             {/* Banner Category */}
-            <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-[#1c1030] to-[#0c0714] border border-white/[0.08] p-6 md:p-10 mb-8">
+            <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-[var(--tt-surface)] to-[var(--tt-bg)] border border-[var(--tt-border)] p-6 md:p-10 mb-8">
               <div className="relative z-10 max-w-xl">
-                <h1 className="text-2xl md:text-4xl font-extrabold text-white tracking-tight">
+                <h1 className="text-2xl md:text-4xl font-extrabold text-[var(--tt-text)] tracking-tight">
                   {selectedCategorySlug 
                     ? CATEGORIES.find(c => c.slug === selectedCategorySlug)?.name 
                     : t('allProducts')
                   }
                 </h1>
-                <p className="text-xs md:text-sm text-white/60 mt-2">
+                <p className="text-xs md:text-sm text-[var(--tt-text-muted)] mt-2">
                   Livraison ultra-rapide dans votre compte. Tarifs transparents, sans frais cachés.
                 </p>
               </div>
               <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-15 pointer-events-none hidden md:block">
-                <Gamepad2 className="w-full h-full text-white p-6" />
+                <Gamepad2 className="w-full h-full text-[var(--tt-text)] p-6" />
               </div>
             </div>
 
             {/* Search and Quick Filters Row on Category Page */}
-            <div className="mb-8 bg-[#1c1030]/50 border border-white/[0.06] rounded-2xl p-4 md:p-6 flex flex-col gap-4">
+            <div className="mb-8 bg-[var(--tt-surface)]/50 border border-[var(--tt-border)] rounded-2xl p-4 md:p-6 flex flex-col gap-4">
               {/* Search Bar Input */}
               <div className="relative">
                 <input
@@ -4287,13 +4287,13 @@ export default function App() {
                       (e.target as HTMLInputElement).blur();
                     }
                   }}
-                  className="w-full bg-[#0c0714] border border-white/[0.08] text-sm px-4 py-3.5 pl-11 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-[#a855f7]/50 transition-all font-medium"
+                  className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] text-sm px-4 py-3.5 pl-11 rounded-xl text-[var(--tt-text)] placeholder-[var(--tt-text-faint)] focus:outline-none focus:border-[var(--tt-accent)]/50 transition-all font-medium"
                 />
-                <Search className="absolute left-4 top-4 w-4 h-4 text-white/30" />
+                <Search className="absolute left-4 top-4 w-4 h-4 text-[var(--tt-text-faint)]" />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-4 top-3.5 p-1 text-white/40 hover:text-white transition-colors"
+                    className="absolute right-4 top-3.5 p-1 text-[var(--tt-text-faint)] hover:text-[var(--tt-text)] transition-colors"
                     aria-label={lang === 'FR' ? 'Effacer la recherche' : 'Efase rechèch la'}
                   >
                     <X className="w-4 h-4" />
@@ -4302,10 +4302,10 @@ export default function App() {
 
                 {/* Recent Searches Dropdown on Category page */}
                 {categorySearchFocused && !searchQuery && (
-                  <div className="absolute top-[52px] left-0 w-full bg-[#1c1030] border border-white/[0.08] rounded-xl shadow-2xl p-2 z-50 max-h-60 overflow-y-auto">
+                  <div className="absolute top-[52px] left-0 w-full bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl shadow-2xl p-2 z-50 max-h-60 overflow-y-auto">
                     <div className="flex flex-col gap-1 p-1">
-                      <div className="flex items-center justify-between px-1 py-1 border-b border-white/[0.04] mb-1">
-                        <span className="text-[10px] uppercase tracking-wider font-extrabold text-white/40">
+                      <div className="flex items-center justify-between px-1 py-1 border-b border-[var(--tt-border)] mb-1">
+                        <span className="text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)]">
                           {lang === 'FR' ? 'Recherches récentes' : 'Chache ki sot pase yo'}
                         </span>
                         {recentSearches.length > 0 && (
@@ -4326,14 +4326,14 @@ export default function App() {
                         recentSearches.map((term, index) => (
                           <div
                             key={index}
-                            className="flex items-center justify-between p-2 hover:bg-white/[0.04] rounded-lg cursor-pointer transition-colors group/item"
+                            className="flex items-center justify-between p-2 hover:bg-[var(--tt-overlay-strong)] rounded-lg cursor-pointer transition-colors group/item"
                             onMouseDown={() => {
                               setSearchQuery(term);
                             }}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <History className="w-3.5 h-3.5 text-white/30 group-hover/item:text-[var(--tt-accent)] transition-colors" />
-                              <span className="text-xs font-semibold text-white/85 truncate">{term}</span>
+                              <History className="w-3.5 h-3.5 text-[var(--tt-text-faint)] group-hover/item:text-[var(--tt-accent)] transition-colors" />
+                              <span className="text-xs font-semibold text-[var(--tt-text-muted)] truncate">{term}</span>
                             </div>
                             <button
                               onMouseDown={(e) => {
@@ -4345,14 +4345,14 @@ export default function App() {
                                   return updated;
                                 });
                               }}
-                              className="p-1 opacity-0 group-hover/item:opacity-100 text-white/35 hover:text-white transition-opacity"
+                              className="p-1 opacity-0 group-hover/item:opacity-100 text-[var(--tt-text-faint)] hover:text-[var(--tt-text)] transition-opacity"
                             >
                               <X className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         ))
                       ) : (
-                        <p className="text-[10px] text-white/35 p-3 text-center italic">
+                        <p className="text-[10px] text-[var(--tt-text-faint)] p-3 text-center italic">
                           {lang === 'FR' ? 'Aucune recherche récente' : 'Pa gen ankenn chache resan'}
                         </p>
                       )}
@@ -4368,7 +4368,7 @@ export default function App() {
                 </span>
                 <div className="flex flex-wrap gap-2.5">
                   {[
-                    { id: 'ALL', Icon: null, labelFR: 'Tout', labelHT: 'Tout', color: 'border-white/[0.08] hover:bg-white/[0.02]' },
+                    { id: 'ALL', Icon: null, labelFR: 'Tout', labelHT: 'Tout', color: 'border-[var(--tt-border)] hover:bg-[var(--tt-overlay)]' },
                     { id: 'PROMO', Icon: Percent, labelFR: 'Promo', labelHT: 'Promo', color: 'border-[#a855f7]/25 hover:bg-[#a855f7]/5 text-[var(--tt-accent)]' },
                     { id: 'POPULAR', Icon: Flame, labelFR: 'Plus Populaire', labelHT: 'Pli Popilè', color: 'border-amber-500/25 hover:bg-amber-500/5 text-amber-400' },
                     { id: 'UNDER_10', Icon: Coins, labelFR: `Prix < ${formatPrice(10)}`, labelHT: `Pri < ${formatPrice(10)}`, color: 'border-emerald-500/25 hover:bg-emerald-500/5 text-emerald-400' },
@@ -4383,8 +4383,8 @@ export default function App() {
                         onClick={() => setQuickFilter(chip.id as any)}
                         className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 ${
                           isActive
-                            ? 'bg-[#a855f7] text-black border-transparent shadow-lg shadow-[#a855f7]/10 scale-102 font-extrabold'
-                            : `bg-[#0c0714] text-white/60 ${chip.color}`
+                            ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)] border-transparent shadow-lg shadow-[#a855f7]/10 scale-102 font-extrabold'
+                            : `bg-[var(--tt-bg)] text-[var(--tt-text-muted)] ${chip.color}`
                         }`}
                       >
                         {Icon && <Icon className="w-3.5 h-3.5" />}
@@ -4417,7 +4417,7 @@ export default function App() {
                     <button
                       onClick={() => { setSelectedCategorySlug(null); setFilterRegion('ALL'); }}
                       className={`text-left w-full px-3 py-2 text-xs rounded-xl font-semibold transition-all ${
-                        !selectedCategorySlug ? 'bg-[#a855f7] text-black' : 'text-white/75 hover:bg-[var(--tt-surface-2)]'
+                        !selectedCategorySlug ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)]' : 'text-[var(--tt-text-muted)] hover:bg-[var(--tt-surface-2)]'
                       }`}
                     >
                       {t('allProducts')}
@@ -4427,7 +4427,7 @@ export default function App() {
                         key={c.slug}
                         onClick={() => navigateToCategory(c.slug)}
                         className={`text-left w-full px-3 py-2 text-xs rounded-xl font-semibold transition-all flex justify-between items-center ${
-                          selectedCategorySlug === c.slug ? 'bg-[#a855f7] text-black' : 'text-white/75 hover:bg-[var(--tt-surface-2)]'
+                          selectedCategorySlug === c.slug ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)]' : 'text-[var(--tt-text-muted)] hover:bg-[var(--tt-surface-2)]'
                         }`}
                       >
                         <span>{c.name}</span>
@@ -4445,7 +4445,7 @@ export default function App() {
                   <select
                     value={filterRegion}
                     onChange={(e) => setFilterRegion(e.target.value)}
-                    className="w-full bg-[#0c0714] border border-[var(--tt-border)] text-xs px-3 py-2.5 rounded-xl text-[var(--tt-text)] focus:outline-none"
+                    className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] text-xs px-3 py-2.5 rounded-xl text-[var(--tt-text)] focus:outline-none"
                   >
                     <option value="ALL">Toutes les régions</option>
                     <option value="Global">Global</option>
@@ -4463,7 +4463,7 @@ export default function App() {
                   <select
                     value={filterSort}
                     onChange={(e) => setFilterSort(e.target.value)}
-                    className="w-full bg-[#0c0714] border border-[var(--tt-border)] text-xs px-3 py-2.5 rounded-xl text-[var(--tt-text)] focus:outline-none"
+                    className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] text-xs px-3 py-2.5 rounded-xl text-[var(--tt-text)] focus:outline-none"
                   >
                     <option value="DEFAULT">Défaut</option>
                     <option value="PRICE_ASC">{t('sortPriceAsc')}</option>
@@ -4492,10 +4492,10 @@ export default function App() {
                           setSelectedRegionIndex(0);
                           setSelectedAmountIndex(Math.floor(p.options.length / 2));
                         }}
-                        className="group bg-[var(--tt-surface)] border border-[var(--tt-border)] hover:border-[#a855f7]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col justify-between"
+                        className="group bg-[var(--tt-surface)] border border-[var(--tt-border)] hover:border-[var(--tt-accent)]/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col justify-between"
                         whileHover={{ scale: 1.03, y: -4, transition: { duration: 0.2 } }}
                       >
-                        <div className="relative aspect-square overflow-hidden bg-slate-900">
+                        <div className="relative aspect-square overflow-hidden bg-[var(--tt-surface-2)]">
                           <ProductImageWithSkeleton
                             src={p.image}
                             alt={p.name}
@@ -4508,7 +4508,7 @@ export default function App() {
                             <Heart className={`w-4 h-4 ${wishlist.includes(p.id) ? 'fill-[#a855f7] text-[var(--tt-accent)]' : 'text-[var(--tt-text)]'}`} />
                           </button>
                           {p.isPromo && (
-                            <span className="absolute top-2 left-2 bg-[#a855f7] text-black font-black text-[9px] uppercase px-2 py-0.5 rounded">
+                            <span className="absolute top-2 left-2 bg-[var(--tt-accent)] text-[var(--tt-on-accent)] font-black text-[9px] uppercase px-2 py-0.5 rounded">
                               PROMO
                             </span>
                           )}
@@ -4516,7 +4516,7 @@ export default function App() {
 
                         <div className="p-4 flex-grow flex flex-col justify-between">
                           <div>
-                            <span className="text-[9px] font-bold text-[#8b5cf6] uppercase tracking-wider bg-[#8b5cf6]/10 px-2 py-0.5 rounded">
+                            <span className="text-[9px] font-bold text-[var(--tt-accent)] uppercase tracking-wider bg-[var(--tt-accent)]/10 px-2 py-0.5 rounded">
                               {p.regions[0] || 'Global'}
                             </span>
                             <h3 className="text-xs md:text-sm font-extrabold text-[var(--tt-text)] mt-2 group-hover:text-[var(--tt-accent)] transition-colors truncate">
@@ -4546,7 +4546,7 @@ export default function App() {
                     <p className="text-sm text-[var(--tt-text-muted)] font-semibold">{t('noResults')}</p>
                     <button
                       onClick={() => { setSelectedCategorySlug(null); setSearchQuery(''); setFilterRegion('ALL'); }}
-                      className="mt-4 bg-[#a855f7] text-[#0c0714] font-extrabold text-xs px-5 py-2.5 rounded-xl"
+                      className="mt-4 bg-[var(--tt-accent)] text-[var(--tt-on-accent)] font-extrabold text-xs px-5 py-2.5 rounded-xl"
                     >
                       Reset Filters
                     </button>
@@ -4584,7 +4584,7 @@ export default function App() {
               </div>
 
               <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-6 md:p-8">
-                <h3 className="text-lg font-bold text-[#8b5cf6] mb-3 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-[var(--tt-accent)] mb-3 flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5" />
                   {t('ourMission')}
                 </h3>
@@ -4633,10 +4633,10 @@ export default function App() {
           <div id="contact-us-page" className="max-w-7xl mx-auto px-4 py-12 animate-fadeIn">
             
             <div className="text-center max-w-2xl mx-auto mb-12">
-              <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+              <h1 className="text-3xl md:text-5xl font-black text-[var(--tt-text)] tracking-tight">
                 {t('contactTitle')}
               </h1>
-              <p className="text-xs md:text-sm text-white/50 mt-3">
+              <p className="text-xs md:text-sm text-[var(--tt-text-muted)] mt-3">
                 Une suggestion, une question ou besoin d'une assistance pour votre commande ? Contactez-nous à tout moment !
               </p>
             </div>
@@ -4645,55 +4645,55 @@ export default function App() {
               
               {/* Left Contact Coordinates cards */}
               <div className="flex flex-col gap-4">
-                <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-5 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500">
+                <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-[var(--tt-good)]/10 flex items-center justify-center text-[var(--tt-good)]">
                     <Send className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-white/40 uppercase font-bold">WhatsApp Direct</p>
-                    <a href="https://wa.me/50943231463" className="text-sm font-black text-white hover:text-[var(--tt-accent)] transition-colors">+509 43 23 1463</a>
+                    <p className="text-[10px] text-[var(--tt-text-faint)] uppercase font-bold">WhatsApp Direct</p>
+                    <a href="https://wa.me/50943231463" className="text-sm font-black text-[var(--tt-text)] hover:text-[var(--tt-accent)] transition-colors">+509 43 23 1463</a>
                   </div>
                 </div>
 
-                <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-5 flex items-center gap-4">
+                <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
                     <User className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-white/40 uppercase font-bold">Email Support</p>
-                    <a href="mailto:support@thie-thie-services.com" className="text-sm font-black text-white hover:text-[var(--tt-accent)] transition-colors">support@thie-thie.com</a>
+                    <p className="text-[10px] text-[var(--tt-text-faint)] uppercase font-bold">Email Support</p>
+                    <a href="mailto:support@thie-thie-services.com" className="text-sm font-black text-[var(--tt-text)] hover:text-[var(--tt-accent)] transition-colors">support@thie-thie.com</a>
                   </div>
                 </div>
 
-                <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl p-5 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#a855f7]/10 flex items-center justify-center text-[var(--tt-accent)]">
+                <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-[var(--tt-accent)]/10 flex items-center justify-center text-[var(--tt-accent)]">
                     <Clock className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-white/40 uppercase font-bold">Heures d'Ouverture</p>
-                    <p className="text-sm font-black text-white">24 heures sur 24 / 7 jours sur 7</p>
+                    <p className="text-[10px] text-[var(--tt-text-faint)] uppercase font-bold">Heures d'Ouverture</p>
+                    <p className="text-sm font-black text-[var(--tt-text)]">24 heures sur 24 / 7 jours sur 7</p>
                   </div>
                 </div>
 
                 {/* Styled Map Placeholder */}
-                <div className="bg-[#1c1030] border border-white/[0.08] rounded-2xl overflow-hidden h-48 relative">
-                  <div className="absolute inset-0 bg-slate-950/65 flex flex-col items-center justify-center text-center p-4">
+                <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl overflow-hidden h-48 relative">
+                  <div className="absolute inset-0 bg-[var(--tt-surface-3)]/65 flex flex-col items-center justify-center text-center p-4">
                     <div className="mb-2">
                       <ThieThieLogo variant="icon" size={32} />
                     </div>
-                    <strong className="text-xs text-white">Thie Thie Services HQ</strong>
-                    <p className="text-[10px] text-white/50 mt-1">Port-au-Prince, Haïti</p>
+                    <strong className="text-xs text-[var(--tt-text)]">Thie Thie Services HQ</strong>
+                    <p className="text-[10px] text-[var(--tt-text-muted)] mt-1">Port-au-Prince, Haïti</p>
                   </div>
-                  <div className="w-full h-full bg-gradient-to-tr from-[#1c1030] to-[#0c0714]" />
+                  <div className="w-full h-full bg-gradient-to-tr from-[var(--tt-surface)] to-[var(--tt-bg)]" />
                 </div>
               </div>
 
               {/* Form container */}
-              <div className="lg:col-span-2 bg-[#1c1030] border border-white/[0.08] rounded-2xl p-6 md:p-8">
-                <h3 className="text-lg font-bold text-white mb-6">Formulaire de Message</h3>
+              <div className="lg:col-span-2 bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-6 md:p-8">
+                <h3 className="text-lg font-bold text-[var(--tt-text)] mb-6">Formulaire de Message</h3>
                 
                 {contactSuccess ? (
-                  <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-6 rounded-2xl text-center">
+                  <div className="bg-[var(--tt-good)]/10 border border-[var(--tt-good)]/20 text-[var(--tt-good)] p-6 rounded-2xl text-center">
                     <Check className="w-8 h-8 mb-2 mx-auto" />
                     <p className="text-xs font-semibold leading-relaxed">
                       {t('messageSuccess')}
@@ -4703,7 +4703,7 @@ export default function App() {
                   <form onSubmit={handleContactSubmit} className="flex flex-col gap-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-1.5">
+                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-1.5">
                           {t('name')}
                         </label>
                         <input
@@ -4711,11 +4711,11 @@ export default function App() {
                           required
                           value={contactName}
                           onChange={(e) => setContactName(e.target.value)}
-                          className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-4 py-3 rounded-xl text-white focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/20 transition-colors"
+                          className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] text-xs px-4 py-3 rounded-xl text-[var(--tt-text)] focus:outline-none focus:border-[var(--tt-accent)] focus:ring-1 focus:ring-[#a855f7]/20 transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-1.5">
+                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-1.5">
                           {t('email')}
                         </label>
                         <input
@@ -4723,13 +4723,13 @@ export default function App() {
                           required
                           value={contactEmail}
                           onChange={(e) => setContactEmail(e.target.value)}
-                          className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-4 py-3 rounded-xl text-white focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/20 transition-colors"
+                          className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] text-xs px-4 py-3 rounded-xl text-[var(--tt-text)] focus:outline-none focus:border-[var(--tt-accent)] focus:ring-1 focus:ring-[#a855f7]/20 transition-colors"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-1.5">
+                      <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-1.5">
                         {t('message')}
                       </label>
                       <textarea
@@ -4737,13 +4737,13 @@ export default function App() {
                         rows={5}
                         value={contactMessage}
                         onChange={(e) => setContactMessage(e.target.value)}
-                        className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-4 py-3 rounded-xl text-white focus:outline-none focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7]/20 transition-colors"
+                        className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] text-xs px-4 py-3 rounded-xl text-[var(--tt-text)] focus:outline-none focus:border-[var(--tt-accent)] focus:ring-1 focus:ring-[#a855f7]/20 transition-colors"
                       />
                     </div>
 
                     <button
                       type="submit"
-                      className="bg-[#a855f7] hover:bg-[#a855f7]/90 text-[#0c0714] font-extrabold text-xs px-6 py-3.5 rounded-xl self-end transition-colors"
+                      className="bg-[var(--tt-accent)] hover:bg-[var(--tt-accent)]/90 text-[var(--tt-on-accent)] font-extrabold text-xs px-6 py-3.5 rounded-xl self-end transition-colors"
                     >
                       {t('sendMessage')}
                     </button>
@@ -4762,10 +4762,10 @@ export default function App() {
             ========================================== */}
         {currentPage === 'faq' && (
           <div id="faq-page" className="max-w-3xl mx-auto px-4 py-12 animate-fadeIn">
-            <h1 className="text-3xl md:text-5xl font-black text-center text-white tracking-tight mb-4">
+            <h1 className="text-3xl md:text-5xl font-black text-center text-[var(--tt-text)] tracking-tight mb-4">
               {t('faqTitle')}
             </h1>
-            <p className="text-xs text-center text-white/50 mb-12 max-w-md mx-auto">
+            <p className="text-xs text-center text-[var(--tt-text-muted)] mb-12 max-w-md mx-auto">
               Retrouvez toutes les questions récurrentes sur le mode de commande, de livraison et de paiement.
             </p>
 
@@ -4775,13 +4775,13 @@ export default function App() {
                 return (
                   <div
                     key={index}
-                    className="bg-[#1c1030] border border-white/[0.08] rounded-2xl overflow-hidden transition-all duration-300"
+                    className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl overflow-hidden transition-all duration-300"
                   >
                     <button
                       onClick={() => setExpandedFaqIndex(isExpanded ? null : index)}
-                      className="w-full text-left p-5 flex justify-between items-center gap-4 hover:bg-white/[0.02]"
+                      className="w-full text-left p-5 flex justify-between items-center gap-4 hover:bg-[var(--tt-overlay)]"
                     >
-                      <strong className="text-xs md:text-sm text-white font-extrabold leading-snug">
+                      <strong className="text-xs md:text-sm text-[var(--tt-text)] font-extrabold leading-snug">
                         {lang === 'FR' ? faq.qFR : faq.qHT}
                       </strong>
                       <span className={`text-[var(--tt-accent)] font-black text-base transition-transform duration-300 ${isExpanded ? 'rotate-45' : ''}`}>
@@ -4789,8 +4789,8 @@ export default function App() {
                       </span>
                     </button>
                     {isExpanded && (
-                      <div className="px-5 pb-5 pt-1 border-t border-white/[0.04]">
-                        <p className="text-xs text-white/70 leading-relaxed">
+                      <div className="px-5 pb-5 pt-1 border-t border-[var(--tt-border)]">
+                        <p className="text-xs text-[var(--tt-text-muted)] leading-relaxed">
                           {lang === 'FR' ? faq.aFR : faq.aHT}
                         </p>
                       </div>
@@ -4808,19 +4808,19 @@ export default function App() {
             ========================================== */}
         {currentPage === 'privacy' && (
           <div id="privacy-page" className="max-w-3xl mx-auto px-4 py-12 animate-fadeIn text-left leading-relaxed">
-            <h1 className="text-3xl font-black text-white mb-6 border-b border-white/[0.08] pb-4">
+            <h1 className="text-3xl font-black text-[var(--tt-text)] mb-6 border-b border-[var(--tt-border)] pb-4">
               {t('privacyTitle')}
             </h1>
-            <div className="text-xs text-white/70 flex flex-col gap-5">
+            <div className="text-xs text-[var(--tt-text-muted)] flex flex-col gap-5">
               <p>Chez Thie Thie Services, la confidentialité de nos clients est une priorité absolue. Nous collectons uniquement les informations nécessaires au bon traitement de vos recharges de jeux.</p>
               
-              <h3 className="text-sm font-bold text-white mt-4">1. Informations collectées</h3>
+              <h3 className="text-sm font-bold text-[var(--tt-text)] mt-4">1. Informations collectées</h3>
               <p>Nous enregistrons votre adresse e-mail pour la livraison de vos codes, votre numéro de téléphone (WhatsApp) pour le support, ainsi que votre identifiant joueur pour les recharges de diamants/crédits directs.</p>
               
-              <h3 className="text-sm font-bold text-white mt-4">2. Sécurité des Données</h3>
+              <h3 className="text-sm font-bold text-[var(--tt-text)] mt-4">2. Sécurité des Données</h3>
               <p>Vos informations d'ID de joueur ne sont jamais stockées ni revendues à des tiers. Elles sont transmises de manière sécurisée et cryptée à nos fournisseurs pour validation directe.</p>
               
-              <h3 className="text-sm font-bold text-white mt-4">3. Paiements</h3>
+              <h3 className="text-sm font-bold text-[var(--tt-text)] mt-4">3. Paiements</h3>
               <p>Aucune coordonnée bancaire n'est stockée sur nos serveurs. Tous les paiements MonCash, NatCash, USDT et PayPal s'effectuent via des canaux sécurisés et de confiance.</p>
             </div>
           </div>
@@ -4832,21 +4832,21 @@ export default function App() {
             ========================================== */}
         {currentPage === 'terms' && (
           <div id="terms-page" className="max-w-3xl mx-auto px-4 py-12 animate-fadeIn text-left leading-relaxed">
-            <h1 className="text-3xl font-black text-white mb-6 border-b border-white/[0.08] pb-4">
+            <h1 className="text-3xl font-black text-[var(--tt-text)] mb-6 border-b border-[var(--tt-border)] pb-4">
               {t('termsTitle')}
             </h1>
-            <div className="text-xs text-white/70 flex flex-col gap-5">
+            <div className="text-xs text-[var(--tt-text-muted)] flex flex-col gap-5">
               <p>Veuillez lire attentivement nos conditions d'utilisation avant de valider votre achat de recharges de jeux ou cartes cadeaux numériques.</p>
               
-              <h3 className="text-sm font-bold text-white mt-4">1. Commandes et Responsabilité</h3>
+              <h3 className="text-sm font-bold text-[var(--tt-text)] mt-4">1. Commandes et Responsabilité</h3>
               <p>L'acheteur est seul responsable de l'exactitude de l'identifiant de jeu (ID) fourni lors de la commande. Les recharges appliquées sur des identifiants erronés ne pourront pas faire l'objet d'un remboursement.</p>
               
-              <h3 className="text-sm font-bold text-white mt-4">2. Délais de Livraison</h3>
+              <h3 className="text-sm font-bold text-[var(--tt-text)] mt-4">2. Délais de Livraison</h3>
               <p>Le délai moyen constaté de traitement est inférieur à 5 minutes. Thie Thie Services s'engage à livrer l'intégralité des commandes sous 2 heures maximum. Au-delà, un remboursement intégral pourra être demandé.</p>
               
-              <h3 className="text-sm font-bold text-white mt-4">3. Remboursements</h3>
+              <h3 className="text-sm font-bold text-[var(--tt-text)] mt-4">3. Remboursements</h3>
               <p>En raison du caractère numérique et de l'activation immédiate des codes, aucun retour ni remboursement n'est possible une fois le code mis à disposition dans votre compte.</p>
-              <p className="mt-2"><strong className="text-white">Cartes cadeaux — région obligatoire.</strong> Chaque carte cadeau est liée à une région précise. Par exemple, une carte cadeau <strong className="text-white">Apple USA</strong> n'est utilisable que sur un compte Apple dont la région est réglée sur les <strong className="text-white">États-Unis</strong>. Il vous appartient de <strong className="text-white">vérifier la région de votre compte avant tout achat</strong>. Aucun remboursement ne sera accordé pour une carte inutilisable en raison d'une région de compte non conforme, ou pour un code déjà révélé.</p>
+              <p className="mt-2"><strong className="text-[var(--tt-text)]">Cartes cadeaux — région obligatoire.</strong> Chaque carte cadeau est liée à une région précise. Par exemple, une carte cadeau <strong className="text-[var(--tt-text)]">Apple USA</strong> n'est utilisable que sur un compte Apple dont la région est réglée sur les <strong className="text-[var(--tt-text)]">États-Unis</strong>. Il vous appartient de <strong className="text-[var(--tt-text)]">vérifier la région de votre compte avant tout achat</strong>. Aucun remboursement ne sera accordé pour une carte inutilisable en raison d'une région de compte non conforme, ou pour un code déjà révélé.</p>
             </div>
           </div>
         )}
@@ -4881,12 +4881,12 @@ export default function App() {
       {selectedProduct && (
         <div id="product-detail-modal" className="fixed inset-0 z-50 bg-black/80 overflow-y-auto animate-fadeIn backdrop-blur-sm">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <div className="bg-[#1c1030] border border-white/[0.08] rounded-3xl w-full max-w-3xl overflow-hidden relative shadow-2xl my-8 text-left">
+            <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl w-full max-w-3xl overflow-hidden relative shadow-2xl my-8 text-left">
             
             {/* Close modal action */}
             <button
               onClick={() => setSelectedProduct(null)}
-              className="absolute top-4 right-4 p-2.5 rounded-full bg-[var(--tt-surface-2)] text-white hover:bg-[#a855f7] hover:text-black transition-colors z-10"
+              className="absolute top-4 right-4 p-2.5 rounded-full bg-[var(--tt-surface-2)] text-[var(--tt-text)] hover:bg-[var(--tt-accent)] hover:text-[var(--tt-on-accent)] transition-colors z-10"
               aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}
             >
               <X className="w-4 h-4" />
@@ -4895,7 +4895,7 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-2">
               
               {/* Image Gallery left panel */}
-              <div className="relative bg-slate-950 aspect-square md:aspect-auto md:h-full flex flex-col justify-between min-h-[300px]">
+              <div className="relative bg-[var(--tt-surface-3)] aspect-square md:aspect-auto md:h-full flex flex-col justify-between min-h-[300px]">
                 <ProductImageWithSkeleton
                   src={selectedProduct.image}
                   alt={selectedProduct.name}
@@ -4905,13 +4905,13 @@ export default function App() {
                 
                 {/* Product Badge Info */}
                 <div className="absolute bottom-6 left-6 right-6">
-                  <span className="bg-[#a855f7] text-black text-[9px] font-black uppercase px-2 py-1 rounded-md">
+                  <span className="bg-[var(--tt-accent)] text-[var(--tt-on-accent)] text-[9px] font-black uppercase px-2 py-1 rounded-md">
                     {selectedProduct.regions[0]}
                   </span>
-                  <h2 className="text-xl md:text-2xl font-black text-white mt-2">
+                  <h2 className="text-xl md:text-2xl font-black text-[var(--tt-text)] mt-2">
                     {selectedProduct.name}
                   </h2>
-                  <p className="text-xs text-white/70 mt-1 leading-relaxed line-clamp-3">
+                  <p className="text-xs text-[var(--tt-text-muted)] mt-1 leading-relaxed line-clamp-3">
                     {lang === 'FR' ? selectedProduct.descriptionFR : selectedProduct.descriptionHT}
                   </p>
                 </div>
@@ -4925,12 +4925,12 @@ export default function App() {
                     <div>
                       {/* Form Header */}
                       <div className="flex items-center gap-2 mb-4">
-                        <AlertTriangle className="w-5 h-5 text-amber-500" />
-                        <h3 className="text-base font-black text-white">
+                        <AlertTriangle className="w-5 h-5 text-[var(--tt-warn)]" />
+                        <h3 className="text-base font-black text-[var(--tt-text)]">
                           {lang === 'FR' ? "Signaler un problème" : "Rapòte yon pwoblèm"}
                         </h3>
                       </div>
-                      <p className="text-[11px] text-white/50 mb-5 leading-relaxed font-medium">
+                      <p className="text-[11px] text-[var(--tt-text-muted)] mb-5 leading-relaxed font-medium">
                         {lang === 'FR'
                           ? `Signalez une anomalie liée au processus de commande pour ${selectedProduct.name}. Vos retours nous permettent d'améliorer notre service.`
                           : `Rapòte yon anomali ki gen rapò ak pwosesis kòmand pou ${selectedProduct.name}. Feedback ou yo ap pèmèt nou amelyore sèvis la.`}
@@ -4938,13 +4938,13 @@ export default function App() {
 
                       {/* Select Issue Type */}
                       <div className="mb-4">
-                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-2">
+                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-2">
                           {lang === 'FR' ? "Type de problème" : "Kalite pwoblèm"}
                         </label>
                         <select
                           value={reportIssueType}
                           onChange={(e) => setReportIssueType(e.target.value)}
-                          className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-3.5 py-3 rounded-2xl text-white font-semibold focus:outline-none focus:border-[#a855f7]/50"
+                          className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] text-xs px-3.5 py-3 rounded-2xl text-[var(--tt-text)] font-semibold focus:outline-none focus:border-[var(--tt-accent)]/50"
                         >
                           <option value="PRICE_ERROR">
                             {lang === 'FR' ? "Option de prix incorrecte" : "Opsyon pri ki pa kòrèk"}
@@ -4963,7 +4963,7 @@ export default function App() {
 
                       {/* Details Textarea */}
                       <div className="mb-4">
-                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-2">
+                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-2">
                           {lang === 'FR' ? "Détails du problème" : "Detay sou pwoblèm nan"}
                         </label>
                         <textarea
@@ -4975,13 +4975,13 @@ export default function App() {
                               ? "Décrivez le problème rencontré avec le plus de précisions possibles (packs, prix affiché, erreur etc.)..."
                               : "Dekri pwoblèm ou jwenn nan ak plis detay posib (pake, pri ki afiche, erè, elatriye)..."
                           }
-                          className="w-full bg-[#0c0714] border border-white/[0.08] text-xs px-3.5 py-3 rounded-2xl text-white font-medium focus:outline-none focus:border-[#a855f7]/50 placeholder-white/20 resize-none leading-relaxed"
+                          className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] text-xs px-3.5 py-3 rounded-2xl text-[var(--tt-text)] font-medium focus:outline-none focus:border-[var(--tt-accent)]/50 placeholder-[var(--tt-text-faint)] resize-none leading-relaxed"
                         />
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="mt-6 pt-4 border-t border-white/[0.05]">
+                    <div className="mt-6 pt-4 border-t border-[var(--tt-border)]">
                       <a
                         href={getWhatsAppReportLink(selectedProduct, reportIssueType, reportIssueDetails)}
                         target="_blank"
@@ -4993,7 +4993,7 @@ export default function App() {
                       </a>
                       <button
                         onClick={() => setShowReportForm(false)}
-                        className="w-full bg-white/5 hover:bg-white/10 text-white font-bold text-xs py-3.5 rounded-2xl border border-white/10 transition-colors"
+                        className="w-full bg-[var(--tt-overlay)] hover:bg-[var(--tt-overlay-strong)] text-[var(--tt-text)] font-bold text-xs py-3.5 rounded-2xl border border-[var(--tt-border)] transition-colors"
                       >
                         {lang === 'FR' ? "Retour à l'achat" : "Retounen nan achte"}
                       </button>
@@ -5006,26 +5006,26 @@ export default function App() {
                       {/* Out of Stock Header */}
                       <div className="flex items-center gap-2 mb-4">
                         <Info className="w-5 h-5 text-[var(--tt-accent)]" />
-                        <h3 className="text-base font-black text-white">
+                        <h3 className="text-base font-black text-[var(--tt-text)]">
                           {lang === 'FR' ? "Produit en rupture de stock" : "Pwodwi sa a fini nan stòk"}
                         </h3>
                       </div>
-                      <p className="text-[11px] text-white/50 mb-5 leading-relaxed font-medium">
+                      <p className="text-[11px] text-[var(--tt-text-muted)] mb-5 leading-relaxed font-medium">
                         {lang === 'FR'
                           ? `Cet article (${selectedProduct.name}) est actuellement indisponible. Entrez votre adresse e-mail ci-dessous pour être alerté(e) dès qu'il sera de retour en stock.`
                           : `Atik sa a (${selectedProduct.name}) pa disponib pou kounye a. Antre imel ou anba a pou n avize w lè l retounen nan stòk.`}
                       </p>
 
                       {alertSubmitted ? (
-                        <div className="bg-[#12b98a]/5 border border-[#12b98a]/20 rounded-2xl p-5 text-center flex flex-col items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-[#12b98a]/10 border border-[#12b98a]/30 flex items-center justify-center text-[#12b98a]">
+                        <div className="bg-[var(--tt-good)]/5 border border-[var(--tt-good)]/20 rounded-2xl p-5 text-center flex flex-col items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-[var(--tt-good)]/10 border border-[var(--tt-good)]/30 flex items-center justify-center text-[var(--tt-good)]">
                             <Check className="w-6 h-6" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-black text-white mb-1">
+                            <h4 className="text-sm font-black text-[var(--tt-text)] mb-1">
                               {lang === 'FR' ? 'Alerte créée avec succès !' : 'Alèt la anrejistre avèk siksè !'}
                             </h4>
-                            <p className="text-[10px] text-white/60 leading-relaxed">
+                            <p className="text-[10px] text-[var(--tt-text-muted)] leading-relaxed">
                               {lang === 'FR'
                                 ? `Nous vous enverrons un e-mail à ${alertEmail} dès que cet article sera disponible.`
                                 : `N ap voye yon imel ba ou nan ${alertEmail} touswit lè atik sa a disponib.`}
@@ -5035,23 +5035,23 @@ export default function App() {
                       ) : (
                         <form onSubmit={handleStockAlertSubmit} className="space-y-4">
                           <div>
-                            <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-2">
+                            <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-2">
                               {lang === 'FR' ? "Votre adresse e-mail" : "Adrès imel ou"}
                             </label>
                             <div className="relative">
-                              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--tt-text-faint)]" />
                               <input
                                 type="email"
                                 value={alertEmail}
                                 onChange={(e) => setAlertEmail(e.target.value)}
                                 placeholder="nom@exemple.com"
-                                className="w-full bg-[#0c0714] border border-white/[0.08] text-xs pl-10 pr-3.5 py-3 rounded-2xl text-white font-medium focus:outline-none focus:border-[#a855f7]/50 placeholder-white/20"
+                                className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] text-xs pl-10 pr-3.5 py-3 rounded-2xl text-[var(--tt-text)] font-medium focus:outline-none focus:border-[var(--tt-accent)]/50 placeholder-[var(--tt-text-faint)]"
                                 required
                                 disabled={alertLoading}
                               />
                             </div>
                             {alertError && (
-                              <p className="text-[10px] text-red-400 font-bold mt-1.5 flex items-center gap-1">
+                              <p className="text-[10px] text-[var(--tt-danger)] font-bold mt-1.5 flex items-center gap-1">
                                 <AlertTriangle className="w-3.5 h-3.5" />
                                 <span>{alertError}</span>
                               </p>
@@ -5077,17 +5077,17 @@ export default function App() {
                     </div>
 
                     {/* Footer / Report options in case of out of stock too */}
-                    <div className="mt-6 pt-4 border-t border-white/[0.05] flex flex-col gap-2">
-                      <div className="flex justify-between items-center text-[9px] font-extrabold text-white/30 uppercase tracking-widest">
+                    <div className="mt-6 pt-4 border-t border-[var(--tt-border)] flex flex-col gap-2">
+                      <div className="flex justify-between items-center text-[9px] font-extrabold text-[var(--tt-text-faint)] uppercase tracking-widest">
                         <span>ThieThie Services</span>
-                        <span className="bg-red-500/10 text-red-400 px-2 py-0.5 rounded uppercase font-black">
+                        <span className="bg-[var(--tt-danger)]/10 text-[var(--tt-danger)] px-2 py-0.5 rounded uppercase font-black">
                           {lang === 'FR' ? 'Rupture de Stock' : 'Fini nan Stòk'}
                         </span>
                       </div>
                       <div className="mt-2 text-center">
                         <button
                           onClick={() => setShowReportForm(true)}
-                          className="text-[10px] text-white/35 hover:text-[var(--tt-accent)] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
+                          className="text-[10px] text-[var(--tt-text-faint)] hover:text-[var(--tt-accent)] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
                         >
                           <AlertTriangle className="w-3.5 h-3.5 text-[var(--tt-accent)]/50" />
                           <span>{lang === 'FR' ? "Signaler un problème" : "Rapòte yon pwoblèm"}</span>
@@ -5109,7 +5109,7 @@ export default function App() {
                                selectedProduct.categorySlug === 'pubg' ? 'PUBG Mobile Player ID' : 
                                `${CATEGORIES.find(c => c.slug === selectedProduct.categorySlug)?.name || 'Game'} Player ID`}
                             </span>
-                            <span className="text-red-500 font-bold">*</span>
+                            <span className="text-[var(--tt-danger)] font-bold">*</span>
                           </label>
                           <div className="relative">
                             <input
@@ -5126,18 +5126,18 @@ export default function App() {
                                 `Enter your ${CATEGORIES.find(c => c.slug === selectedProduct.categorySlug)?.name || 'Game'} Player ID`
                               }
                               required
-                              className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-xs text-white px-3.5 py-3 rounded-2xl focus:outline-none pl-10 transition-colors"
+                              className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-xs text-[var(--tt-text)] px-3.5 py-3 rounded-2xl focus:outline-none pl-10 transition-colors"
                             />
-                            <User className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                            <User className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                           </div>
                           
                           {/* Helper Text below input field */}
-                          <p className="text-white/40 text-[10px] font-medium mt-1.5 pl-1">
+                          <p className="text-[var(--tt-text-faint)] text-[10px] font-medium mt-1.5 pl-1">
                             {getPlayerIdHelperText(selectedProduct.categorySlug, lang)}
                           </p>
 
                           {freeFirePlayerIdError && (
-                            <p className="text-red-400 text-[10px] font-bold mt-1.5 flex items-center gap-1 animate-pulse">
+                            <p className="text-[var(--tt-danger)] text-[10px] font-bold mt-1.5 flex items-center gap-1 animate-pulse">
                               <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                               {freeFirePlayerIdError}
                             </p>
@@ -5148,7 +5148,7 @@ export default function App() {
                       {/* Select Region buttons */}
                       {selectedProduct.regions.length > 0 && (
                         <div className="mb-6">
-                          <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-2">
+                          <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-2">
                             {t('selectRegion')}
                           </label>
                           <div className="flex flex-wrap gap-2">
@@ -5158,8 +5158,8 @@ export default function App() {
                                 onClick={() => setSelectedRegionIndex(idx)}
                                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                                   idx === selectedRegionIndex
-                                    ? 'bg-[#8b5cf6] text-white border-transparent shadow-md'
-                                    : 'bg-[#0c0714] border-white/[0.08] text-white/60 hover:text-white'
+                                    ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)] border-transparent shadow-md'
+                                    : 'bg-[var(--tt-bg)] border-[var(--tt-border)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text)]'
                                 }`}
                               >
                                 {reg}
@@ -5171,7 +5171,7 @@ export default function App() {
 
                       {/* Select Amount Packages list */}
                       <div className="mb-6">
-                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-2">
+                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-2">
                           {t('selectAmount')}
                         </label>
                         <div className="flex flex-col gap-2 max-h-52 overflow-y-auto pr-1">
@@ -5181,16 +5181,16 @@ export default function App() {
                               onClick={() => setSelectedAmountIndex(idx)}
                               className={`flex justify-between items-center p-3 rounded-2xl cursor-pointer border transition-all ${
                                 idx === selectedAmountIndex
-                                  ? 'bg-[#a855f7]/10 border-[#a855f7] text-white shadow-inner'
-                                  : 'bg-[#0c0714] border-white/[0.08] text-white/60 hover:bg-white/[0.02]'
+                                  ? 'bg-[var(--tt-accent)]/10 border-[var(--tt-accent)] text-[var(--tt-text)] shadow-inner'
+                                  : 'bg-[var(--tt-bg)] border-[var(--tt-border)] text-[var(--tt-text-muted)] hover:bg-[var(--tt-overlay)]'
                               }`}
                             >
                               <div className="flex items-center gap-2.5">
                                 <span className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                                  idx === selectedAmountIndex ? 'border-[#a855f7]' : 'border-white/20'
+                                  idx === selectedAmountIndex ? 'border-[var(--tt-accent)]' : 'border-[var(--tt-border-strong)]'
                                 }`}>
                                   {idx === selectedAmountIndex && (
-                                    <span className="w-2 h-2 rounded-full bg-[#a855f7]" />
+                                    <span className="w-2 h-2 rounded-full bg-[var(--tt-accent)]" />
                                   )}
                                 </span>
                                 <span className="text-xs font-extrabold">{opt.amount}</span>
@@ -5205,7 +5205,7 @@ export default function App() {
 
                       {/* Mode de Paiement Selection */}
                       <div className="mb-6">
-                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-2.5">
+                        <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-2.5">
                           {lang === 'FR' ? 'Mode de Paiement' : 'Mwayen Peman'}
                         </label>
                         <div className="grid grid-cols-2 gap-2">
@@ -5220,34 +5220,34 @@ export default function App() {
                                 pm.id === 'BinancePay' || pm.id === 'NatCash' || pm.id === 'MonCash' ? 'col-span-2' : ''
                               } ${
                                 selectedPaymentMethod === pm.id
-                                  ? 'bg-[#a855f7]/10 border-[#a855f7] text-white shadow-lg shadow-[#a855f7]/5'
-                                  : 'bg-[#0c0714] border-white/[0.08] text-white/60 hover:border-white/20 hover:bg-white/[0.02]'
+                                  ? 'bg-[var(--tt-accent)]/10 border-[var(--tt-accent)] text-[var(--tt-text)] shadow-lg shadow-[#a855f7]/5'
+                                  : 'bg-[var(--tt-bg)] border-[var(--tt-border)] text-[var(--tt-text-muted)] hover:border-[var(--tt-border-strong)] hover:bg-[var(--tt-overlay)]'
                               }`}
                             >
                               <div className="flex justify-between items-center w-full">
                                 <div className="flex items-center gap-2">
                                   {pm.id === 'BinancePay' && (
                                     <div className="relative w-4 h-4 flex items-center justify-center bg-[#F0B90B] rotate-45 rounded-[2px] shadow-sm shrink-0">
-                                      <div className="w-2 h-2 bg-[#0c0714] rounded-[1px]" />
+                                      <div className="w-2 h-2 bg-[var(--tt-bg)] rounded-[1px]" />
                                     </div>
                                   )}
                                   {pm.id === 'NatCash' && (
                                     <div className="relative w-4 h-4 flex items-center justify-center bg-[#FF9F1C] rounded-full shadow-sm shrink-0">
-                                      <span className="text-[9px] font-black text-white">N</span>
+                                      <span className="text-[9px] font-black text-[var(--tt-text)]">N</span>
                                     </div>
                                   )}
                                   {pm.id === 'MonCash' && (
                                     <div className="relative w-4 h-4 flex items-center justify-center bg-red-600 rounded-full shadow-sm shrink-0">
-                                      <span className="text-[9px] font-black text-white">M</span>
+                                      <span className="text-[9px] font-black text-[var(--tt-text)]">M</span>
                                     </div>
                                   )}
-                                  <span className="text-xs font-black text-white">{pm.label}</span>
+                                  <span className="text-xs font-black text-[var(--tt-text)]">{pm.label}</span>
                                 </div>
                                 <span className={`w-2.5 h-2.5 rounded-full border flex items-center justify-center ${
-                                  selectedPaymentMethod === pm.id ? 'border-[#a855f7] bg-[#a855f7]' : 'border-white/25'
+                                  selectedPaymentMethod === pm.id ? 'border-[var(--tt-accent)] bg-[var(--tt-accent)]' : 'border-[var(--tt-border-strong)]'
                                 }`} />
                               </div>
-                              <span className="text-[9px] text-white/45 mt-1 font-bold uppercase tracking-wider tabular-nums">{pm.desc}</span>
+                              <span className="text-[9px] text-[var(--tt-text-muted)] mt-1 font-bold uppercase tracking-wider tabular-nums">{pm.desc}</span>
                             </button>
                           ))}
                         </div>
@@ -5262,8 +5262,8 @@ export default function App() {
                            PAIEMENT WALLET — débit instantané via placeOrder (rien en externe)
                         ========================================== */
                         <div className="flex flex-col gap-3">
-                          <div className="flex items-center justify-between p-3 rounded-2xl bg-[#0c0714] border border-white/[0.08]">
-                            <span className="text-[10px] uppercase tracking-wider font-extrabold text-white/40">
+                          <div className="flex items-center justify-between p-3 rounded-2xl bg-[var(--tt-bg)] border border-[var(--tt-border)]">
+                            <span className="text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)]">
                               {lang === 'FR' ? 'Solde Wallet' : 'Balans Wallet'}
                             </span>
                             <span className="text-sm font-black text-[var(--tt-accent)] tabular-nums">
@@ -5273,14 +5273,14 @@ export default function App() {
 
                           {isGameCategoryRequiringPlayerId(selectedProduct.categorySlug) && (
                             <div>
-                              <label className="block text-[10px] uppercase tracking-wider font-extrabold text-white/40 mb-1.5">
+                              <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-1.5">
                                 {lang === 'FR' ? 'ID de joueur' : 'ID jwè'}
                               </label>
                               <input
                                 value={freeFirePlayerId}
                                 onChange={(e) => setFreeFirePlayerId(e.target.value)}
                                 placeholder={getPlayerIdHelperText(selectedProduct.categorySlug, lang)}
-                                className="w-full p-3 rounded-2xl bg-[#0c0714] border border-white/[0.08] text-white text-sm outline-none focus:border-[#a855f7]"
+                                className="w-full p-3 rounded-2xl bg-[var(--tt-bg)] border border-[var(--tt-border)] text-[var(--tt-text)] text-sm outline-none focus:border-[var(--tt-accent)]"
                               />
                             </div>
                           )}
@@ -5302,7 +5302,7 @@ export default function App() {
                               <>
                                 {range && (
                                   <div className="mb-3">
-                                    <label className="text-[11px] font-bold text-white/50 mb-1.5 block">
+                                    <label className="text-[11px] font-bold text-[var(--tt-text-muted)] mb-1.5 block">
                                       {lang === 'FR'
                                         ? `Montant de la carte (${fmtUsdCents(range.minUsdCents)} – ${fmtUsdCents(range.maxUsdCents)})`
                                         : `Montan kat la (${fmtUsdCents(range.minUsdCents)} – ${fmtUsdCents(range.maxUsdCents)})`}
@@ -5316,22 +5316,22 @@ export default function App() {
                                       max={range.maxUsdCents / 100}
                                       step={0.01}
                                       placeholder={`ex. 25 ou 14.99`}
-                                      className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none font-bold tabular-nums"
+                                      className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none font-bold tabular-nums"
                                     />
                                   </div>
                                 )}
                                 {isCard && (
                                   <div className="mb-3 flex items-center justify-between gap-3">
-                                    <span className="text-[11px] font-bold text-white/50">{lang === 'FR' ? 'Nombre de cartes' : 'Kantite kat'}</span>
+                                    <span className="text-[11px] font-bold text-[var(--tt-text-muted)]">{lang === 'FR' ? 'Nombre de cartes' : 'Kantite kat'}</span>
                                     <div className="flex items-center gap-2">
-                                      <button type="button" onClick={() => setCardQty((q) => Math.max(1, (q || 1) - 1))} className="w-8 h-8 rounded-lg bg-white/[0.06] hover:bg-white/10 font-black text-white">−</button>
+                                      <button type="button" onClick={() => setCardQty((q) => Math.max(1, (q || 1) - 1))} className="w-8 h-8 rounded-lg bg-[var(--tt-overlay-strong)] hover:bg-[var(--tt-overlay-strong)] font-black text-[var(--tt-text)]">−</button>
                                       <span className="w-8 text-center font-black tabular-nums">{qty}</span>
-                                      <button type="button" onClick={() => setCardQty((q) => Math.min(20, (q || 1) + 1))} className="w-8 h-8 rounded-lg bg-white/[0.06] hover:bg-white/10 font-black text-white">+</button>
+                                      <button type="button" onClick={() => setCardQty((q) => Math.min(20, (q || 1) + 1))} className="w-8 h-8 rounded-lg bg-[var(--tt-overlay-strong)] hover:bg-[var(--tt-overlay-strong)] font-black text-[var(--tt-text)]">+</button>
                                     </div>
                                   </div>
                                 )}
                                 {isCard && validAmount && unitCents > 0 && (
-                                  <p className="text-[11px] text-white/50 mb-2 tabular-nums flex items-center justify-between">
+                                  <p className="text-[11px] text-[var(--tt-text-muted)] mb-2 tabular-nums flex items-center justify-between">
                                     <span>{qty > 1 ? `${formatPrice(unitCents / 14500)} × ${qty}` : (lang === 'FR' ? 'Prix' : 'Pri')}</span>
                                     <span className="text-[var(--tt-accent)] font-black">{formatPrice(totalUsd)}</span>
                                   </p>
@@ -5340,7 +5340,7 @@ export default function App() {
                                   type="button"
                                   disabled={walletPaying || !enough || !available || !validAmount}
                                   onClick={handleWalletPay}
-                                  className="w-full py-3.5 rounded-2xl font-black text-sm bg-[#a855f7] text-[#0c0714] disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:brightness-105 active:scale-[0.99] tabular-nums"
+                                  className="w-full py-3.5 rounded-2xl font-black text-sm bg-[var(--tt-accent)] text-[var(--tt-on-accent)] disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:brightness-105 active:scale-[0.99] tabular-nums"
                                 >
                                   {walletPaying
                                     ? (lang === 'FR' ? 'Paiement…' : 'N ap peye…')
@@ -5356,19 +5356,19 @@ export default function App() {
                                   type="button"
                                   disabled={!available || !validAmount}
                                   onClick={handleAddToCart}
-                                  className="w-full mt-2 py-3 rounded-2xl font-black text-sm bg-white/[0.06] hover:bg-white/[0.1] text-white border border-white/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                                  className="w-full mt-2 py-3 rounded-2xl font-black text-sm bg-[var(--tt-overlay-strong)] hover:bg-[var(--tt-overlay-strong)] text-[var(--tt-text)] border border-[var(--tt-border)] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                                 >
                                   <ShoppingCart className="w-4 h-4" />
                                   {lang === 'FR' ? 'Ajouter au panier' : 'Mete nan panye a'}
                                 </button>
                                 {!available ? (
-                                  <p className="text-[11px] text-red-400 font-bold text-center leading-snug">
+                                  <p className="text-[11px] text-[var(--tt-danger)] font-bold text-center leading-snug">
                                     {lang === 'FR'
                                       ? 'Cet article est momentanément indisponible.'
                                       : 'Atik sa a pa disponib pou kounye a.'}
                                   </p>
                                 ) : validAmount && !enough ? (
-                                  <p className="text-[11px] text-red-400 font-bold text-center leading-snug">
+                                  <p className="text-[11px] text-[var(--tt-danger)] font-bold text-center leading-snug">
                                     {lang === 'FR'
                                       ? 'Solde insuffisant — rechargez votre wallet via un dépôt.'
                                       : 'Balans pa ase — rechaje wallet ou ak yon depo.'}
@@ -5381,11 +5381,11 @@ export default function App() {
                       ) : null}
 
                       {/* Payment info under list */}
-                      <div className="mt-4 pt-3 border-t border-white/[0.05] flex justify-between items-center">
-                        <span className="text-[9px] font-extrabold text-white/30 uppercase tracking-widest">
+                      <div className="mt-4 pt-3 border-t border-[var(--tt-border)] flex justify-between items-center">
+                        <span className="text-[9px] font-extrabold text-[var(--tt-text-faint)] uppercase tracking-widest">
                           {lang === 'FR' ? 'Paiement par Wallet · Instantané' : 'Peman ak Wallet · Enstantane'}
                         </span>
-                        <span className="text-[9px] bg-[#12b98a]/10 text-[#12b98a] font-bold px-2 py-0.5 rounded uppercase">
+                        <span className="text-[9px] bg-[var(--tt-good)]/10 text-[var(--tt-good)] font-bold px-2 py-0.5 rounded uppercase">
                           {t('stock')}
                         </span>
                       </div>
@@ -5394,7 +5394,7 @@ export default function App() {
                       <div className="mt-3.5 text-center">
                         <button
                           onClick={() => setShowReportForm(true)}
-                          className="text-[10px] text-white/35 hover:text-[var(--tt-accent)] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
+                          className="text-[10px] text-[var(--tt-text-faint)] hover:text-[var(--tt-accent)] transition-colors uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 mx-auto"
                         >
                           <AlertTriangle className="w-3.5 h-3.5 text-[var(--tt-accent)]/50" />
                           <span>{lang === 'FR' ? "Signaler un problème" : "Rapòte yon pwoblèm"}</span>
@@ -5419,25 +5419,25 @@ export default function App() {
       {authModalOpen && (
         <div id="auth-modal" className="fixed inset-0 z-50 bg-black/80 overflow-y-auto animate-fadeIn backdrop-blur-sm">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <div className="bg-[#1c1030] border border-white/[0.08] rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl my-8 p-6 text-left">
+            <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl my-8 p-6 text-left">
             
             {/* Close button */}
             <button
               onClick={() => { setAuthModalOpen(false); setAuthError(null); }}
-              className="absolute top-4 right-4 p-2 rounded-full bg-[var(--tt-surface-2)] text-white hover:bg-red-500 transition-colors z-10"
+              className="absolute top-4 right-4 p-2 rounded-full bg-[var(--tt-surface-2)] text-[var(--tt-text)] hover:bg-red-500 transition-colors z-10"
               aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}
             >
               <X className="w-4 h-4" />
             </button>
 
             {/* Mode Selector Tabs */}
-            <div className="grid grid-cols-2 gap-1 bg-[var(--tt-surface-2)] p-1 rounded-xl mb-6 border border-white/[0.04] mt-2 select-none">
+            <div className="grid grid-cols-2 gap-1 bg-[var(--tt-surface-2)] p-1 rounded-xl mb-6 border border-[var(--tt-border)] mt-2 select-none">
               <button
                 onClick={() => { setAuthMode('login'); setAuthError(null); }}
                 className={`py-2 text-xs font-black rounded-lg transition-all ${
                   authMode === 'login' 
-                    ? 'bg-[#a855f7] text-black shadow-sm' 
-                    : 'text-white/60 hover:text-white hover:bg-white/[0.02]'
+                    ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)] shadow-sm' 
+                    : 'text-[var(--tt-text-muted)] hover:text-[var(--tt-text)] hover:bg-[var(--tt-overlay)]'
                 }`}
               >
                 {lang === 'FR' ? 'Connexion' : 'Koneksyon'}
@@ -5446,22 +5446,22 @@ export default function App() {
                 onClick={() => { setAuthMode('register'); setAuthError(null); }}
                 className={`py-2 text-xs font-black rounded-lg transition-all ${
                   authMode === 'register' 
-                    ? 'bg-[#a855f7] text-black shadow-sm' 
-                    : 'text-white/60 hover:text-white hover:bg-white/[0.02]'
+                    ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)] shadow-sm' 
+                    : 'text-[var(--tt-text-muted)] hover:text-[var(--tt-text)] hover:bg-[var(--tt-overlay)]'
                 }`}
               >
                 {lang === 'FR' ? "S'inscrire" : 'Enskri'}
               </button>
             </div>
 
-            <h3 className="text-xl font-black text-white mb-2 tracking-tight flex items-center gap-2">
+            <h3 className="text-xl font-black text-[var(--tt-text)] mb-2 tracking-tight flex items-center gap-2">
               <Lock className="w-5 h-5 text-[var(--tt-accent)]" />
               {authMode === 'login' 
                 ? (lang === 'FR' ? 'Bon retour parmi nous !' : 'Byenveni ankò !') 
                 : (lang === 'FR' ? 'Créer un compte Joueur' : 'Kreye yon kont Jwè')
               }
             </h3>
-            <p className="text-xs text-white/50 mb-5 leading-relaxed">
+            <p className="text-xs text-[var(--tt-text-muted)] mb-5 leading-relaxed">
               {authMode === 'login'
                 ? (lang === 'FR' ? 'Connectez-vous pour synchroniser vos points de fidélité et vos achats.' : 'Konekte pou n ka sove pwen fidelite w ak acha w yo.')
                 : (lang === 'FR' ? 'Inscrivez-vous pour commencer à accumuler et synchroniser vos points de fidélité.' : 'Enskri pou n ka kòmanse sove pwen fidelite w yo.')
@@ -5469,7 +5469,7 @@ export default function App() {
             </p>
 
             {authError && (
-              <div className="mb-4 bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-xs font-bold flex items-center gap-2">
+              <div className="mb-4 bg-[var(--tt-danger)]/10 border border-[var(--tt-danger)]/20 text-[var(--tt-danger)] p-3 rounded-xl text-xs font-bold flex items-center gap-2">
                 <AlertTriangle className="w-4.5 h-4.5 shrink-0" />
                 <span>{authError}</span>
               </div>
@@ -5480,7 +5480,7 @@ export default function App() {
               {authMode === 'register' && (
                 <>
                   <div>
-                    <label className="block text-[10px] text-white/40 uppercase tracking-wider font-extrabold mb-1.5">
+                    <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-wider font-extrabold mb-1.5">
                       {lang === 'FR' ? "Nom d'affichage" : "Non d'affichage"}
                     </label>
                     <div className="relative">
@@ -5490,14 +5490,14 @@ export default function App() {
                         onChange={(e) => setAuthDisplayName(e.target.value)}
                         placeholder="e.g. ProGamer"
                         required
-                        className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                        className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none pl-10"
                       />
-                      <User className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                      <User className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] text-white/40 uppercase tracking-wider font-extrabold mb-1.5">
+                    <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-wider font-extrabold mb-1.5">
                       {lang === 'FR' ? 'Numéro WhatsApp (Optionnel)' : 'Nimewo WhatsApp (Si ou vle)'}
                     </label>
                     <div className="relative">
@@ -5506,16 +5506,16 @@ export default function App() {
                         value={authPhone}
                         onChange={(e) => setAuthPhone(e.target.value)}
                         placeholder="e.g. +509 3737-3737"
-                        className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                        className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none pl-10"
                       />
-                      <Phone className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                      <Phone className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                     </div>
                   </div>
                 </>
               )}
 
               <div>
-                <label className="block text-[10px] text-white/40 uppercase tracking-wider font-extrabold mb-1.5">
+                <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-wider font-extrabold mb-1.5">
                   {lang === 'FR' ? 'Adresse E-mail' : 'Adrès Imel'}
                 </label>
                 <div className="relative">
@@ -5525,14 +5525,14 @@ export default function App() {
                     onChange={(e) => setAuthEmail(e.target.value)}
                     placeholder="e.g. joueur@gmail.com"
                     required
-                    className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                    className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none pl-10"
                   />
-                  <Mail className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                  <Mail className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] text-white/40 uppercase tracking-wider font-extrabold mb-1.5">
+                <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-wider font-extrabold mb-1.5">
                   {lang === 'FR' ? 'Mot de passe' : 'Mo de pas'}
                 </label>
                 <div className="relative">
@@ -5542,16 +5542,16 @@ export default function App() {
                     onChange={(e) => setAuthPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full bg-[#0c0714] border border-white/[0.08] focus:border-[#a855f7] text-sm text-white px-4 py-3 rounded-xl focus:outline-none pl-10"
+                    className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none pl-10"
                   />
-                  <Lock className="w-4 h-4 text-white/30 absolute left-3.5 top-3.5" />
+                  <Lock className="w-4 h-4 text-[var(--tt-text-faint)] absolute left-3.5 top-3.5" />
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={authLoading}
-                className="w-full mt-2 bg-[#a855f7] hover:bg-[#c084fc] text-black font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
+                className="w-full mt-2 bg-[var(--tt-accent)] hover:bg-[#c084fc] text-[var(--tt-on-accent)] font-extrabold text-xs py-4 rounded-xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/10 hover:shadow-[#a855f7]/20 hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
               >
                 {authLoading ? (
                   <>
@@ -5579,22 +5579,22 @@ export default function App() {
       {cartOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4" onClick={() => setCartOpen(false)}>
           <div
-            className="bg-[var(--tt-surface)] border border-white/[0.08] w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
+            className="bg-[var(--tt-surface)] border border-[var(--tt-border)] w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-5 border-b border-white/[0.06]">
+            <div className="flex items-center justify-between p-5 border-b border-[var(--tt-border)]">
               <h3 className="font-black text-lg flex items-center gap-2">
                 <ShoppingCart className="w-5 h-5 text-[var(--tt-accent)]" />
                 {lang === 'FR' ? 'Mon panier' : 'Panye mwen'}
-                <span className="text-white/40 text-sm font-bold tabular-nums">({cartCount})</span>
+                <span className="text-[var(--tt-text-faint)] text-sm font-bold tabular-nums">({cartCount})</span>
               </h3>
-              <button onClick={() => setCartOpen(false)} className="p-2 rounded-full bg-[var(--tt-surface-2)] hover:bg-white/10" aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}>
+              <button onClick={() => setCartOpen(false)} className="p-2 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-overlay-strong)]" aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}>
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {cart.length === 0 ? (
-              <p className="p-8 text-center text-white/40 text-sm">{lang === 'FR' ? 'Votre panier est vide.' : 'Panye ou vid.'}</p>
+              <p className="p-8 text-center text-[var(--tt-text-faint)] text-sm">{lang === 'FR' ? 'Votre panier est vide.' : 'Panye ou vid.'}</p>
             ) : (
               <>
                 <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
@@ -5603,17 +5603,17 @@ export default function App() {
                       {l.image && <img src={l.image} alt="" className="w-12 h-12 rounded-lg object-cover bg-[var(--tt-surface-2)] shrink-0" />}
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-bold truncate">{l.name}</p>
-                        <p className="text-[11px] text-white/50 tabular-nums">
+                        <p className="text-[11px] text-[var(--tt-text-muted)] tabular-nums">
                           {l.optionLabel}
-                          {l.playerId && <span className="text-white/30"> · ID {l.playerId}</span>}
+                          {l.playerId && <span className="text-[var(--tt-text-faint)]"> · ID {l.playerId}</span>}
                         </p>
                         <p className="text-[11px] text-[var(--tt-accent)] font-black tabular-nums mt-0.5">{formatPrice((l.unitCents * l.qty) / 14500)}</p>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <button onClick={() => cartSetQty(l.key, l.qty - 1)} className="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/10 font-black" aria-label="−">−</button>
+                        <button onClick={() => cartSetQty(l.key, l.qty - 1)} className="w-7 h-7 rounded-lg bg-[var(--tt-overlay-strong)] hover:bg-[var(--tt-overlay-strong)] font-black" aria-label="−">−</button>
                         <span className="w-6 text-center font-black tabular-nums text-sm">{l.qty}</span>
-                        <button onClick={() => cartSetQty(l.key, l.qty + 1)} className="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/10 font-black" aria-label="+">+</button>
-                        <button onClick={() => cartRemove(l.key)} className="ml-1 text-white/30 hover:text-red-400 p-1" aria-label={lang === 'FR' ? 'Retirer' : 'Retire'}>
+                        <button onClick={() => cartSetQty(l.key, l.qty + 1)} className="w-7 h-7 rounded-lg bg-[var(--tt-overlay-strong)] hover:bg-[var(--tt-overlay-strong)] font-black" aria-label="+">+</button>
+                        <button onClick={() => cartRemove(l.key)} className="ml-1 text-[var(--tt-text-faint)] hover:text-[var(--tt-danger)] p-1" aria-label={lang === 'FR' ? 'Retirer' : 'Retire'}>
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -5621,12 +5621,12 @@ export default function App() {
                   ))}
                 </div>
 
-                <div className="p-5 border-t border-white/[0.06] flex flex-col gap-3">
+                <div className="p-5 border-t border-[var(--tt-border)] flex flex-col gap-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-white/60">{lang === 'FR' ? 'Total' : 'Total'}</span>
+                    <span className="text-sm font-bold text-[var(--tt-text-muted)]">{lang === 'FR' ? 'Total' : 'Total'}</span>
                     <span className="text-xl font-black text-[var(--tt-accent)] tabular-nums">{formatPrice(cartTotalCents / 14500)}</span>
                   </div>
-                  <div className="flex items-center justify-between text-[11px] text-white/40">
+                  <div className="flex items-center justify-between text-[11px] text-[var(--tt-text-faint)]">
                     <span>{lang === 'FR' ? 'Solde wallet' : 'Balans wallet'}</span>
                     <span className="tabular-nums">{(walletBalanceCents / 100).toLocaleString('fr-FR')} HTG</span>
                   </div>
@@ -5634,7 +5634,7 @@ export default function App() {
                     type="button"
                     onClick={handleCartCheckout}
                     disabled={cartPaying || walletBalanceCents < cartTotalCents}
-                    className="w-full py-3.5 rounded-2xl font-black text-sm bg-[#a855f7] text-[#0c0714] disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.99] transition-all"
+                    className="w-full py-3.5 rounded-2xl font-black text-sm bg-[var(--tt-accent)] text-[var(--tt-on-accent)] disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-105 active:scale-[0.99] transition-all"
                   >
                     {cartPaying
                       ? (lang === 'FR' ? 'Paiement…' : 'N ap peye…')
@@ -5642,7 +5642,7 @@ export default function App() {
                       ? (lang === 'FR' ? 'Solde insuffisant' : 'Balans pa ase')
                       : (lang === 'FR' ? 'Payer avec mon wallet' : 'Peye ak wallet mwen')}
                   </button>
-                  <p className="text-[10px] text-white/30 text-center">
+                  <p className="text-[10px] text-[var(--tt-text-faint)] text-center">
                     {lang === 'FR'
                       ? 'Un seul paiement · chaque article est livré séparément dans votre compte.'
                       : 'Yon sèl peman · chak atik livre apa pa imel.'}
@@ -5658,9 +5658,9 @@ export default function App() {
       {pointsToast && pointsToast.show && (
         <div
           id="loyalty-points-celebration"
-          className="tt-toast fixed top-24 right-6 z-50 max-w-[340px] bg-gradient-to-r from-[#1c1030] to-[#0c0714] border-2 border-[#a855f7] rounded-2xl p-4 shadow-2xl flex items-center gap-3.5 overflow-hidden"
+          className="tt-toast fixed top-24 right-6 z-50 max-w-[340px] bg-gradient-to-r from-[var(--tt-surface)] to-[var(--tt-bg)] border-2 border-[var(--tt-accent)] rounded-2xl p-4 shadow-2xl flex items-center gap-3.5 overflow-hidden"
         >
-          <div className="w-12 h-12 rounded-full bg-[#a855f7]/10 border border-[#a855f7]/30 flex items-center justify-center text-[#c084fc] relative flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-[var(--tt-accent)]/10 border border-[var(--tt-accent)]/30 flex items-center justify-center text-[var(--tt-accent)] relative flex-shrink-0">
             <Coins className="w-6 h-6 animate-spin" style={{ animationDuration: '4s' }} />
             <Sparkles className="w-3.5 h-3.5 text-[var(--tt-accent)] absolute -top-1 -right-1 animate-pulse" />
           </div>
@@ -5668,22 +5668,22 @@ export default function App() {
             <h4 className="text-xs font-black text-[var(--tt-accent)] uppercase tracking-wider mb-0.5">
               {lang === 'FR' ? 'Points Gagnés !' : 'Pwen jwenn !'}
             </h4>
-            <p className="text-[11px] text-white font-medium leading-relaxed">
+            <p className="text-[11px] text-[var(--tt-text)] font-medium leading-relaxed">
               {pointsToast.msg}
             </p>
-            <div className="flex items-center gap-1 mt-1 text-[9px] text-[#c084fc] font-extrabold uppercase tracking-widest">
+            <div className="flex items-center gap-1 mt-1 text-[9px] text-[var(--tt-accent)] font-extrabold uppercase tracking-widest">
               <Award className="w-3.5 h-3.5 text-[var(--tt-accent)]" />
               <span>{lang === 'FR' ? 'Nouveau total : ' : 'Nouvo total : '} {thieThiePoints} PTS</span>
             </div>
           </div>
           <button
             onClick={() => setPointsToast(null)}
-            className="text-white/30 hover:text-white transition-colors p-1"
+            className="text-[var(--tt-text-faint)] hover:text-[var(--tt-text)] transition-colors p-1"
             aria-label={lang === 'FR' ? 'Fermer la notification' : 'Fèmen notifikasyon'}
           >
             <X className="w-3 h-3" />
           </button>
-          <span className="tt-toast-bar absolute left-0 bottom-0 h-[3px] bg-[#a855f7]" style={{ animationDuration: '4s' }} />
+          <span className="tt-toast-bar absolute left-0 bottom-0 h-[3px] bg-[var(--tt-accent)]" style={{ animationDuration: '4s' }} />
         </div>
       )}
 
@@ -5695,7 +5695,7 @@ export default function App() {
             pointsToast?.show ? 'top-[184px]' : 'top-24'
           }`}
         >
-          <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 relative flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-[var(--tt-good)]/10 border border-[var(--tt-good)]/30 flex items-center justify-center text-[var(--tt-good)] relative flex-shrink-0">
             <Bell className="w-6 h-6 animate-bounce" />
             <span className="absolute -top-1 -right-1 flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -5703,21 +5703,21 @@ export default function App() {
             </span>
           </div>
           <div className="flex-grow">
-            <h4 className="text-xs font-black text-emerald-400 uppercase tracking-wider mb-0.5">
+            <h4 className="text-xs font-black text-[var(--tt-good)] uppercase tracking-wider mb-0.5">
               {lang === 'FR' ? 'Commande Livrée !' : 'Kòmand Livre !'}
             </h4>
-            <p className="text-[11px] text-white font-medium leading-relaxed">
+            <p className="text-[11px] text-[var(--tt-text)] font-medium leading-relaxed">
               {lang === 'FR'
                 ? `Votre commande (${orderToast.productName}) est complétée et disponible !`
                 : `Kòmand ou pou (${orderToast.productName}) konplete e li disponib !`}
             </p>
-            <div className="mt-1 text-[9px] text-emerald-400/80 font-mono">
+            <div className="mt-1 text-[9px] text-[var(--tt-good)]/80 font-mono">
               ID: {orderToast.orderId}
             </div>
           </div>
           <button
             onClick={() => setOrderToast(null)}
-            className="text-white/30 hover:text-white transition-colors p-1 self-start"
+            className="text-[var(--tt-text-faint)] hover:text-[var(--tt-text)] transition-colors p-1 self-start"
             aria-label="Fermer"
           >
             <X className="w-3.5 h-3.5" />
@@ -5732,26 +5732,26 @@ export default function App() {
           role="status"
           // sous lg, BottomTabBar (fixed bottom-0, ~51 px) occupe le bas de l'écran : ancré à
           // bottom-6 le bandeau passait dessous, « Voir le panier » à moitié masqué.
-          className="fixed left-1/2 -translate-x-1/2 bottom-16 lg:bottom-6 z-50 flex items-center gap-3 bg-[var(--tt-surface)] border border-[#a855f7]/40 rounded-2xl shadow-2xl shadow-black/50 px-4 py-3 max-w-[92vw]"
+          className="fixed left-1/2 -translate-x-1/2 bottom-16 lg:bottom-6 z-50 flex items-center gap-3 bg-[var(--tt-surface)] border border-[var(--tt-accent)]/40 rounded-2xl shadow-2xl shadow-black/50 px-4 py-3 max-w-[92vw]"
         >
-          <span className="w-8 h-8 rounded-full bg-[#a855f7]/15 border border-[#a855f7]/30 flex items-center justify-center shrink-0">
+          <span className="w-8 h-8 rounded-full bg-[var(--tt-accent)]/15 border border-[var(--tt-accent)]/30 flex items-center justify-center shrink-0">
             <Check className="w-4 h-4 text-[var(--tt-accent)]" />
           </span>
-          <p className="text-[12px] font-bold text-white truncate">
+          <p className="text-[12px] font-bold text-[var(--tt-text)] truncate">
             {lang === 'FR' ? 'Ajouté au panier' : 'Mete nan panye a'}
-            <span className="text-white/40 font-medium"> · {cartToast.name}</span>
+            <span className="text-[var(--tt-text-faint)] font-medium"> · {cartToast.name}</span>
           </p>
           <button
             type="button"
             onClick={() => { setCartToast(null); setCartOpen(true); }}
-            className="shrink-0 text-[11px] font-black uppercase tracking-wider text-[var(--tt-accent)] hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-white/[0.06]"
+            className="shrink-0 text-[11px] font-black uppercase tracking-wider text-[var(--tt-accent)] hover:text-[var(--tt-text)] transition-colors px-2 py-1 rounded-lg hover:bg-[var(--tt-overlay-strong)]"
           >
             {lang === 'FR' ? 'Voir le panier' : 'Wè panye a'}
           </button>
           <button
             type="button"
             onClick={() => setCartToast(null)}
-            className="shrink-0 text-white/30 hover:text-white transition-colors p-1"
+            className="shrink-0 text-[var(--tt-text-faint)] hover:text-[var(--tt-text)] transition-colors p-1"
             aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}
           >
             <X className="w-3.5 h-3.5" />
@@ -5771,10 +5771,10 @@ export default function App() {
             type="button"
             onClick={() => setCartOpen(true)}
             aria-label={lang === 'FR' ? `Ouvrir le panier (${cartCount})` : `Louvri panye a (${cartCount})`}
-            className="relative w-14 h-14 rounded-full bg-[#a855f7] text-[#0c0714] shadow-lg shadow-[#a855f7]/30 flex items-center justify-center hover:brightness-110 active:scale-95 transition-all"
+            className="relative w-14 h-14 rounded-full bg-[var(--tt-accent)] text-[var(--tt-on-accent)] shadow-lg shadow-[#a855f7]/30 flex items-center justify-center hover:brightness-110 active:scale-95 transition-all"
           >
             <ShoppingCart className="w-6 h-6" />
-            <span className="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 rounded-full bg-[#0c0714] text-white text-[11px] font-black flex items-center justify-center border-2 border-[#a855f7] tabular-nums">
+            <span className="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 rounded-full bg-[var(--tt-bg)] text-[var(--tt-text)] text-[11px] font-black flex items-center justify-center border-2 border-[var(--tt-accent)] tabular-nums">
               {cartCount}
             </span>
           </button>
@@ -5784,7 +5784,7 @@ export default function App() {
           <button
             id="scroll-to-top-button"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="bg-[#1c1030]/90 hover:bg-[#a855f7] text-white hover:text-black p-3.5 rounded-full border border-white/10 hover:border-transparent shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center backdrop-blur-md group"
+            className="bg-[var(--tt-surface)]/90 hover:bg-[var(--tt-accent)] text-[var(--tt-text)] hover:text-[var(--tt-on-accent)] p-3.5 rounded-full border border-[var(--tt-border)] hover:border-transparent shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center backdrop-blur-md group"
             aria-label="Scroll to top"
           >
             <ArrowUp className="w-5 h-5 transition-transform group-hover:-translate-y-0.5" />
@@ -5800,7 +5800,7 @@ export default function App() {
           className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center group relative"
         >
           <Send className="w-6 h-6 animate-pulse" />
-          <span className="absolute right-16 bg-green-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap hidden md:block">
+          <span className="absolute right-16 bg-green-500 text-[var(--tt-text)] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap hidden md:block">
             Besoin d'aide ? WhatsApp
           </span>
         </a>
@@ -5861,7 +5861,7 @@ export default function App() {
                       if (newsletterStatus !== 'idle') setNewsletterStatus('idle');
                     }}
                     placeholder={lang === 'FR' ? 'Votre adresse email' : 'Adrès imel ou'}
-                    className="w-full bg-[var(--tt-surface-2)] border border-[var(--tt-border)] text-xs px-3.5 py-3 pl-9 rounded-xl text-[var(--tt-text)] focus:outline-none focus:border-[#a855f7]/50 placeholder-white/25"
+                    className="w-full bg-[var(--tt-surface-2)] border border-[var(--tt-border)] text-xs px-3.5 py-3 pl-9 rounded-xl text-[var(--tt-text)] focus:outline-none focus:border-[var(--tt-accent)]/50 placeholder-[var(--tt-text-faint)]"
                     disabled={newsletterStatus === 'loading' || newsletterStatus === 'success'}
                   />
                   <Mail className="absolute left-3 top-3.5 w-4 h-4 text-[var(--tt-text-faint)]" />
@@ -5882,14 +5882,14 @@ export default function App() {
               </div>
             </form>
             {newsletterStatus === 'success' && (
-              <p className="text-[10px] text-emerald-400 font-extrabold mt-1 animate-fadeIn flex items-center gap-1.5 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/10">
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
+              <p className="text-[10px] text-[var(--tt-good)] font-extrabold mt-1 animate-fadeIn flex items-center gap-1.5 bg-[var(--tt-good)]/10 px-3 py-1.5 rounded-lg border border-emerald-500/10">
+                <Check className="w-3.5 h-3.5 text-[var(--tt-good)]" />
                 <span>{newsletterMsg}</span>
               </p>
             )}
             {newsletterStatus === 'error' && (
-              <p className="text-[10px] text-red-400 font-extrabold mt-1 animate-fadeIn flex items-center gap-1.5 bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/10">
-                <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+              <p className="text-[10px] text-[var(--tt-danger)] font-extrabold mt-1 animate-fadeIn flex items-center gap-1.5 bg-[var(--tt-danger)]/10 px-3 py-1.5 rounded-lg border border-red-500/10">
+                <AlertTriangle className="w-3.5 h-3.5 text-[var(--tt-danger)]" />
                 <span>{newsletterMsg}</span>
               </p>
             )}
@@ -5937,13 +5937,13 @@ export default function App() {
                   placeholder="0"
                   className={`w-full bg-[var(--tt-bg)] border text-[11px] px-2.5 py-2 pl-12 rounded-xl text-[var(--tt-text)] font-extrabold transition-all duration-300 focus:outline-none ${
                     calcMode === 'USD' 
-                      ? 'border-[#a855f7] bg-[#a855f7]/5 shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
+                      ? 'border-[var(--tt-accent)] bg-[var(--tt-accent)]/5 shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
                       : 'border-[var(--tt-border)] opacity-70 hover:opacity-100'
                   }`}
                 />
                 <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-[var(--tt-text-faint)]">USD ($)</span>
                 {calcMode === 'USD' && (
-                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[var(--tt-accent)] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
+                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[var(--tt-accent)] bg-[var(--tt-accent)]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
                     {lang === 'FR' ? 'Actif' : 'Aktif'}
                   </span>
                 )}
@@ -5966,13 +5966,13 @@ export default function App() {
                   placeholder="0"
                   className={`w-full bg-[var(--tt-bg)] border text-[11px] px-2.5 py-2 pl-14 rounded-xl font-extrabold transition-all duration-300 focus:outline-none ${
                     calcMode === 'HTG' 
-                      ? 'border-[#a855f7] bg-[#a855f7]/5 text-[var(--tt-accent)] shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
+                      ? 'border-[var(--tt-accent)] bg-[var(--tt-accent)]/5 text-[var(--tt-accent)] shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
                       : 'border-[var(--tt-border)] text-[var(--tt-accent)]/70 opacity-70 hover:opacity-100'
                   }`}
                 />
                 <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-[var(--tt-text-faint)]">HTG (G)</span>
                 {calcMode === 'HTG' && (
-                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[var(--tt-accent)] bg-[#a855f7]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
+                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[var(--tt-accent)] bg-[var(--tt-accent)]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
                     {lang === 'FR' ? 'Actif' : 'Aktif'}
                   </span>
                 )}
@@ -5991,7 +5991,7 @@ export default function App() {
                       handlePresetClick(preset);
                       setCalcMode('USD');
                     }}
-                    className="text-[9px] bg-[var(--tt-surface-2)] hover:bg-[#a855f7]/10 hover:text-[var(--tt-accent)] hover:border-[#a855f7]/30 border border-[var(--tt-border)] px-1.5 py-0.5 rounded-md text-[var(--tt-text)] font-extrabold transition-all"
+                    className="text-[9px] bg-[var(--tt-surface-2)] hover:bg-[var(--tt-accent)]/10 hover:text-[var(--tt-accent)] hover:border-[var(--tt-accent)]/30 border border-[var(--tt-border)] px-1.5 py-0.5 rounded-md text-[var(--tt-text)] font-extrabold transition-all"
                   >
                     ${preset}
                   </button>
