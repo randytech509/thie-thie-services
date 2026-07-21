@@ -233,7 +233,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
           </div>
         )}
 
-        {tab === 'finances' && <FinancesTab orders={orders} deposits={deposits} />}
+        {tab === 'finances' && <FinancesTab orders={orders} />}
 
         {tab === 'orders' && (
           <div>

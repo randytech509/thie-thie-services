@@ -30,26 +30,35 @@ const JOUR = 24 * 60 * 60 * 1000;
 
 interface FinancesTabProps {
   orders: any[];
-  deposits: any[];
 }
 
-export function FinancesTab({ orders, deposits }: FinancesTabProps) {
+export function FinancesTab({ orders }: FinancesTabProps) {
   // Coût courant par produit, pour l'estimation de marge uniquement. Une seule lecture, au
   // montage — ce n'est pas une donnée temps réel, un instantané suffit.
   const [costByProduct, setCostByProduct] = useState<Record<string, number>>({});
   const [costLoaded, setCostLoaded] = useState(false);
 
+  // Les dépôts sont chargés ICI, pas reçus du parent. L'état `deposits` d'AdminPanel s'est
+  // révélé vide au rendu (l'onglet affichait 0 alors que 55 010 HTG sont crédités), pour une
+  // raison propre à sa souscription temps réel. Une lecture directe et autonome supprime cette
+  // dépendance fragile : le chiffre financier ne doit pas être otage d'un abonnement voisin.
+  const [deposits, setDeposits] = useState<any[]>([]);
+
   useEffect(() => {
     let vivant = true;
-    getDocs(collection(db, 'products'))
-      .then((snap) => {
+    Promise.all([
+      getDocs(collection(db, 'products')),
+      getDocs(collection(db, 'wallet_requests')),
+    ])
+      .then(([prodSnap, depSnap]) => {
         if (!vivant) return;
         const m: Record<string, number> = {};
-        snap.forEach((d) => {
+        prodSnap.forEach((d) => {
           const c = d.get('costHtgCents');
           if (typeof c === 'number') m[d.id] = c;
         });
         setCostByProduct(m);
+        setDeposits(depSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setCostLoaded(true);
       })
       .catch(() => { if (vivant) setCostLoaded(true); });
