@@ -204,7 +204,10 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
               <button key={t.id} onClick={() => setTab(t.id)}
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-colors ${tab === t.id ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)]' : 'text-[var(--tt-text-muted)] hover:bg-[var(--tt-overlay)]'}`}>
                 <Icon className="w-4 h-4" /> {t.label}
-                {badge > 0 && <span className={`ml-auto text-[10px] rounded-full px-1.5 ${tab === t.id ? 'bg-[var(--tt-surface-2)]' : 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)]'}`}>{badge}</span>}
+                {/* Onglet actif : le bouton porte `text-on-accent` (encre sombre) ; sans couleur
+                    explicite, le badge l'héritait → chiffre sombre sur fond surface-2 sombre,
+                    invisible. On force `text-text` sur l'état actif. */}
+                {badge > 0 && <span className={`ml-auto text-[10px] rounded-full px-1.5 ${tab === t.id ? 'bg-[var(--tt-surface-2)] text-[var(--tt-text)]' : 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)]'}`}>{badge}</span>}
               </button>
             );
           })}
