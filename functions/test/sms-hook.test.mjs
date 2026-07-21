@@ -128,7 +128,7 @@ describe('reconcileSms — auto-crédit conservateur', () => {
     assert.equal(r.credited, false);
   });
 
-  test('repli : TxID discordant mais NUMÉRO expéditeur + montant concordants → crédite (par senderPhone)', async () => {
+  test('repli : TxID discordant mais NUMÉRO + montant concordants → SUGGÈRE sans créditer', async () => {
     await db.doc(`users/${UID}`).set({ uid: UID, walletBalanceCents: 0, totalAddedCents: 0 });
     await db.doc('wallet_requests/REQ_SMS').set({
       uid: UID, paymentMethod: 'NatCash', status: 'Pending Verification',
@@ -137,9 +137,45 @@ describe('reconcileSms — auto-crédit conservateur', () => {
     // SMS marchand : reçu 1500 HTG de 40000000, mais TransCode ≠ celui saisi par le client.
     const r = await reconcileSms(db, parseSms('NatCash',
       'Vous avez recu 1,500 HTG de SPECIMEN TEST 40000000 a 15:20 01/07/2026, contenu: Ok. Votre solde: 1,000.00 HTG. TransCode: MERCHANTCODE99. Merci'));
-    assert.equal(r.credited, true);
+
+    // Le rapprochement est TROUVÉ (l'admin doit le voir) mais l'argent ne bouge PAS :
+    // `senderPhone` est déclaré par le client et ne prouve la possession d'aucun numéro.
+    assert.equal(r.matched, true);
+    assert.equal(r.credited, false);
+    assert.equal(r.needsReview, true);
+    assert.equal(r.requestId, 'REQ_SMS');
+
     const u = await db.doc(`users/${UID}`).get();
-    assert.equal(u.get('walletBalanceCents'), 150000);
+    assert.equal(u.get('walletBalanceCents'), 0);
+
+    // La suggestion est posée sur la demande pour que reviewDeposit la présente à l'admin.
+    const req = await db.doc('wallet_requests/REQ_SMS').get();
+    assert.equal(req.get('suggestedMatch.by'), 'senderPhone');
+    assert.equal(req.get('suggestedMatch.smsTxId'), 'MERCHANTCODE99');
+    // La demande reste en attente : rien n'a été décidé à sa place.
+    assert.equal(req.get('status'), 'Pending Verification');
+  });
+
+  test("SÉCURITÉ : revendiquer le numéro d'un tiers ne détourne PAS son dépôt", async () => {
+    // Scénario d'audit : l'attaquant dépose une demande au numéro de la victime et au bon
+    // montant, SANS connaître le TransCode (qu'il ne peut pas deviner : la transaction
+    // n'a pas encore eu lieu). Il est ici le SEUL candidat — la victime n'a pas encore
+    // créé sa propre demande. Avant le correctif, le SMS de la victime le créditait.
+    const ATTACKER = 'uid_attaquant';
+    await db.doc(`users/${ATTACKER}`).set({ uid: ATTACKER, walletBalanceCents: 0, totalAddedCents: 0 });
+    await db.doc('wallet_requests/REQ_ATTAQUE').set({
+      uid: ATTACKER, paymentMethod: 'NatCash', status: 'Pending Verification',
+      expectedAmountCentimes: 150000,
+      transactionReference: 'CODE_INVENTE',
+      senderPhone: '40000000', // numéro de la victime, simplement déclaré
+    });
+
+    const r = await reconcileSms(db, parseSms('NatCash',
+      'Vous avez recu 1,500 HTG de SPECIMEN TEST 40000000 a 15:20 01/07/2026, contenu: Ok. Votre solde: 1,000.00 HTG. TransCode: MERCHANTCODE99. Merci'));
+
+    assert.equal(r.credited, false);
+    const a = await db.doc(`users/${ATTACKER}`).get();
+    assert.equal(a.get('walletBalanceCents'), 0); // pas un centime
   });
 
   test('repli : NUMÉRO expéditeur différent → NON crédité', async () => {

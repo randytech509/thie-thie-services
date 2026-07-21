@@ -263,6 +263,24 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                   <div className="min-w-0">
                     <p className="font-bold text-sm">{d.amountCents ? htg(d.amountCents) : (d.amount || '—')} · {d.paymentMethod || d.provider || '—'}</p>
                     <p className="text-[11px] text-[var(--tt-text-faint)] font-mono truncate">{d.id}{d.txId ? ` · Tx ${d.txId}` : ''}</p>
+                    {/* Rapprochement trouvé par le hook SMS via le NUMÉRO expéditeur. Volontairement
+                        non crédité : le numéro est déclaré par le client et ne prouve rien. On
+                        montre ici de quoi trancher — c'est l'admin qui décide. */}
+                    {d.suggestedMatch && (
+                      <div className="mt-2 text-[11px] bg-[var(--tt-warn)]/10 border border-[var(--tt-warn)]/30 rounded-lg px-2.5 py-1.5">
+                        <p className="font-black text-[var(--tt-warn)] uppercase tracking-wider text-[9px] mb-0.5">
+                          SMS rapproché par numéro — à confirmer
+                        </p>
+                        <p className="text-[var(--tt-text-muted)] font-mono truncate">
+                          {d.suggestedMatch.smsSenderName || '?'} · {d.suggestedMatch.smsSender || '?'}
+                          {d.suggestedMatch.smsTxId ? ` · Tx marchand ${d.suggestedMatch.smsTxId}` : ''}
+                        </p>
+                        <p className="text-[var(--tt-text-faint)]">
+                          Le TransCode saisi ({d.transactionReference || '—'}) ne correspond pas à celui du SMS.
+                          Vérifier que le numéro est bien celui du client avant d'approuver.
+                        </p>
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <button disabled={busy === d.id} onClick={() => doReviewDeposit(d.id, 'approve')} className="bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40">{busy === d.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}Approuver</button>

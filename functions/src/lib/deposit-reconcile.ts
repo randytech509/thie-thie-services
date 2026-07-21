@@ -13,6 +13,31 @@ import { ParsedSms } from './sms';
  *
  * Idempotence : le crédit utilise `requestId` comme clé (comme `reviewDeposit`) → un même
  * dépôt ne peut être crédité deux fois (SMS rejoué, ou admin qui approuve aussi).
+ *
+ * POURQUOI SEUL LE txId AUTO-CRÉDITE (audit 2026-07-20)
+ * ----------------------------------------------------
+ * Les deux clés de rapprochement n'ont PAS la même valeur de preuve :
+ *
+ *   - `transactionReference` (txId) doit être égal à l'identifiant présent dans le SMS du
+ *     MARCHAND. Le client le saisit, mais il ne peut pas le deviner : c'est l'identifiant
+ *     d'une transaction qui n'a pas encore eu lieu. Le concordance vaut donc preuve.
+ *
+ *   - `senderPhone` est une simple DÉCLARATION du client, bornée à 15 caractères par les
+ *     règles, sans aucune preuve de possession du numéro. S'en servir pour créditer revient
+ *     à laisser n'importe qui revendiquer le paiement d'un tiers : il suffit de déposer une
+ *     demande au numéro de la victime et au bon montant, puis d'attendre qu'elle paie. Si
+ *     elle n'a pas encore créé sa propre demande, l'attaquant est le seul candidat et
+ *     l'argent part chez lui.
+ *
+ * C'est exactement la fraude décrite au §2 de docs/BINANCE-DEPOTS.md — « il n'y a plus
+ * d'identifiant d'expéditeur à revendiquer » y est présenté comme l'avantage décisif de
+ * CCPayment. Le repli par numéro rouvrait ce trou sur le rail MonCash/NatCash.
+ *
+ * Le repli n'est pas supprimé pour autant : le TransCode saisi par le client diffère
+ * légitimement de celui du marchand, et sans lui ces dépôts ne seraient plus rapprochés du
+ * tout. Il devient une SUGGESTION posée sur la demande, que l'admin confirme d'un clic via
+ * `reviewDeposit` — le travail de rapprochement reste fait, seule la décision de créditer
+ * repose désormais sur un humain.
  */
 export interface ReconcileResult {
   matched: boolean;
@@ -20,6 +45,8 @@ export interface ReconcileResult {
   requestId?: string;
   reason?: string;
   deduped?: boolean;
+  /** Rapprochement trouvé mais NON crédité : attend la confirmation d'un admin. */
+  needsReview?: boolean;
 }
 
 function reqAmountCents(data: FirebaseFirestore.DocumentData): number | null {
@@ -86,6 +113,28 @@ export async function reconcileSms(db: Firestore, parsed: ParsedSms): Promise<Re
   const data = doc.data();
   const requestId = doc.id;
   const uid = data.uid as string;
+
+  // Rapprochement par NUMÉRO : on s'arrête ici. Le numéro est déclaré par le client, il ne
+  // prouve rien (cf. en-tête). On dépose la suggestion sur la demande et l'admin tranche.
+  if (matchBy === 'senderPhone') {
+    await doc.ref.update({
+      suggestedMatch: {
+        by: 'senderPhone',
+        smsTxId: parsed.txId ?? null,
+        smsSender: parsed.sender ?? null,
+        smsSenderName: parsed.senderName ?? null,
+        amountCents: parsed.amountCents,
+        at: FieldValue.serverTimestamp(),
+      },
+    });
+    return {
+      matched: true,
+      credited: false,
+      needsReview: true,
+      requestId,
+      reason: 'rapprochement par numéro expéditeur — confirmation admin requise',
+    };
+  }
 
   const res = await creditWallet(db, {
     uid,

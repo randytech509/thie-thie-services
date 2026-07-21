@@ -2,7 +2,24 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { requireAuth, callOpts } from './lib/guards';
+import { requireStepUp } from './lib/stepup';
 import { audit } from './lib/audit';
+
+/**
+ * STEP-UP SUR L'OCTROI DE RÔLE (audit 2026-07-20)
+ * -----------------------------------------------
+ * `reviewDeposit`, `setFxRate`, `setDepositAccounts` et `reviewKyc` exigeaient tous une
+ * vérification passkey récente ; l'octroi de rôle, non. Or c'est l'action qui CONFÈRE
+ * toutes les autres, et le contrôle était donc contournable en trois pas :
+ *
+ *   1. une session admin compromise appelle `setAdminRole` (aucun step-up demandé) ;
+ *   2. le compte fraîchement promu n'a aucun passkey enregistré ;
+ *   3. `requireStepUp` se désactive dans ce cas (bootstrap volontaire, cf. stepup.ts),
+ *      donc ce compte accède à TOUTES les actions sensibles sans jamais présenter de clé.
+ *
+ * Le bootstrap du premier admin reste possible : quand l'appelant n'a pas de passkey,
+ * `requireStepUp` est déjà un no-op — l'ajouter ici ne verrouille personne dehors.
+ */
 
 /**
  * Attribue/révoque le custom claim `admin` (invariant 6 : seule source d'autorité admin).
@@ -33,6 +50,7 @@ export const setSmsForwarderRole = onCall(callOpts, async (req) => {
   if (req.auth?.token?.admin !== true) {
     throw new HttpsError('permission-denied', 'réservé aux administrateurs');
   }
+  await requireStepUp(getFirestore(), actor.uid);
 
   const auth = getAuth();
   const user = await auth.getUser(targetUid);
@@ -66,6 +84,7 @@ export const setAdminRole = onCall(callOpts, async (req) => {
   if (!callerIsAdmin && !callerIsBootstrap) {
     throw new HttpsError('permission-denied', 'réservé aux administrateurs');
   }
+  await requireStepUp(getFirestore(), actor.uid);
 
   const auth = getAuth();
   const user = await auth.getUser(targetUid);

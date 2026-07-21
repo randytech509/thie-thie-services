@@ -108,7 +108,12 @@ export const ingestSms = onRequest({ cors: false }, async (req, res) => {
   // manuel et suivi des balances. Seuls les 'in' concordants sont auto-crédités.
   const status = result.credited
     ? 'credited'
-    : parsed.direction !== 'in' ? `ignored-${parsed.direction}` : 'unmatched';
+    : parsed.direction !== 'in' ? `ignored-${parsed.direction}`
+    // Rapproché par numéro expéditeur : une demande concorde, mais le numéro est déclaré par
+    // le client et ne prouve rien — l'admin confirme. À distinguer de 'unmatched', sinon la
+    // suggestion se noie parmi les SMS sans correspondance et personne ne la traite.
+    : result.needsReview ? 'needs-review'
+    : 'unmatched';
 
   await inboxRef.set({
     provider,
