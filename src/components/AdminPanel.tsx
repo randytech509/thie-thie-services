@@ -3,12 +3,13 @@ import type { User as FirebaseUser } from 'firebase/auth';
 import { collection, query, orderBy, onSnapshot, getDocs, limit } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
+import { FinancesTab } from './admin/FinancesTab';
 import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts, type PricingConfig } from '../lib/api';
 import { getPasskeyStatus, enrollPasskey, verifyPasskey } from '../lib/passkey';
 import {
   LayoutDashboard, ShoppingBag, Wallet, ShieldCheck, Bell, Settings, KeyRound,
   Check, X, Loader2, Mail, ChevronLeft, Fingerprint, Send, Trash2, ExternalLink, ImagePlus, Boxes, Calculator, DownloadCloud, RefreshCw, Coins,
-  Users, ScrollText, Search,
+  Users, ScrollText, Search, TrendingUp,
 } from 'lucide-react';
 
 interface AdminPanelProps {
@@ -17,10 +18,11 @@ interface AdminPanelProps {
   formatPrice?: (priceUSD: number) => string;
 }
 
-type Tab = 'dashboard' | 'orders' | 'deposits' | 'kyc' | 'users' | 'audit' | 'notifications' | 'supplier' | 'pricing' | 'settings' | 'security';
+type Tab = 'dashboard' | 'finances' | 'orders' | 'deposits' | 'kyc' | 'users' | 'audit' | 'notifications' | 'supplier' | 'pricing' | 'settings' | 'security';
 
 const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
+  { id: 'finances', label: 'Finances', icon: TrendingUp },
   { id: 'orders', label: 'Commandes', icon: ShoppingBag },
   { id: 'deposits', label: 'Dépôts', icon: Wallet },
   { id: 'kyc', label: 'KYC', icon: ShieldCheck },
@@ -230,6 +232,8 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
             </div>
           </div>
         )}
+
+        {tab === 'finances' && <FinancesTab orders={orders} deposits={deposits} />}
 
         {tab === 'orders' && (
           <div>
