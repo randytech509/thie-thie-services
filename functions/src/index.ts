@@ -24,7 +24,7 @@ export { ingestSms, ingestOxapayCallback } from './webhooks';
 export { redeemReward } from './points';
 export { reviewKyc } from './kyc';
 export { createCryptoInvoice } from './crypto-deposits';
-export { notifyDepositCredited, notifyOrderCompleted, notifyKycReviewed } from './notifications';
+export { notifyDepositCredited, notifyOrderCompleted, notifyKycReviewed, notifyNewDeviceSession } from './notifications';
 export { setFxRate, setDepositAccounts } from './config-admin';
 export { fulfillOrder } from './fulfillment';
 export { passkeyStatus, passkeyRegisterOptions, passkeyRegisterVerify, passkeyAuthOptions, passkeyAuthVerify } from './webauthn';

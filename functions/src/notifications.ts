@@ -102,3 +102,32 @@ export const notifyKycReviewed = onDocumentUpdated('kyc_requests/{requestId}', a
       : `Ta demande de vérification a été refusée${after.reason ? ' : ' + after.reason : '.'}`,
   }, { type: 'kyc', status: after.status });
 });
+
+/**
+ * Nouvelle connexion depuis un appareil inconnu.
+ *
+ * Se déclenche à la CRÉATION d'un document `user_sessions` — c'est-à-dire quand un deviceId
+ * apparaît pour la première fois. On reste SILENCIEUX à la toute première session du compte :
+ * il n'y a aucun autre appareil auquel la comparer, et alerter quelqu'un sur sa propre première
+ * connexion apprend à ignorer l'alerte. Dès qu'un second appareil apparaît, on prévient — c'est
+ * le signal qui compte : « quelqu'un d'autre s'est-il connecté à mon compte ? ».
+ *
+ * Best-effort et découplé : un échec d'envoi ne casse rien, la session est déjà enregistrée.
+ */
+export const notifyNewDeviceSession = onDocumentCreated('user_sessions/{sessionId}', async (event) => {
+  const s = event.data?.data();
+  if (!s?.uid) return;
+
+  const db = getFirestore();
+  // Y avait-il DÉJÀ un autre appareil ? Si ce document est le seul, c'est la première connexion.
+  const autres = await db.collection('user_sessions').where('uid', '==', s.uid).limit(2).get();
+  const seul = autres.size <= 1;
+  if (seul) return;
+
+  const device = String(s.device ?? 'un nouvel appareil');
+  const ip = String(s.ip ?? 'inconnue');
+  await notifyUser(s.uid, {
+    title: 'Nouvelle connexion détectée',
+    body: `Connexion depuis ${device} (IP ${ip}). Si ce n'est pas toi, ouvre ton profil et déconnecte les autres appareils.`,
+  }, { type: 'new-device', device, ip });
+});
