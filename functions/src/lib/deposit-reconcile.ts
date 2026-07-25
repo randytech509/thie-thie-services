@@ -155,3 +155,68 @@ export async function reconcileSms(db: Firestore, parsed: ParsedSms): Promise<Re
 
   return { matched: true, credited: true, requestId, deduped: res.deduped };
 }
+
+/**
+ * Rapprochement dans le SENS INVERSE : une demande de dépôt vient d'être CRÉÉE ; on cherche un
+ * SMS DÉJÀ reçu et journalisé (`sms_inbox`) qui la valide.
+ *
+ * POURQUOI (bug constaté en test réel le 2026-07-24) : `reconcileSms` ne s'exécute qu'à
+ * l'ARRIVÉE du SMS. Si le SMS est journalisé AVANT que la demande existe — cas courant : le
+ * client paie puis remplit le formulaire ensuite, ou l'on vide d'un coup un backlog de SMS —
+ * il est rangé « unmatched », le téléphone reçoit un 200 et ne le renvoie plus. La demande
+ * créée après n'est alors JAMAIS auto-créditée. Ce sens inverse ferme le trou : la création de
+ * la demande relance le rapprochement contre les SMS déjà reçus.
+ *
+ * SÉCURITÉ : identique à reconcileSms — on réutilise reconcileSms, donc SEUL le txId
+ * auto-crédite. Le txId provient d'un `sms_inbox` écrit exclusivement par le webhook (Admin SDK)
+ * à partir d'un VRAI SMS marchand : le client ne peut pas le fabriquer. Aucune règle dupliquée,
+ * aucune surface de crédit nouvelle.
+ */
+export async function reconcileRequestFromInbox(db: Firestore, requestId: string): Promise<ReconcileResult> {
+  const reqSnap = await db.doc(`wallet_requests/${requestId}`).get();
+  if (!reqSnap.exists) return { matched: false, credited: false, reason: 'demande introuvable' };
+  const data = reqSnap.data()!;
+  if (data.status !== 'Pending Verification') return { matched: false, credited: false, reason: `demande déjà ${data.status}` };
+
+  const provider = data.paymentMethod;
+  if (provider !== 'MonCash' && provider !== 'NatCash') return { matched: false, credited: false, reason: 'méthode non-SMS' };
+  const ref = String(data.transactionReference ?? '').trim();
+  if (!ref) return { matched: false, credited: false, reason: 'pas de TransCode sur la demande' };
+
+  // Le SMS est journalisé sous l'id `${provider}_${txId}` (cf. webhooks.ts) → lookup direct O(1).
+  // Repli en MAJUSCULES : le txId du SMS peut différer en casse du TransCode saisi (MonCash
+  // alphanumérique). Deux `get` au plus, aucun index composite requis.
+  let inboxSnap = await db.doc(`sms_inbox/${provider}_${ref}`).get();
+  if (!inboxSnap.exists && ref !== ref.toUpperCase()) {
+    inboxSnap = await db.doc(`sms_inbox/${provider}_${ref.toUpperCase()}`).get();
+  }
+  if (!inboxSnap.exists) return { matched: false, credited: false, reason: 'aucun SMS reçu pour ce txId' };
+
+  const sms = inboxSnap.data()!;
+  if (sms.status === 'credited') return { matched: true, credited: false, reason: 'SMS déjà crédité (autre demande)' };
+
+  // On reconstruit le ParsedSms depuis le journal et on réutilise reconcileSms : il retrouvera
+  // la demande fraîchement créée par txId et créditera (idempotent sur requestId). Toute la
+  // logique de sécurité (sens 'in', montant concordant, ambiguïté) est celle, déjà testée, de
+  // reconcileSms — on ne fait que la RE-DÉCLENCHER depuis l'autre bout.
+  const parsed: ParsedSms = {
+    provider,
+    direction: sms.direction ?? 'other',
+    amountCents: typeof sms.amountCents === 'number' ? sms.amountCents : null,
+    txId: sms.txId ?? null,
+    sender: sms.sender ?? null,
+    senderName: sms.senderName ?? null,
+    balanceCents: typeof sms.merchantBalanceCents === 'number' ? sms.merchantBalanceCents : null,
+    raw: sms.raw ?? '',
+  };
+  const result = await reconcileSms(db, parsed);
+
+  // reconcileSms ne touche pas `sms_inbox` (d'ordinaire c'est le webhook appelant qui le fait).
+  // Ici il n'y a pas de webhook : on reflète nous-mêmes l'issue dans le journal SMS.
+  if (result.credited) {
+    await inboxSnap.ref.update({ status: 'credited', requestId: result.requestId ?? requestId });
+  } else if (result.needsReview) {
+    await inboxSnap.ref.update({ status: 'needs-review', requestId: result.requestId ?? null });
+  }
+  return result;
+}

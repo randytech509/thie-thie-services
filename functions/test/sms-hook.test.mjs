@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { parseSms, parseHtgAmountToCents } from '../lib/lib/sms.js';
-import { reconcileSms } from '../lib/lib/deposit-reconcile.js';
+import { reconcileSms, reconcileRequestFromInbox } from '../lib/lib/deposit-reconcile.js';
 
 process.env.FIRESTORE_EMULATOR_HOST = process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8080';
 const app = initializeApp({ projectId: 'thie-thie-sms-test' }, 'sms');
@@ -80,6 +80,26 @@ describe('sens de transaction & bruit (format NatCash réel, données anonymisé
   test('promo / OTP → other', () => {
     assert.equal(parseSms('NatCash', 'A 5:00 PM, France vs Sweden nan 16e Final! Rechaje kont ParyajLakay. *Fe 202# chwazi 4').direction, 'other');
     assert.equal(parseSms('NatCash', 'OTP is 000000. Please DO NOT provide OTP for anyone.').direction, 'other');
+  });
+
+  test('DÉPÔT AGENT « encaisse » → in, et prend le TransCode PAS le code agent court', () => {
+    // Deux identifiants coexistent : « code 347386 » (agent, court/devinable) et « TransCode:
+    // 26072343604240 » (long). L'auto-crédit ne doit jamais s'appuyer sur le code agent.
+    const p = parseSms('NatCash', 'Vous avez encaisse 2,000 HTG a 12:45 23/07/2026 de SPECIMEN TEST, code 347386. Votre solde: 27,194.12 HTG. TransCode: 26072343604240. Merci');
+    assert.equal(p.direction, 'in');
+    assert.equal(p.amountCents, 200000);   // 2,000 HTG, PAS le solde 27,194.12
+    assert.equal(p.txId, '26072343604240'); // le TransCode, PAS 347386
+  });
+
+  test('encaissé (accent) → in aussi', () => {
+    assert.equal(parseSms('NatCash', 'Vous avez encaissé 500 HTG de SPECIMEN TEST, code 111111. TransCode: 99999999999999. Merci').direction, 'in');
+  });
+
+  test('SÉCURITÉ : un SMS n’ayant QU’un code agent court ne fournit pas de txId fort → pas d’auto-crédit', () => {
+    // Pas de TransCode/transaction/référence : « code » nu reste un dernier recours, mais ce SMS
+    // (notification d'enregistrement, pas un dépôt) ne doit pas produire de clé exploitable.
+    const p = parseSms('NatCash', 'Le 33146025 a enregistre PAP699 avec succes pour vous via NatCash a 08:18 24/07/2026.');
+    assert.equal(p.txId, null);
   });
 });
 
@@ -197,5 +217,83 @@ describe('reconcileSms — auto-crédit conservateur', () => {
     assert.equal(r.credited, false);
     const u = await db.doc(`users/${UID}`).get();
     assert.equal(u.get('walletBalanceCents'), 0); // aucun crédit
+  });
+});
+
+describe('reconcileRequestFromInbox — rapprochement à la création de la demande (sens inverse)', () => {
+  async function seedUser() {
+    await db.doc(`users/${UID}`).set({ uid: UID, walletBalanceCents: 0, totalAddedCents: 0 });
+  }
+  async function seedInbox({ provider = 'NatCash', direction = 'in', amountCents, txId, status = 'unmatched' }) {
+    await db.doc(`sms_inbox/${provider}_${txId}`).set({
+      provider, direction, amountCents, txId,
+      sender: '42065212', senderName: 'NORMIL KENIA', status, receivedAt: new Date(),
+    });
+  }
+  async function seedReq({ id = 'WREQ_T', amount, ref, method = 'NatCash', status = 'Pending Verification' }) {
+    await db.doc(`wallet_requests/${id}`).set({
+      uid: UID, paymentMethod: method, status, amount, transactionReference: ref, senderPhone: '42065212',
+    });
+  }
+
+  test('LE BUG DU 24/07 : SMS reçu AVANT la demande → la création rapproche et crédite', async () => {
+    await seedUser();
+    // Le SMS marchand est déjà là, resté « unmatched » faute de demande au moment de sa réception.
+    await seedInbox({ amountCents: 4725000, txId: '26072343360583' });
+    await seedReq({ amount: 47250, ref: '26072343360583' }); // amount en HTG entier, comme l'UI
+    const r = await reconcileRequestFromInbox(db, 'WREQ_T');
+    assert.equal(r.credited, true);
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 4725000);
+    const req = await db.doc('wallet_requests/WREQ_T').get();
+    assert.equal(req.get('status'), 'Completed');
+    const sms = await db.doc('sms_inbox/NatCash_26072343360583').get();
+    assert.equal(sms.get('status'), 'credited'); // le journal reflète le crédit
+  });
+
+  test('idempotent : re-rapprocher ne double-crédite pas', async () => {
+    await seedUser();
+    await seedInbox({ amountCents: 4725000, txId: 'ABC123' });
+    await seedReq({ amount: 47250, ref: 'ABC123' });
+    await reconcileRequestFromInbox(db, 'WREQ_T');
+    await db.doc('wallet_requests/WREQ_T').update({ status: 'Pending Verification' }); // simule un rejeu
+    await db.doc('sms_inbox/NatCash_ABC123').update({ status: 'unmatched' });
+    const r2 = await reconcileRequestFromInbox(db, 'WREQ_T');
+    assert.equal(r2.deduped, true);
+    const u = await db.doc(`users/${UID}`).get();
+    assert.equal(u.get('walletBalanceCents'), 4725000); // pas 9450000
+  });
+
+  test('aucun SMS pour ce txId → non crédité', async () => {
+    await seedUser();
+    await seedReq({ amount: 47250, ref: 'INCONNU' });
+    const r = await reconcileRequestFromInbox(db, 'WREQ_T');
+    assert.equal(r.credited, false);
+    assert.equal((await db.doc(`users/${UID}`).get()).get('walletBalanceCents'), 0);
+  });
+
+  test('SÉCURITÉ : montant discordant même avec txId concordant → non crédité', async () => {
+    await seedUser();
+    await seedInbox({ amountCents: 4725000, txId: '999' });
+    await seedReq({ amount: 100, ref: '999' }); // 100 HTG déclarés, SMS de 47 250
+    const r = await reconcileRequestFromInbox(db, 'WREQ_T');
+    assert.equal(r.credited, false);
+  });
+
+  test('SÉCURITÉ : SMS SORTANT concordant → jamais crédité (réutilise la garde de reconcileSms)', async () => {
+    await seedUser();
+    await seedInbox({ direction: 'out', amountCents: 4725000, txId: 'OUT1' });
+    await seedReq({ amount: 47250, ref: 'OUT1' });
+    const r = await reconcileRequestFromInbox(db, 'WREQ_T');
+    assert.equal(r.credited, false);
+  });
+
+  test('SMS déjà crédité par une autre demande → non re-crédité', async () => {
+    await seedUser();
+    await seedInbox({ amountCents: 4725000, txId: '777', status: 'credited' });
+    await seedReq({ amount: 47250, ref: '777' });
+    const r = await reconcileRequestFromInbox(db, 'WREQ_T');
+    assert.equal(r.credited, false);
+    assert.equal((await db.doc(`users/${UID}`).get()).get('walletBalanceCents'), 0);
   });
 });
