@@ -30,6 +30,7 @@ export type CategoryItem = {
   count: number;
   icon: React.ComponentType<{ className?: string }>;
   gradient: string;
+  logo?: string | null;
 };
 
 type Reward = { id: string; titleFR: string; titleHT: string; cost: number; code: string; iconType: string };
@@ -136,9 +137,17 @@ export function Sidebar(props: SidebarProps) {
         {categories.map((cat) => {
           const Icon = cat.icon;
           const active = currentPage === 'category' && selectedCategorySlug === cat.slug;
+          const isCover = cat.logo?.includes('/covers/');
+          const iconNode = cat.logo ? (
+            <span className={`w-5 h-5 rounded-md overflow-hidden shrink-0 flex items-center justify-center ${isCover ? '' : 'bg-white'}`}>
+              <img src={cat.logo} alt="" className={`w-full h-full ${isCover ? 'object-cover' : 'object-contain p-0.5'}`} referrerPolicy="no-referrer" />
+            </span>
+          ) : (
+            <Icon className="w-4 h-4 shrink-0" />
+          );
           return (
             <React.Fragment key={cat.slug}>
-              {navItem(active, () => navigateToCategory(cat.slug), <Icon className="w-4 h-4 shrink-0" />, cat.name)}
+              {navItem(active, () => navigateToCategory(cat.slug), iconNode, cat.name)}
             </React.Fragment>
           );
         })}

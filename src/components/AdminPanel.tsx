@@ -10,7 +10,7 @@ import { getPasskeyStatus, enrollPasskey, verifyPasskey } from '../lib/passkey';
 import {
   LayoutDashboard, ShoppingBag, Wallet, ShieldCheck, Bell, Settings, KeyRound,
   Check, X, Loader2, Mail, ChevronLeft, Fingerprint, Send, Trash2, ExternalLink, ImagePlus, Boxes, Calculator, DownloadCloud, RefreshCw, Coins,
-  Users, ScrollText, Search, TrendingUp,
+  Users, ScrollText, Search, TrendingUp, Inbox,
 } from 'lucide-react';
 
 interface AdminPanelProps {
@@ -19,7 +19,7 @@ interface AdminPanelProps {
   formatPrice?: (priceUSD: number) => string;
 }
 
-type Tab = 'dashboard' | 'finances' | 'orders' | 'deposits' | 'kyc' | 'users' | 'audit' | 'notifications' | 'supplier' | 'pricing' | 'settings' | 'security';
+type Tab = 'dashboard' | 'finances' | 'orders' | 'deposits' | 'kyc' | 'sms' | 'contact' | 'users' | 'audit' | 'notifications' | 'supplier' | 'pricing' | 'settings' | 'security';
 
 const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
@@ -27,6 +27,8 @@ const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: 'orders', label: 'Commandes', icon: ShoppingBag },
   { id: 'deposits', label: 'Dépôts', icon: Wallet },
   { id: 'kyc', label: 'KYC', icon: ShieldCheck },
+  { id: 'sms', label: 'Journal SMS', icon: Inbox },
+  { id: 'contact', label: 'Messages contact', icon: Mail },
   { id: 'users', label: 'Utilisateurs', icon: Users },
   { id: 'audit', label: 'Journal d’audit', icon: ScrollText },
   { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -57,6 +59,8 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
   const [orders, setOrders] = useState<any[]>([]);
   const [deposits, setDeposits] = useState<any[]>([]);
   const [kyc, setKyc] = useState<any[]>([]);
+  const [smsInbox, setSmsInbox] = useState<any[]>([]);
+  const [contactMsgs, setContactMsgs] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [audit, setAudit] = useState<any[]>([]);
   const [userSearch, setUserSearch] = useState('');
@@ -102,6 +106,16 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         (s) => setDeposits(s.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {}),
       onSnapshot(query(collection(db, 'kyc_requests'), orderBy('createdAt', 'desc')),
         (s) => setKyc(s.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {}),
+      // Journal SMS : TOUS les SMS lus par le webhook (rapprochés ou non). Trié par réception,
+      // borné à 100 — un journal grossit sans fin et l'admin regarde les récents. Le champ de tri
+      // `receivedAt` est écrit par le webhook sur chaque entrée (webhooks.ts), donc aucune
+      // exclusion silencieuse comme sur `users`.
+      onSnapshot(query(collection(db, 'sms_inbox'), orderBy('receivedAt', 'desc'), limit(100)),
+        (s) => setSmsInbox(s.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {}),
+      // Messages du formulaire de contact — écrits serveur-only par submitContactMessage.
+      // Bornés à 100, triés par date. `createdAt` est posé sur chaque doc (contact-core.ts).
+      onSnapshot(query(collection(db, 'contact_messages'), orderBy('createdAt', 'desc'), limit(100)),
+        (s) => setContactMsgs(s.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {}),
       // PAS d'orderBy ici : le schéma utilisateur n'a pas de `createdAt` (il a `memberSince`,
       // une chaîne, et facultative). Firestore EXCLUT silencieusement les documents dépourvus
       // du champ trié — la liste serait donc vide sans que rien ne le signale.
@@ -143,7 +157,43 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
     const s = (d.status || '').toLowerCase();
     return s.includes('pending') || s.includes('await');
   });
+  // Dépôts déjà tranchés (crédités ou rejetés), du plus récent au plus ancien. Sans cette vue,
+  // un dépôt auto-crédité par le SMS disparaît de l'écran et rien ne confirme qu'il a réussi.
+  const depositsResolved = deposits
+    .filter((d) => {
+      const s = (d.status || '').toLowerCase();
+      return s === 'completed' || s === 'rejected';
+    })
+    .sort((a, b) => toMillis(b.reviewedAt || b.createdAt) - toMillis(a.reviewedAt || a.createdAt))
+    .slice(0, 20);
   const kycPending = kyc.filter((k) => (k.status || '').toLowerCase() === 'pending');
+  const kycResolved = kyc
+    .filter((k) => {
+      const s = (k.status || '').toLowerCase();
+      return s === 'approved' || s === 'rejected' || s === 'verified';
+    })
+    .sort((a, b) => toMillis(b.reviewedAt || b.createdAt) - toMillis(a.reviewedAt || a.createdAt))
+    .slice(0, 20);
+
+  // Comment un dépôt tranché a-t-il été rapproché ? sms-hook + txId = auto ; un uid = admin.
+  const depositProvenance = (d: any): { label: string; auto: boolean } => {
+    if (d.reviewedBy === 'sms-hook') return { label: 'Auto · SMS', auto: true };
+    if (d.reviewedBy) return { label: 'Manuel · admin', auto: false };
+    return { label: '—', auto: false };
+  };
+
+  // Traduit le statut technique d'un SMS journalisé en libellé + couleur lisibles.
+  // credited=crédité · needs-review=à rapprocher · unmatched=sans correspondance · ignored-*=ignoré.
+  const smsStatusView = (s: string): { label: string; cls: string } => {
+    const v = (s || '').toLowerCase();
+    if (v === 'credited') return { label: 'Crédité', cls: 'bg-emerald-500/15 text-emerald-400' };
+    if (v === 'needs-review') return { label: 'À rapprocher', cls: 'bg-[var(--tt-warn)]/15 text-[var(--tt-warn)]' };
+    if (v === 'unmatched') return { label: 'Sans correspondance', cls: 'bg-red-500/15 text-red-400' };
+    if (v.startsWith('ignored')) return { label: 'Ignoré', cls: 'bg-[var(--tt-text-faint)]/15 text-[var(--tt-text-faint)]' };
+    return { label: s || '—', cls: 'bg-[var(--tt-text-faint)]/15 text-[var(--tt-text-faint)]' };
+  };
+  const smsToReview = smsInbox.filter((s) => (s.status || '').toLowerCase() === 'needs-review').length;
+  const contactNew = contactMsgs.filter((m) => (m.status || '').toLowerCase() === 'new').length;
 
   const doReviewDeposit = async (requestId: string, decision: 'approve' | 'reject') => {
     setBusy(requestId);
@@ -200,7 +250,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         <nav className="flex lg:flex-col gap-1 overflow-x-auto">
           {TABS.map((t) => {
             const Icon = t.icon;
-            const badge = t.id === 'orders' ? ordersToFulfill.length : t.id === 'deposits' ? depositsPending.length : t.id === 'kyc' ? kycPending.length : 0;
+            const badge = t.id === 'orders' ? ordersToFulfill.length : t.id === 'deposits' ? depositsPending.length : t.id === 'kyc' ? kycPending.length : t.id === 'sms' ? smsToReview : t.id === 'contact' ? contactNew : 0;
             return (
               <button key={t.id} onClick={() => setTab(t.id)}
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-colors ${tab === t.id ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)]' : 'text-[var(--tt-text-muted)] hover:bg-[var(--tt-overlay)]'}`}>
@@ -271,10 +321,26 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
             <div className="flex flex-col gap-3">
               {depositsPending.length === 0 && <p className="text-[var(--tt-text-faint)] text-sm">Aucun dépôt en attente.</p>}
               {depositsPending.map((d) => (
-                <div key={d.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4 flex items-center justify-between gap-3">
+                <div key={d.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4 flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="font-bold text-sm">{d.amountCents ? htg(d.amountCents) : (d.amount || '—')} · {d.paymentMethod || d.provider || '—'}</p>
-                    <p className="text-[11px] text-[var(--tt-text-faint)] font-mono truncate">{d.id}{d.txId ? ` · Tx ${d.txId}` : ''}</p>
+                    <p className="font-bold text-sm">{d.amountCents ? htg(d.amountCents) : (d.amount != null ? `${Number(d.amount).toLocaleString()} HTG` : '—')} · {d.paymentMethod || d.provider || '—'}</p>
+                    <p className="text-[11px] text-[var(--tt-text-faint)] font-mono truncate">{d.id} · {fmtAuditDate(d.createdAt)}</p>
+                    {/* Infos DÉCLARÉES par le client, indispensables pour la vérification manuelle :
+                        c'est ce que l'admin compare au reçu. Le TransCode est `transactionReference`
+                        (le champ `txId` n'existe que sur les SMS, pas sur les demandes de dépôt). */}
+                    <div className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-[11px]">
+                      <span className="text-[var(--tt-text-faint)]">Expéditeur</span>
+                      <span className="text-[var(--tt-text)] font-medium truncate">{d.senderName || '—'}</span>
+                      <span className="text-[var(--tt-text-faint)]">Numéro</span>
+                      <span className="text-[var(--tt-text)] font-mono truncate">{d.senderPhone || '—'}</span>
+                      <span className="text-[var(--tt-text-faint)]">TransCode</span>
+                      <span className="text-[var(--tt-text)] font-mono truncate">{d.transactionReference || '—'}</span>
+                    </div>
+                    {d.screenshotURL && d.screenshotURL !== 'N/A' && (
+                      <a href={d.screenshotURL} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-[var(--tt-accent)] hover:underline">
+                        <ExternalLink className="w-3 h-3" />Voir le reçu
+                      </a>
+                    )}
                     {/* Rapprochement trouvé par le hook SMS via le NUMÉRO expéditeur. Volontairement
                         non crédité : le numéro est déclaré par le client et ne prouve rien. On
                         montre ici de quoi trancher — c'est l'admin qui décide. */}
@@ -301,6 +367,33 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                 </div>
               ))}
             </div>
+
+            {/* Dépôts déjà tranchés — confirme visuellement qu'un SMS a bien crédité (ou été rejeté). */}
+            {depositsResolved.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-sm font-black uppercase tracking-wider text-[var(--tt-text-muted)] mb-3">Traités récemment</h3>
+                <div className="flex flex-col gap-2">
+                  {depositsResolved.map((d) => {
+                    const done = (d.status || '').toLowerCase() === 'completed';
+                    const prov = depositProvenance(d);
+                    return (
+                      <div key={d.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl px-4 py-2.5 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-bold text-sm">{d.amountCents ? htg(d.amountCents) : (d.amount || '—')} · {d.paymentMethod || d.provider || '—'}</p>
+                          <p className="text-[11px] text-[var(--tt-text-faint)] font-mono truncate">{d.id}{(d.matchedTxId || d.transactionReference) ? ` · Tx ${d.matchedTxId || d.transactionReference}` : ''} · {fmtAuditDate(d.reviewedAt || d.createdAt)}</p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {done && (
+                            <span className={`text-[9px] font-black uppercase tracking-wider rounded-full px-2 py-0.5 ${prov.auto ? 'bg-[var(--tt-accent)]/15 text-[var(--tt-accent)]' : 'bg-[var(--tt-text-muted)]/15 text-[var(--tt-text-muted)]'}`}>{prov.label}</span>
+                          )}
+                          <span className={`text-[10px] font-black uppercase tracking-wider rounded-full px-2.5 py-1 ${done ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>{done ? 'Crédité' : 'Rejeté'}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -318,6 +411,116 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                   <div className="flex gap-2 shrink-0">
                     <button disabled={busy === k.id} onClick={() => doReviewKyc(k.id, 'approve')} className="bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40">{busy === k.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}Approuver</button>
                     <button disabled={busy === k.id} onClick={() => doReviewKyc(k.id, 'reject')} className="bg-red-500/80 hover:bg-red-500 text-[var(--tt-text)] text-[11px] font-black rounded-lg px-3 py-1.5 flex items-center gap-1 disabled:opacity-40"><X className="w-3 h-3" />Rejeter</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* KYC déjà statués — l'admin voit l'historique des décisions, pas seulement la file. */}
+            {kycResolved.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-sm font-black uppercase tracking-wider text-[var(--tt-text-muted)] mb-3">Statués récemment</h3>
+                <div className="flex flex-col gap-2">
+                  {kycResolved.map((k) => {
+                    const ok = ['approved', 'verified'].includes((k.status || '').toLowerCase());
+                    return (
+                      <div key={k.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl px-4 py-2.5 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-bold text-sm truncate">{k.fullName || k.name || 'Sans nom'}</p>
+                          <p className="text-[11px] text-[var(--tt-text-faint)] font-mono truncate">{k.id} · {fmtAuditDate(k.reviewedAt || k.createdAt)}</p>
+                        </div>
+                        <span className={`text-[10px] font-black uppercase tracking-wider rounded-full px-2.5 py-1 shrink-0 ${ok ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>{ok ? 'Vérifié' : 'Rejeté'}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'sms' && (
+          <div>
+            <h2 className="text-2xl font-black mb-1">Journal SMS
+              <span className="text-sm text-[var(--tt-text-faint)] font-medium"> ({smsInbox.length} lus{smsToReview > 0 ? `, ${smsToReview} à rapprocher` : ''})</span>
+            </h2>
+            <p className="text-xs text-[var(--tt-text-faint)] mb-5">
+              Tous les SMS MonCash / NatCash lus par le téléphone marchand, rapprochés ou non.
+              Un SMS « sans correspondance » n’a crédité personne — vérifier qu’une demande de
+              dépôt existe bien côté client (montant + TransCode).
+            </p>
+            <div className="flex flex-col gap-2">
+              {smsInbox.length === 0 && <p className="text-[var(--tt-text-faint)] text-sm">Aucun SMS reçu pour l’instant.</p>}
+              {smsInbox.map((s) => {
+                const sv = smsStatusView(s.status);
+                const dir = (s.direction || '').toLowerCase();
+                const dirLabel = dir === 'in' ? 'Reçu' : dir === 'out' ? 'Envoyé' : 'Autre';
+                return (
+                  <div key={s.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm">
+                          {s.amountCents ? htg(s.amountCents) : '—'} · {s.provider || '—'}
+                          <span className="ml-2 text-[10px] font-black uppercase tracking-wider text-[var(--tt-text-faint)]">{dirLabel}</span>
+                        </p>
+                        <p className="text-[11px] text-[var(--tt-text-muted)] truncate">
+                          {s.senderName || '—'}{s.sender ? ` · ${s.sender}` : ''}{s.txId ? ` · Tx ${s.txId}` : ''}
+                        </p>
+                        <p className="text-[10px] text-[var(--tt-text-faint)] font-mono">{fmtAuditDate(s.receivedAt)}{s.reason ? ` · ${s.reason}` : ''}</p>
+                      </div>
+                      <span className={`text-[10px] font-black uppercase tracking-wider rounded-full px-2.5 py-1 shrink-0 ${sv.cls}`}>{sv.label}</span>
+                    </div>
+                    {s.raw && (
+                      <p className="mt-2 text-[11px] text-[var(--tt-text-muted)] bg-[var(--tt-overlay)] border border-[var(--tt-border)] rounded-lg px-2.5 py-1.5 font-mono break-words line-clamp-3">{s.raw}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {tab === 'contact' && (
+          <div>
+            <h2 className="text-2xl font-black mb-1">Messages contact
+              <span className="text-sm text-[var(--tt-text-faint)] font-medium"> ({contactMsgs.length}{contactNew > 0 ? `, ${contactNew} nouveau${contactNew > 1 ? 'x' : ''}` : ''})</span>
+            </h2>
+            <p className="text-xs text-[var(--tt-text-faint)] mb-5">
+              Messages reçus via le formulaire de contact. « Transféré » = e-mail envoyé à la boîte
+              support (nécessite SUPPORT_EMAIL + Resend configurés) ; sinon le message reste ici,
+              sans perte. Réponds directement au client via le bouton « Répondre ».
+            </p>
+            <div className="flex flex-col gap-2">
+              {contactMsgs.length === 0 && <p className="text-[var(--tt-text-faint)] text-sm">Aucun message pour l’instant.</p>}
+              {contactMsgs.map((m) => (
+                <div key={m.id} className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm truncate">
+                        {m.name || '—'}
+                        <span className="ml-2 text-[11px] font-medium text-[var(--tt-text-muted)]">{m.email || '—'}</span>
+                      </p>
+                      <p className="text-[10px] text-[var(--tt-text-faint)] font-mono">
+                        {fmtAuditDate(m.createdAt)}{m.uid ? ' · client connecté' : ' · visiteur'}{m.lang ? ` · ${m.lang}` : ''}
+                      </p>
+                    </div>
+                    <span className={`text-[10px] font-black uppercase tracking-wider rounded-full px-2.5 py-1 shrink-0 ${
+                      m.emailSent ? 'bg-[var(--tt-good)]/15 text-[var(--tt-good)]' : 'bg-[var(--tt-warn)]/15 text-[var(--tt-warn)]'
+                    }`}>
+                      {m.emailSent ? 'Transféré' : 'Stocké'}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-[13px] text-[var(--tt-text)] bg-[var(--tt-overlay)] border border-[var(--tt-border)] rounded-lg px-3 py-2 whitespace-pre-wrap break-words">{m.message || '—'}</p>
+                  <div className="mt-2 flex items-center gap-3">
+                    <a
+                      href={`mailto:${m.email}?subject=${encodeURIComponent('Re: votre message — Thie Thie Services')}`}
+                      className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-[var(--tt-accent)] hover:underline"
+                    >
+                      <Mail className="w-3.5 h-3.5" /> Répondre
+                    </a>
+                    {m.emailError && !m.emailSent && (
+                      <span className="text-[10px] text-[var(--tt-text-faint)] font-mono truncate" title={m.emailError}>{m.emailError}</span>
+                    )}
                   </div>
                 </div>
               ))}

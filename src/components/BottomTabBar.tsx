@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, LayoutGrid, Heart, User, Mail } from 'lucide-react';
+import { Home, LayoutGrid, Heart, User } from 'lucide-react';
 
 type PageId =
   | 'home' | 'category' | 'about' | 'contact' | 'faq' | 'privacy' | 'terms' | 'wishlist' | 'profile'
@@ -18,7 +18,7 @@ export function BottomTabBar({ lang, currentPage, navigateToPage, wishlistCount 
     { id: 'category', label: lang === 'FR' ? 'Catégories' : 'Kategori', icon: LayoutGrid },
     { id: 'wishlist', label: lang === 'FR' ? 'Souhaits' : 'Souyè', icon: Heart, count: wishlistCount },
     { id: 'profile', label: lang === 'FR' ? 'Profil' : 'Pwofil', icon: User },
-    { id: 'contact', label: lang === 'FR' ? 'Contact' : 'Kontak', icon: Mail },
+    // Contact retiré de la barre mobile : accessible depuis le pied de page (lien « Contact »).
   ];
 
   return (

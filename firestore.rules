@@ -273,6 +273,26 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // 4bis. Journal SMS entrants (sms_inbox)
+    // Registre de TOUS les SMS MonCash/NatCash lus par le webhook (entrants/sortants/bruit),
+    // rapprochés ou non. Écrit EXCLUSIVEMENT par le webhook via l'Admin SDK (qui contourne les
+    // règles) : écriture fermée à tout le monde côté client, sinon n'importe qui pourrait
+    // fabriquer un faux SMS crédité. Lecture réservée aux admins — le journal contient des
+    // numéros et noms d'expéditeurs, jamais à exposer à un client.
+    match /sms_inbox/{smsId} {
+      allow get, list: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    // 4bis-2. Messages du formulaire de contact
+    // Écrits EXCLUSIVEMENT par la callable submitContactMessage (Admin SDK, qui contourne les
+    // règles) : écriture fermée côté client, sinon spam direct de la collection. Lecture réservée
+    // aux admins — les messages contiennent nom, e-mail et éventuellement l'uid de l'expéditeur.
+    match /contact_messages/{msgId} {
+      allow get, list: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
     // 4ter. Journal des sessions d'appareil
     // Écrit exclusivement par les callables (recordSession/endSession, Admin SDK) : l'IP et le
     // user-agent doivent être CONSTATÉS par le serveur, pas déclarés par le client. Écriture

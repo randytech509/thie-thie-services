@@ -50,11 +50,15 @@ function messageErreurAdmin(err: unknown, lang: 'FR' | 'HT'): string {
 import moncashLogo from '../assets/images/moncash.png';
 import natcashLogo from '../assets/images/natcash.png';
 
-/** Logos des opérateurs, pour une reconnaissance immédiate : sur mobile, le marchand
- *  haïtien identifie MonCash ou NatCash à la forme et à la couleur bien avant de lire. */
+/** Logos des moyens de paiement, pour une reconnaissance immédiate : sur mobile, le marchand
+ *  haïtien identifie MonCash ou NatCash à la forme et à la couleur bien avant de lire.
+ *  Binance/PayPal/USDT pointent vers les mêmes assets que le footer (public/images/payments). */
 const METHOD_LOGOS: Partial<Record<string, string>> = {
   MonCash: moncashLogo,
   NatCash: natcashLogo,
+  'Binance Pay': '/images/payments/binance.svg',
+  PayPal: '/images/payments/paypal.svg',
+  Crypto: '/images/payments/tether.svg', // USDT (recharge crypto)
 };
 import freeFireCategoryBanner from '../assets/images/free-fire-banner.webp';
 // `pubg_mobile_helmet_overgrown.jpg` supprimé (fichier irrécupérable, ne s'affichait jamais).
@@ -69,8 +73,9 @@ import {
   AlertTriangle, 
   LogOut, 
   Camera, 
-  Coins, 
-  ShoppingBag, 
+  Coins,
+  ShoppingBag,
+  ShoppingCart,
   ArrowRight,
   Sparkles,
   Loader2,
@@ -116,6 +121,8 @@ interface UserProfileProps {
   lang: 'FR' | 'HT';
   navigateToPage: (page: any) => void;
   formatPrice: (priceUSD: number) => string;
+  /** Ouvre le panier (retour à la boutique + panneau panier). Optionnel. */
+  onGoToCart?: () => void;
 }
 
 const translations = {
@@ -269,20 +276,39 @@ const translations = {
   }
 };
 
-const getGameImage = (gameName: string) => {
+/** createdAt peut être un Timestamp Firestore (SDK), un nombre (ms), une string ISO ou null
+ *  (serverTimestamp non encore résolu). Ce helper normalise tout ça en millisecondes pour
+ *  trier/formater sans planter (`new Date(Timestamp)` donnait « Invalid Date »). */
+const tsMillis = (v: any): number => {
+  if (!v) return 0;
+  if (typeof v?.toMillis === 'function') return v.toMillis();
+  if (typeof v === 'number') return v;
+  if (typeof v?.seconds === 'number') return v.seconds * 1000;
+  const p = Date.parse(String(v));
+  return Number.isNaN(p) ? 0 : p;
+};
+
+/** Vignette d'une commande. On pointe vers les logos LOCAUX déjà bundlés (public/images/*)
+ *  au lieu d'URLs Unsplash externes qui tombaient en 404 → « résidus » d'images cassées dans
+ *  l'historique. Retour '' = inconnu → la carte affiche une icône de repli, pas une image morte. */
+const getGameImage = (gameName: string): string => {
   const name = (gameName || '').toLowerCase();
-  if (name.includes('free fire')) return freeFireCategoryBanner;
-  if (name.includes('pubg')) return pubgOvergrownHelmet;
-  if (name.includes('robux') || name.includes('roblox')) return 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&q=80&w=400';
-  if (name.includes('netflix')) return 'https://images.unsplash.com/photo-1574375927938-d5a98e8edd86?auto=format&fit=crop&q=80&w=400';
-  if (name.includes('google play')) return 'https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?auto=format&fit=crop&q=80&w=400';
-  if (name.includes('apple')) return 'https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&q=80&w=600';
-  if (name.includes('playstation')) return 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&q=80&w=400';
-  if (name.includes('xbox')) return 'https://images.unsplash.com/photo-1605901309584-818e25960a8f?auto=format&fit=crop&q=80&w=400';
-  if (name.includes('valorant')) return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=400';
-  if (name.includes('efootball')) return 'https://image.api.playstation.com/vulcan/ap/rnd/202308/2513/1908ef918e69d95f87b328a6fdf94291c95f19c29ca52e9f.png';
-  if (name.includes('cod') || name.includes('duty')) return 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&q=80&w=400';
-  return 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&q=80&w=400';
+  if (name.includes('free fire')) return '/images/logos/free-fire.png';
+  if (name.includes('pubg')) return '/images/covers/pubg.webp';
+  if (name.includes('mobile legend')) return '/images/covers/mobile-legends.jpeg';
+  if (name.includes('robux') || name.includes('roblox')) return '/images/logos/roblox.svg';
+  if (name.includes('netflix')) return '/images/logos/netflix.svg';
+  if (name.includes('google play')) return '/images/logos/google-play.svg';
+  if (name.includes('apple') || name.includes('itunes')) return '/images/logos/apple.svg';
+  if (name.includes('playstation')) return '/images/logos/playstation.svg';
+  if (name.includes('xbox')) return '/images/logos/xbox.svg';
+  if (name.includes('steam')) return '/images/logos/steam.svg';
+  if (name.includes('valorant')) return '/images/logos/valorant.svg';
+  if (name.includes('efootball') || name.includes('football')) return '/images/logos/efootball.svg';
+  if (name.includes('cod') || name.includes('duty')) return '/images/covers/cod-mobile.webp';
+  if (name.includes('meru')) return '/images/products/meru-card.png';
+  if (name.includes('google')) return '/images/logos/google.svg';
+  return '';
 };
 
 export const UserProfile: React.FC<UserProfileProps> = ({
@@ -293,7 +319,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   lang,
   navigateToPage,
   onLogout,
-  onProfilePictureUpload
+  onProfilePictureUpload,
+  onGoToCart
 }) => {
   const t = translations[lang];
   const loyalty = getLoyaltyLevel(thieThiePoints);
@@ -400,6 +427,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   // --- Notification Toggles ---
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [notifToast, setNotifToast] = useState(false);
+  // Toast « événement visuel » quand un dépôt est crédité en direct (auto-SMS ou manuel).
+  const [creditToast, setCreditToast] = useState<{ message: string } | null>(null);
+  // Écran de confirmation plein (au-dessus du toast) : quand un dépôt est crédité, on ne se
+  // contente plus d'un crédit silencieux — on affiche « Dépôt confirmé » avec le montant et
+  // on propose de passer une commande ou d'aller au panier.
+  const [depositConfirm, setDepositConfirm] = useState<{ message: string } | null>(null);
+  const notifInitRef = useRef(false); // ignore le 1er snapshot (historique au chargement)
 
   // --- About Modal State ---
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
@@ -413,6 +447,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   // --- REAL-TIME FIRESTORE SYNCHRONIZATION ---
   useEffect(() => {
     if (!user) return;
+    // Chaque (ré)abonnement doit traiter SON premier snapshot notifications comme l'historique
+    // (sinon un ré-abonnement — ex. quand le rôle se charge — rejouerait toutes les notifs en toast).
+    notifInitRef.current = false;
 
     // 1. Subscribe to User details in real-time
     const userRef = doc(db, 'users', user.uid);
@@ -437,11 +474,16 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       }
     });
 
-    // 2. Subscribe to wallet transactions in real-time
+    // 2. Subscribe to wallet transactions in real-time.
+    // Pas de orderBy('createdAt') côté serveur : combiné au where(uid==) il EXIGE un index
+    // composite (uid, createdAt) qui n'était PAS déployé → la requête échouait en silence et
+    // l'historique restait vide. On trie côté client (volume par utilisateur = quelques lignes).
     const txRef = collection(db, 'wallet_transactions');
-    const qTx = query(txRef, where('uid', '==', user.uid), orderBy('createdAt', 'desc'));
+    const qTx = query(txRef, where('uid', '==', user.uid));
     const unsubTx = onSnapshot(qTx, (snapshot) => {
-      const txList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const txList = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .sort((a: any, b: any) => tsMillis(b.createdAt) - tsMillis(a.createdAt));
       setTransactions(txList);
     }, (err) => console.error("Transactions subscription error:", err));
 
@@ -462,17 +504,39 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
     // 4. Subscribe to user's notifications
     const notificationsRef = collection(db, 'notifications');
-    const qNotifications = query(notificationsRef, where('uid', '==', user.uid), orderBy('createdAt', 'desc'));
+    // Sans orderBy serveur (idem : évite l'index composite manquant qui faisait échouer la
+    // requête → aucune notif ne remontait, d'où le dépôt « silencieux »). Tri client.
+    const qNotifications = query(notificationsRef, where('uid', '==', user.uid));
     const unsubNotifications = onSnapshot(qNotifications, (snapshot) => {
-      const notifList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const notifList = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .sort((a: any, b: any) => tsMillis(b.createdAt) - tsMillis(a.createdAt));
       setNotifications(notifList);
+      // Événement visuel : toast quand une NOUVELLE notif « Dépôt confirmé » arrive en direct.
+      // On saute le tout premier snapshot (= historique déjà lu au chargement) pour ne pas
+      // rejouer d'anciennes notifs à chaque ouverture du profil.
+      if (notifInitRef.current) {
+        snapshot.docChanges().forEach((chg) => {
+          if (chg.type !== 'added') return;
+          const n = chg.doc.data() as { title?: string; message?: string };
+          if (n.title === 'Dépôt confirmé' && n.message) {
+            setCreditToast({ message: n.message });
+            setDepositConfirm({ message: n.message }); // écran de confirmation + CTA
+          }
+        });
+      } else {
+        notifInitRef.current = true;
+      }
     }, (err) => console.error("Notifications subscription error:", err));
 
     // 5. Subscribe to user's wallet requests
     const requestsRef = collection(db, 'wallet_requests');
-    const qRequests = query(requestsRef, where('uid', '==', user.uid), orderBy('createdAt', 'desc'));
+    // Sans orderBy serveur (index composite (uid, createdAt) non déployé). Tri client.
+    const qRequests = query(requestsRef, where('uid', '==', user.uid));
     const unsubMyRequests = onSnapshot(qRequests, (snapshot) => {
-      const reqList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const reqList = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .sort((a: any, b: any) => tsMillis(b.createdAt) - tsMillis(a.createdAt));
       setMyWalletRequests(reqList);
     }, (err) => console.error("My requests subscription error:", err));
 
@@ -513,6 +577,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       unsubAdminKyc();
     };
   }, [user, dbUser?.role, isAdminClaim]);
+
+  // Auto-fermeture du toast de dépôt crédité
+  useEffect(() => {
+    if (!creditToast) return;
+    const timer = setTimeout(() => setCreditToast(null), 5000);
+    return () => clearTimeout(timer);
+  }, [creditToast]);
 
   // --- Dynamic Statistics Calculations ---
   const totalOrdersCount = orders.length;
@@ -838,7 +909,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const filteredTransactions = transactions.filter(tx => {
     // 1. Date Filter
     if (filterDateSelected !== 'all') {
-      const txDate = new Date(tx.createdAt);
+      const txDate = new Date(tsMillis(tx.createdAt));
       const now = new Date();
       if (filterDateSelected === 'today') {
         if (txDate.toDateString() !== now.toDateString()) return false;
@@ -857,14 +928,16 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       if (filterGameSelected === 'spend' && tx.type !== 'spend') return false;
     }
 
-    // 3. Payment Method Filter
+    // 3. Payment Method Filter — le serveur range le moyen dans meta.method / meta.provider,
+    // pas dans un champ paymentMethod de premier niveau.
     if (filterPaymentSelected !== 'all') {
-      if (tx.paymentMethod !== filterPaymentSelected) return false;
+      const txMethod = tx.paymentMethod || tx.meta?.method || tx.meta?.provider;
+      if (txMethod !== filterPaymentSelected) return false;
     }
 
-    // 4. Status Filter
+    // 4. Status Filter — tx.status = « Completed » (majuscule), options en minuscule.
     if (filterStatusSelected !== 'all') {
-      if (tx.status !== filterStatusSelected) return false;
+      if (String(tx.status).toLowerCase() !== filterStatusSelected.toLowerCase()) return false;
     }
 
     return true;
@@ -1138,7 +1211,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               </div>
               <div className="flex flex-col border-l border-[var(--tt-border)] pl-4">
                 <span className="text-[var(--tt-text-faint)] font-bold mb-1">{t.totalSpent}</span>
-                <span className="text-orange-400 font-extrabold text-sm select-all tabular-nums">
+                <span className="text-red-400 font-extrabold text-sm select-all tabular-nums">
                   -{formatHTG(totalWalletSpent)}
                 </span>
               </div>
@@ -1153,12 +1226,14 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
           {/* ==========================================
               KYC — DÉBLOQUE LA RECHARGE CRYPTO
+              Masqué une fois l'identité vérifiée : le badge « Vérifié » du profil communique
+              déjà le statut, ce widget devenait un doublon inutile pour l'utilisateur approuvé.
               ========================================== */}
+          {kycStatus !== 'approved' && (
           <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl p-5 shadow-2xl flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-3">
               <div className={`p-2.5 rounded-xl ${
-                kycStatus === 'approved' ? 'bg-emerald-500/10 text-emerald-400'
-                : kycStatus === 'pending' ? 'bg-[var(--tt-accent)]/10 text-[var(--tt-accent)]'
+                kycStatus === 'pending' ? 'bg-[var(--tt-accent)]/10 text-[var(--tt-accent)]'
                 : kycStatus === 'rejected' ? 'bg-red-500/10 text-red-400'
                 : 'bg-[var(--tt-overlay)] text-[var(--tt-text-faint)]'
               }`}>
@@ -1167,7 +1242,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               <div className="text-left">
                 <h3 className="text-xs font-black text-[var(--tt-text)]">Vérification d'identité (KYC)</h3>
                 <p className="text-[10px] text-[var(--tt-text-faint)] font-semibold mt-0.5">
-                  {kycStatus === 'approved' && "Identité vérifiée — recharge crypto débloquée."}
                   {kycStatus === 'pending' && "Demande en cours de revue par notre équipe."}
                   {kycStatus === 'rejected' && "Demande refusée — vous pouvez soumettre à nouveau."}
                   {kycStatus === 'none' && "Requise pour débloquer la recharge par crypto (USDT)."}
@@ -1175,11 +1249,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               </div>
             </div>
 
-            {kycStatus === 'approved' ? (
-              <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase flex items-center gap-1.5">
-                <CheckCircle className="w-3.5 h-3.5" /> Vérifié
-              </span>
-            ) : kycStatus === 'pending' ? (
+            {kycStatus === 'pending' ? (
               <span className="bg-[var(--tt-accent)]/10 text-[var(--tt-accent)] border border-[var(--tt-accent)]/20 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">
                 En attente
               </span>
@@ -1193,6 +1263,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               </button>
             )}
           </div>
+          )}
 
           {/* ==========================================
               LIVE NOTIFICATIONS & ACTIVITY CENTER
@@ -1480,7 +1551,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                           {tx.transactionId || tx.id}
                         </td>
                         <td className="py-3 px-4 text-[var(--tt-text-muted)] font-medium">
-                          {tx.createdAt ? new Date(tx.createdAt).toLocaleString(lang === 'FR' ? 'fr-FR' : 'en-US', {
+                          {tx.createdAt ? new Date(tsMillis(tx.createdAt)).toLocaleString(lang === 'FR' ? 'fr-FR' : 'en-US', {
                             month: 'short',
                             day: 'numeric',
                             hour: '2-digit',
@@ -1497,13 +1568,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                         </td>
                         <td className="py-3 px-4">
                           <span className="bg-[var(--tt-overlay)] border border-[var(--tt-border)] px-2 py-0.5 rounded text-[10px] font-bold text-[var(--tt-text-muted)]">
-                            {tx.paymentMethod}
+                            {tx.paymentMethod || tx.meta?.method || tx.meta?.provider || '—'}
                           </span>
                         </td>
                         <td className={`py-3 px-4 font-black ${
                           tx.type === 'deposit' ? 'text-emerald-400' : 'text-orange-400'
                         }`}>
-                          {tx.type === 'deposit' ? '+' : '-'}{formatHTG(tx.amount)}
+                          {tx.type === 'deposit' ? '+' : '-'}{formatHTG(tx.amountCents != null ? tx.amountCents / 100 : (tx.amount ?? 0))}
                         </td>
                         <td className="py-3 px-4">
                           {tx.status?.toLowerCase() === 'completed' ? (
@@ -1559,13 +1630,27 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 {orders.map((order) => (
                   <div key={order.id} className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] hover:border-[var(--tt-border)] rounded-2xl p-4 flex flex-col gap-3.5 transition-all hover:scale-[1.01]">
                     <div className="flex gap-4">
-                      <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-[var(--tt-bg)] border border-[var(--tt-border)]">
-                        <img 
-                          src={getGameImage(order.productName || order.game)} 
-                          alt="Game image" 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                      {(() => {
+                        const gimg = getGameImage(order.productName || order.game);
+                        // SVG = logo de marque transparent → fond blanc + contain (comme la
+                        // boutique) ; sinon (webp/png/jpeg = visuel plein) → cover. Vide → icône.
+                        const isLogo = gimg.endsWith('.svg');
+                        return (
+                          <div className={`w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-[var(--tt-border)] flex items-center justify-center ${isLogo ? 'bg-white' : 'bg-[var(--tt-bg)]'}`}>
+                            {gimg ? (
+                              <img
+                                src={gimg}
+                                alt={order.productName || order.game || 'Produit'}
+                                loading="lazy"
+                                className={isLogo ? 'w-full h-full object-contain p-2' : 'w-full h-full object-cover'}
+                                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                              />
+                            ) : (
+                              <ShoppingBag className="w-6 h-6 text-[var(--tt-text-faint)]" />
+                            )}
+                          </div>
+                        );
+                      })()}
                       
                       <div className="flex-1 min-w-0 flex flex-col justify-between">
                         <div>
@@ -1908,8 +1993,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               </button>
 
               {/* Sécurité du compte : sessions gérables par l'utilisateur lui-même —
-                  visible aussi sur mobile, contrairement au panneau du back-office admin. */}
-              <div className="pt-1">
+                  visible aussi sur mobile, contrairement au panneau du back-office admin.
+                  md:col-span-2 : occupe toute la largeur de la grille de réglages pour ne
+                  pas se coincer en demi-colonne (effet « gros box ») en vue PC. */}
+              <div className="md:col-span-2">
                 <SessionsPanel uid={user.uid} variant="profile" />
               </div>
 
@@ -2105,11 +2192,11 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[var(--tt-surface)] border border-[var(--tt-border)] w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl p-6 relative text-xs"
+              className="bg-[var(--tt-surface)] border border-[var(--tt-border)] w-full max-w-lg rounded-3xl max-h-[90dvh] overflow-y-auto overflow-x-hidden shadow-2xl p-6 relative text-xs"
             >
-              <button 
+              <button
                 onClick={() => setAddFundsOpen(false)}
-                className="absolute top-4 right-4 text-[var(--tt-text-muted)] hover:text-[var(--tt-text)] bg-[var(--tt-overlay)] hover:bg-[var(--tt-overlay-strong)] p-2 rounded-xl transition-all"
+                className="sticky top-0 float-right z-10 -mt-1 -mr-1 text-[var(--tt-text-muted)] hover:text-[var(--tt-text)] bg-[var(--tt-overlay)] hover:bg-[var(--tt-overlay-strong)] p-2 rounded-xl transition-all"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -2168,7 +2255,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                               src={METHOD_LOGOS[method]}
                               alt=""
                               aria-hidden="true"
-                              className="w-6 h-6 rounded-md object-contain"
+                              className="w-6 h-6 rounded-md object-contain bg-white p-0.5"
                               loading="lazy"
                             />
                           )}
@@ -2906,6 +2993,112 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               <p className="text-[var(--tt-text)]">{notificationsEnabled ? "Notifications Activées" : "Notifications Désactivées"}</p>
               <p className="text-[10px] text-[var(--tt-text-faint)] font-medium">{notificationsEnabled ? t.notificationsEnabled : t.notificationsDisabled}</p>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ==========================================
+          TOAST: DÉPÔT CRÉDITÉ (événement visuel en direct)
+          ========================================== */}
+      <AnimatePresence>
+        {creditToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 60, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 60, scale: 0.9 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-[var(--tt-surface)] border border-emerald-500/30 px-5 py-4 rounded-2xl shadow-2xl shadow-emerald-500/10 flex items-center gap-3 max-w-[92vw]"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-400 shrink-0">
+              <Check className="w-5 h-5 stroke-[3]" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-black text-[var(--tt-text)]">Dépôt confirmé</p>
+              <p className="text-[11px] text-[var(--tt-text-muted)] font-semibold truncate">{creditToast.message}</p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Écran de confirmation de dépôt : le crédit n'est plus silencieux. On montre le
+            montant crédité, le nouveau solde, et on propose de passer une commande ou d'aller
+            au panier. */}
+        {depositConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+            onClick={() => setDepositConfirm(null)}
+            role="dialog"
+            aria-modal="true"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 40, scale: 0.94 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+              className="relative w-full max-w-sm bg-[var(--tt-surface)] border border-emerald-500/30 rounded-3xl shadow-2xl shadow-emerald-500/10 p-7 text-center overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-56 h-56 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+
+              <button
+                onClick={() => setDepositConfirm(null)}
+                className="absolute top-3 right-3 p-2 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-overlay)] text-[var(--tt-text-muted)] transition-colors z-10"
+                aria-label="Fermer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="relative">
+                <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center mb-4 ring-4 ring-emerald-500/10">
+                  <CheckCircle className="w-9 h-9 stroke-[2.5]" />
+                </div>
+
+                <h3 className="text-xl font-black text-[var(--tt-text)] flex items-center justify-center gap-2">
+                  {lang === 'FR' ? 'Dépôt confirmé !' : 'Depo konfime !'}
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
+                </h3>
+                <p className="text-xs text-[var(--tt-text-muted)] font-semibold mt-2 leading-relaxed">
+                  {depositConfirm.message}
+                </p>
+
+                {/* Nouveau solde */}
+                <div className="mt-5 bg-[var(--tt-bg)] border border-[var(--tt-border)] rounded-2xl p-4 flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[var(--tt-text-faint)] flex items-center gap-1.5">
+                    <Coins className="w-3.5 h-3.5 text-emerald-400" />
+                    {lang === 'FR' ? 'Nouveau solde' : 'Nouvo balans'}
+                  </span>
+                  <span className="text-lg font-black text-emerald-400 tabular-nums">{formatHTG(walletBalanceHtg)}</span>
+                </div>
+
+                {/* CTA : passer une commande / aller au panier */}
+                <div className="mt-6 flex flex-col gap-2.5">
+                  <button
+                    onClick={() => { setDepositConfirm(null); navigateToPage('home'); }}
+                    className="w-full flex items-center justify-center gap-2 bg-[var(--tt-accent)] hover:brightness-110 text-[var(--tt-on-accent)] font-black text-sm py-3 rounded-xl transition-all shadow-lg shadow-[var(--tt-accent)]/20"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    {lang === 'FR' ? 'Passer une commande' : 'Fè yon kòmand'}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => { setDepositConfirm(null); (onGoToCart ?? (() => navigateToPage('home')))(); }}
+                    className="w-full flex items-center justify-center gap-2 bg-[var(--tt-surface-2)] hover:bg-[var(--tt-overlay)] border border-[var(--tt-border)] text-[var(--tt-text)] font-black text-sm py-3 rounded-xl transition-all"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    {lang === 'FR' ? 'Aller au panier' : 'Ale nan panye a'}
+                  </button>
+                  <button
+                    onClick={() => setDepositConfirm(null)}
+                    className="w-full text-[11px] font-bold text-[var(--tt-text-faint)] hover:text-[var(--tt-text-muted)] py-1.5 transition-colors"
+                  >
+                    {lang === 'FR' ? 'Plus tard' : 'Pita'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

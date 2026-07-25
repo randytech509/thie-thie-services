@@ -86,7 +86,7 @@ import { BottomTabBar } from './components/BottomTabBar';
 
 // Firebase imports
 import { auth, db, storage, googleProvider, OperationType, handleFirestoreError } from './firebase';
-import { placeOrder, placeCartOrder, redeemReward as redeemRewardApi } from './lib/api';
+import { placeOrder, placeCartOrder, redeemReward as redeemRewardApi, submitContactMessage } from './lib/api';
 import { listenForForegroundPush } from './lib/push';
 import { 
   signInWithEmailAndPassword, 
@@ -164,22 +164,43 @@ export interface Product {
 
 // 14 Premium Categories
 const CATEGORIES = [
-  { slug: 'free-fire', name: 'Free Fire', count: 11, icon: Gamepad2, gradient: 'from-[#a855f7] to-[#c084fc]' },
-  { slug: 'pubg', name: 'PUBG UC', count: 6, icon: ShieldCheck, gradient: 'from-[#8b5cf6] to-[#7c3aed]' },
-  { slug: 'robux', name: 'Roblox', count: 5, icon: Coins, gradient: 'from-[#7c3aed] to-[#a855f7]' },
-  { slug: 'netflix', name: 'Netflix', count: 4, icon: Tv, gradient: 'from-[#ef4444] to-[#7c3aed]' },
-  { slug: 'meru', name: 'Meru Services', count: 4, icon: Smartphone, gradient: 'from-[#12b98a] to-[#8b5cf6]' },
-  { slug: 'google-play', name: 'Google Play', count: 4, icon: Gift, gradient: 'from-[#c084fc] to-[#12b98a]' },
-  { slug: 'apple', name: 'Apple Gift Card', count: 4, icon: ShieldCheck, gradient: 'from-[#a855f7] to-[#8b5cf6]' },
-  { slug: 'playstation', name: 'PlayStation', count: 4, icon: Gamepad2, gradient: 'from-[#8b5cf6] to-[#3b1a6e]' },
-  { slug: 'xbox', name: 'Xbox Live', count: 3, icon: Gamepad2, gradient: 'from-[#12b98a] to-[#064e3b]' },
-  { slug: 'steam', name: 'Steam Wallet', count: 3, icon: Coins, gradient: 'from-[#4b5563] to-[#111827]' },
-  { slug: 'valorant', name: 'Valorant Points', count: 4, icon: ShieldCheck, gradient: 'from-[#f43f5e] to-[#991b1b]' },
-  { slug: 'mobile-legends', name: 'Mobile Legends', count: 4, icon: Gamepad2, gradient: 'from-[#06b6d4] to-[#4f46e5]' },
-  { slug: 'efootball', name: 'eFootball', count: 6, icon: Gamepad2, gradient: 'from-[#0ea5e9] to-[#0369a1]' },
-  { slug: 'cod-mobile', name: 'COD Mobile', count: 6, icon: ShieldCheck, gradient: 'from-[#78716c] to-[#44403c]' },
-  { slug: 'gift-cards', name: 'Cartes cadeaux', count: 0, icon: Gift, gradient: 'from-[#a855f7] to-[#ec4899]' }
+  { slug: 'free-fire', name: 'Free Fire', count: 11, icon: Gamepad2, gradient: 'from-[#a855f7] to-[#c084fc]', logo: '/images/logos/free-fire.png' },
+  { slug: 'pubg', name: 'PUBG UC', count: 6, icon: ShieldCheck, gradient: 'from-[#8b5cf6] to-[#7c3aed]', logo: '/images/covers/pubg.webp' },
+  { slug: 'robux', name: 'Roblox', count: 5, icon: Coins, gradient: 'from-[#7c3aed] to-[#a855f7]', logo: '/images/logos/roblox.svg' },
+  { slug: 'netflix', name: 'Netflix', count: 4, icon: Tv, gradient: 'from-[#ef4444] to-[#7c3aed]', logo: '/images/logos/netflix.svg' },
+  { slug: 'meru', name: 'Meru Services', count: 4, icon: Smartphone, gradient: 'from-[#12b98a] to-[#8b5cf6]', logo: '/images/logos/meru.webp' },
+  { slug: 'google-play', name: 'Google Play', count: 4, icon: Gift, gradient: 'from-[#c084fc] to-[#12b98a]', logo: '/images/logos/google-play.svg' },
+  { slug: 'apple', name: 'Apple Gift Card', count: 4, icon: ShieldCheck, gradient: 'from-[#a855f7] to-[#8b5cf6]', logo: '/images/logos/apple.svg' },
+  { slug: 'playstation', name: 'PlayStation', count: 4, icon: Gamepad2, gradient: 'from-[#8b5cf6] to-[#3b1a6e]', logo: '/images/logos/playstation.svg' },
+  { slug: 'xbox', name: 'Xbox Live', count: 3, icon: Gamepad2, gradient: 'from-[#12b98a] to-[#064e3b]', logo: '/images/logos/xbox.svg' },
+  { slug: 'steam', name: 'Steam Wallet', count: 3, icon: Coins, gradient: 'from-[#4b5563] to-[#111827]', logo: '/images/logos/steam.svg' },
+  { slug: 'valorant', name: 'Valorant Points', count: 4, icon: ShieldCheck, gradient: 'from-[#f43f5e] to-[#991b1b]', logo: '/images/logos/valorant.svg' },
+  { slug: 'mobile-legends', name: 'Mobile Legends', count: 4, icon: Gamepad2, gradient: 'from-[#06b6d4] to-[#4f46e5]', logo: '/images/covers/mobile-legends.jpeg' },
+  { slug: 'efootball', name: 'eFootball', count: 6, icon: Gamepad2, gradient: 'from-[#0ea5e9] to-[#0369a1]', logo: '/images/logos/efootball.svg' },
+  { slug: 'cod-mobile', name: 'COD Mobile', count: 6, icon: ShieldCheck, gradient: 'from-[#78716c] to-[#44403c]', logo: '/images/covers/cod-mobile.webp' },
+  { slug: 'gift-cards', name: 'Cartes cadeaux', count: 0, icon: Gift, gradient: 'from-[#a855f7] to-[#ec4899]', logo: null }
 ];
+
+// Reloadly range TOUTES ses cartes sous « gift-cards ». On déduit la catégorie de MARQUE depuis le
+// nom du produit pour qu'entrer dans « Netflix » montre la vraie carte Netflix de Reloadly (etc.).
+// Sans correspondance → reste dans « Cartes cadeaux ».
+function brandSlugFromName(name: string): string {
+  const n = name.toLowerCase();
+  if (n.includes('netflix')) return 'netflix';
+  if (n.includes('xbox')) return 'xbox';
+  if (n.includes('pubg')) return 'pubg';
+  if (n.includes('mobile legends')) return 'mobile-legends';
+  if (n.includes('playstation')) return 'playstation';
+  if (n.includes('steam')) return 'steam';
+  if (n.includes('google play')) return 'google-play';
+  if (n.includes('app store') || n.includes('itunes') || n.includes('apple')) return 'apple';
+  if (n.includes('roblox') || n.includes('robux')) return 'robux';
+  if (n.includes('valorant')) return 'valorant';
+  if (n.includes('efootball')) return 'efootball';
+  if (n.includes('call of duty') || n.includes('cod mobile')) return 'cod-mobile';
+  if (n.includes('free fire')) return 'free-fire';
+  return 'gift-cards';
+}
 
 /** Ligne de panier côté client. `unitCents` est INDICATIF (affichage) — le prix facturé est
  *  recalculé serveur au checkout à partir du produit + montant choisi (invariant 3). */
@@ -309,7 +330,7 @@ const PRODUCTS: Product[] = [
     id: 'pubg-uc',
     name: 'PUBG Mobile UC',
     categorySlug: 'pubg',
-    image: pubgOvergrownHelmet,
+    image: '/images/covers/pubg.webp',
     isPromo: true,
     discountBadge: '-10%',
     rating: 4.8,
@@ -331,7 +352,7 @@ const PRODUCTS: Product[] = [
     id: 'roblox-robux',
     name: 'Robux Gift Code',
     categorySlug: 'robux',
-    image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&q=80&w=400',
+    image: '/images/logos/roblox.svg',
     isPromo: false,
     rating: 4.7,
     deliveryTime: '5-10 Min',
@@ -351,7 +372,7 @@ const PRODUCTS: Product[] = [
     id: 'netflix-premium',
     name: 'Netflix Premium Account',
     categorySlug: 'netflix',
-    image: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&q=80&w=400',
+    image: '/images/logos/netflix.svg',
     isPromo: true,
     discountBadge: 'POPULAR',
     rating: 4.9,
@@ -371,7 +392,7 @@ const PRODUCTS: Product[] = [
     id: 'meru-services',
     name: 'Meru Credits Pack',
     categorySlug: 'meru',
-    image: meruOgImage,
+    image: '/images/products/meru-card.png',
     isPromo: false,
     rating: 4.6,
     deliveryTime: '10-15 Min',
@@ -390,7 +411,7 @@ const PRODUCTS: Product[] = [
     id: 'google-play-card',
     name: 'Google Play Gift Card',
     categorySlug: 'google-play',
-    image: 'https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?auto=format&fit=crop&q=80&w=400',
+    image: '/images/logos/google-play.svg',
     isPromo: true,
     discountBadge: 'PROMO',
     rating: 4.8,
@@ -410,7 +431,7 @@ const PRODUCTS: Product[] = [
     id: 'apple-gift-card',
     name: 'Apple Store Gift Card',
     categorySlug: 'apple',
-    image: 'https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&q=80&w=600',
+    image: '/images/logos/apple.svg',
     isPromo: false,
     rating: 4.9,
     deliveryTime: '1-3 Min',
@@ -429,7 +450,7 @@ const PRODUCTS: Product[] = [
     id: 'playstation-network',
     name: 'PlayStation Network Card',
     categorySlug: 'playstation',
-    image: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&q=80&w=400',
+    image: '/images/logos/playstation.svg',
     isPromo: false,
     rating: 4.8,
     deliveryTime: '2-5 Min',
@@ -448,7 +469,7 @@ const PRODUCTS: Product[] = [
     id: 'xbox-live-card',
     name: 'Xbox Gift Card',
     categorySlug: 'xbox',
-    image: 'https://images.unsplash.com/photo-1605901309584-818e25960a8f?auto=format&fit=crop&q=80&w=400',
+    image: '/images/logos/xbox.svg',
     isPromo: true,
     discountBadge: 'VRAI',
     rating: 4.7,
@@ -467,7 +488,7 @@ const PRODUCTS: Product[] = [
     id: 'steam-wallet',
     name: 'Steam Wallet Card',
     categorySlug: 'steam',
-    image: 'https://images.unsplash.com/photo-1580234810907-b40315b76418?auto=format&fit=crop&q=80&w=400',
+    image: '/images/logos/steam.svg',
     isPromo: false,
     rating: 4.9,
     deliveryTime: '1-3 Min',
@@ -485,7 +506,7 @@ const PRODUCTS: Product[] = [
     id: 'valorant-points',
     name: 'Valorant Points Pack',
     categorySlug: 'valorant',
-    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400',
+    image: '/images/logos/valorant.svg',
     isPromo: false,
     rating: 4.8,
     deliveryTime: '5 Min',
@@ -504,7 +525,7 @@ const PRODUCTS: Product[] = [
     id: 'mobile-legends-diamonds',
     name: 'Mobile Legends Diamonds',
     categorySlug: 'mobile-legends',
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=600',
+    image: '/images/covers/mobile-legends.jpeg',
     isPromo: true,
     discountBadge: 'OBLIGÉ',
     rating: 4.8,
@@ -524,7 +545,7 @@ const PRODUCTS: Product[] = [
     id: 'efootball-coins',
     name: 'eFootball Coins',
     categorySlug: 'efootball',
-    image: 'https://image.api.playstation.com/vulcan/ap/rnd/202308/2513/1908ef918e69d95f87b328a6fdf94291c95f19c29ca52e9f.png',
+    image: '/images/logos/efootball.svg',
     isPromo: true,
     discountBadge: 'HOT',
     rating: 4.8,
@@ -546,7 +567,7 @@ const PRODUCTS: Product[] = [
     id: 'cod-mobile-cp',
     name: 'Call of Duty: Mobile CP',
     categorySlug: 'cod-mobile',
-    image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=600',
+    image: '/images/covers/cod-mobile.webp',
     isPromo: true,
     discountBadge: '-10%',
     rating: 4.9,
@@ -867,14 +888,14 @@ const HIGHLIGHTED_CATEGORIES = [
 ];
 
 const PARTNERS = [
-  { name: 'GARENA', icon: Flame, color: '#ef4444' },
-  { name: 'PUBG MOBILE', icon: Target, color: '#8b5cf6' },
-  { name: 'NETFLIX', icon: Tv, color: '#ef4444' },
-  { name: 'GOOGLE', icon: Diamond, color: '#10b981' },
-  { name: 'APPLE', icon: Apple, color: '#e5e7eb' },
-  { name: 'STEAM', icon: Cog, color: '#a855f7' },
-  { name: 'PLAYSTATION', icon: Gamepad2, color: '#8b5cf6' },
-  { name: 'XBOX', icon: Joystick, color: '#22c55e' }
+  { name: 'GARENA', icon: Flame, color: '#ef4444', logo: null as string | null },
+  { name: 'PUBG MOBILE', icon: Target, color: '#8b5cf6', logo: '/images/covers/pubg.webp' },
+  { name: 'NETFLIX', icon: Tv, color: '#ef4444', logo: '/images/logos/netflix.svg' },
+  { name: 'GOOGLE', icon: Diamond, color: '#10b981', logo: '/images/logos/google.svg' },
+  { name: 'APPLE', icon: Apple, color: '#e5e7eb', logo: '/images/logos/apple.svg' },
+  { name: 'STEAM', icon: Cog, color: '#a855f7', logo: '/images/logos/steam.svg' },
+  { name: 'PLAYSTATION', icon: Gamepad2, color: '#8b5cf6', logo: '/images/logos/playstation.svg' },
+  { name: 'XBOX', icon: Joystick, color: '#22c55e', logo: '/images/logos/xbox.svg' }
 ];
 
 const TESTIMONIALS = [
@@ -950,8 +971,17 @@ function ProductImageWithSkeleton({
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
+  // Un logo de marque officiel (SVG bundlé) se rend CONTENU sur un fond clair neutre — la
+  // plupart des logos couleur (Apple noir, Steam marine, Netflix rouge…) sont pensés pour
+  // fonctionner sur blanc ; les rogner en object-cover sur le thème sombre les rendrait illisibles.
+  const isLogo = src.includes('/images/logos/');
+  // Un « art produit » (ex. rendu transparent de la carte Meru) doit être CONTENU (carte entière
+  // visible) mais sur le fond sombre du thème, pas sur blanc.
+  const isProductArt = src.includes('/images/products/');
+  const contain = isLogo || isProductArt;
+
   return (
-    <div className={`relative overflow-hidden w-full h-full bg-[var(--tt-surface-2)] ${className}`}>
+    <div className={`relative overflow-hidden w-full h-full ${isLogo ? 'bg-white' : 'bg-[var(--tt-surface-2)]'} ${className}`}>
       {/* Skeleton overlay */}
       {!loaded && (
         <div className="absolute inset-0 z-10 bg-[var(--tt-bg)] flex flex-col items-center justify-center">
@@ -974,7 +1004,9 @@ function ProductImageWithSkeleton({
           setError(true);
         }}
         referrerPolicy="no-referrer"
-        className={`${imgClassName} w-full h-full object-cover transition-all duration-500 ${
+        className={`${imgClassName} w-full h-full transition-all duration-500 ${
+          isLogo ? 'object-contain p-[15%]' : contain ? 'object-contain p-[8%]' : 'object-cover'
+        } ${
           loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
         loading="lazy"
@@ -1320,6 +1352,8 @@ export default function App() {
   const [calcMode, setCalcMode] = useState<'USD' | 'HTG'>('USD');
   const [calcUSD, setCalcUSD] = useState<string>('10');
   const [calcHTG, setCalcHTG] = useState<string>(() => String(10 * 145));
+  // Ordre d'affichage des deux champs : true = USD en haut / HTG en bas ; false = l'inverse.
+  const [usdOnTop, setUsdOnTop] = useState<boolean>(true);
 
   useEffect(() => {
     setCalcMode(currency);
@@ -2500,6 +2534,8 @@ export default function App() {
   const [contactEmail, setContactEmail] = useState('');
   const [contactMessage, setContactMessage] = useState('');
   const [contactSuccess, setContactSuccess] = useState(false);
+  const [contactSending, setContactSending] = useState(false);
+  const [contactError, setContactError] = useState<string | null>(null);
 
   // Accordion FAQ states
   const [expandedFaqIndex, setExpandedFaqIndex] = useState<number | null>(null);
@@ -2596,7 +2632,7 @@ export default function App() {
             cards.push({
               id: d.id,
               name: String(v.name ?? 'Carte cadeau'),
-              categorySlug: 'gift-cards',
+              categorySlug: brandSlugFromName(String(v.name ?? '')),
               image: String(v.image ?? ''),
               rating: 5,
               deliveryTime: String(v.deliveryTime ?? '1-5 Min'),
@@ -2667,11 +2703,13 @@ export default function App() {
 
     // Category slug filter — la catégorie Cartes cadeaux est alimentée par Firestore.
     if (currentPage === 'category' && selectedCategorySlug === 'gift-cards') {
-      result = giftCardProducts;
+      result = giftCardProducts.filter((p) => p.categorySlug === 'gift-cards');
     } else {
       result = PRODUCTS;
       if (currentPage === 'category' && selectedCategorySlug) {
         result = result.filter((p) => p.categorySlug === selectedCategorySlug);
+        // + les vraies cartes Reloadly rangées dans cette marque (Netflix, Xbox, PUBG, MLBB…)
+        result = [...result, ...giftCardProducts.filter((p) => p.categorySlug === selectedCategorySlug)];
       }
     }
 
@@ -2767,16 +2805,36 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactName || !contactEmail || !contactMessage) return;
-    setContactSuccess(true);
-    setTimeout(() => {
-      setContactSuccess(false);
+    if (contactSending) return;
+    setContactError(null);
+    setContactSending(true);
+    try {
+      // Envoi réel : la callable stocke le message (filet de sécurité) et l'envoie à la boîte
+      // support dès que SUPPORT_EMAIL/RESEND sont configurés côté serveur.
+      await submitContactMessage({
+        name: contactName.trim(),
+        email: contactEmail.trim(),
+        message: contactMessage.trim(),
+        lang,
+      });
+      setContactSuccess(true);
       setContactName('');
       setContactEmail('');
       setContactMessage('');
-    }, 4000);
+      setTimeout(() => setContactSuccess(false), 6000);
+    } catch (err) {
+      const code = (err as { code?: string })?.code ?? '';
+      setContactError(
+        code.includes('resource-exhausted')
+          ? (lang === 'FR' ? 'Trop de messages envoyés. Réessayez dans un moment.' : 'Twòp mesaj voye. Eseye ankò nan yon ti moman.')
+          : (lang === 'FR' ? "L'envoi a échoué. Réessayez." : 'Voye a echwe. Eseye ankò.'),
+      );
+    } finally {
+      setContactSending(false);
+    }
   };
 
   if (authChecking) {
@@ -3775,15 +3833,24 @@ export default function App() {
                       {/* background ambient glow */}
                       <div className={`absolute -right-8 -bottom-8 w-24 h-24 rounded-full bg-gradient-to-tr ${cat.gradient} opacity-5 blur-2xl group-hover:scale-125 transition-transform duration-500`} />
 
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-tr ${cat.gradient} flex items-center justify-center text-black font-extrabold mb-4 group-hover:scale-110 transition-transform`}>
-                        <IconComponent className="w-6 h-6 text-black" />
+                      <div className={`w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center mb-4 group-hover:scale-110 transition-transform ${cat.logo ? 'bg-white' : `bg-gradient-to-tr ${cat.gradient} text-black font-extrabold`}`}>
+                        {cat.logo ? (
+                          <img
+                            src={cat.logo}
+                            alt={cat.name}
+                            className={`w-full h-full ${cat.logo.includes('/covers/') ? 'object-cover' : 'object-contain p-1.5'}`}
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <IconComponent className="w-6 h-6 text-black" />
+                        )}
                       </div>
 
                       <h4 className="text-sm font-extrabold text-[var(--tt-text)] group-hover:text-[var(--tt-accent)] transition-colors truncate w-full">
                         {cat.name}
                       </h4>
                       <p className="text-[10px] text-[var(--tt-text-faint)] font-semibold mt-1">
-                        {cat.count} Products
+                        {cat.slug === 'gift-cards' ? giftCardProducts.filter((p) => p.categorySlug === 'gift-cards').length : cat.count} Products
                       </p>
                     </TiltCard>
                   );
@@ -4045,12 +4112,21 @@ export default function App() {
               </div>
 
               <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12 opacity-50 hover:opacity-80 transition-opacity">
-                {PARTNERS.map((partner, index) => (
-                  <span key={index} className="inline-flex items-center gap-1.5 text-xs md:text-sm font-black tracking-widest text-[var(--tt-text)] select-none">
-                    <partner.icon className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: partner.color }} />
-                    {partner.name}
-                  </span>
-                ))}
+                {PARTNERS.map((partner, index) => {
+                  const isCover = partner.logo?.includes('/covers/');
+                  return (
+                    <span key={index} className="inline-flex items-center gap-1.5 text-xs md:text-sm font-black tracking-widest text-[var(--tt-text)] select-none">
+                      {partner.logo ? (
+                        <span className={`w-5 h-5 md:w-6 md:h-6 rounded-md overflow-hidden inline-flex items-center justify-center ${isCover ? '' : 'bg-white'}`}>
+                          <img src={partner.logo} alt="" className={`w-full h-full ${isCover ? 'object-cover' : 'object-contain p-0.5'}`} referrerPolicy="no-referrer" />
+                        </span>
+                      ) : (
+                        <partner.icon className="w-3.5 h-3.5 md:w-4 md:h-4" style={{ color: partner.color }} />
+                      )}
+                      {partner.name}
+                    </span>
+                  );
+                })}
               </div>
             </section>
 
@@ -4227,7 +4303,7 @@ export default function App() {
                               }}
                               className="bg-[var(--tt-accent)] text-[var(--tt-on-accent)] text-[10px] font-black py-2 rounded-xl hover:bg-[var(--tt-accent)]/90 transition-all flex items-center justify-center gap-1 shadow-md shadow-[#a855f7]/5"
                             >
-                              <Send className="w-3 h-3" />
+                              <ShoppingCart className="w-3 h-3" />
                               <span>{lang === 'FR' ? 'Acheter' : 'Achte'}</span>
                             </button>
                           </div>
@@ -4657,7 +4733,7 @@ export default function App() {
               <div className="flex flex-col gap-4">
                 <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-5 flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-[var(--tt-good)]/10 flex items-center justify-center text-[var(--tt-good)]">
-                    <Send className="w-5 h-5" />
+                    <img src="/whatsapp-glyph-green.svg" alt="WhatsApp" className="w-5 h-5" />
                   </div>
                   <div>
                     <p className="text-[10px] text-[var(--tt-text-faint)] uppercase font-bold">WhatsApp Direct</p>
@@ -4671,7 +4747,7 @@ export default function App() {
                   </div>
                   <div>
                     <p className="text-[10px] text-[var(--tt-text-faint)] uppercase font-bold">Email Support</p>
-                    <a href="mailto:support@thie-thie-services.com" className="text-sm font-black text-[var(--tt-text)] hover:text-[var(--tt-accent)] transition-colors">support@thie-thie.com</a>
+                    <a href="mailto:support@thie-thie-services.com" className="text-sm font-black text-[var(--tt-text)] hover:text-[var(--tt-accent)] transition-colors">support@thie-thie-services.com</a>
                   </div>
                 </div>
 
@@ -4751,11 +4827,19 @@ export default function App() {
                       />
                     </div>
 
+                    {contactError && (
+                      <p className="text-[11px] text-[var(--tt-danger)] font-bold flex items-center gap-1.5 bg-[var(--tt-danger)]/10 px-3 py-2 rounded-lg border border-red-500/10">
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{contactError}</span>
+                      </p>
+                    )}
                     <button
                       type="submit"
-                      className="bg-[var(--tt-accent)] hover:bg-[var(--tt-accent)]/90 text-[var(--tt-on-accent)] font-extrabold text-xs px-6 py-3.5 rounded-xl self-end transition-colors"
+                      disabled={contactSending}
+                      className="bg-[var(--tt-accent)] hover:bg-[var(--tt-accent)]/90 text-[var(--tt-on-accent)] font-extrabold text-xs px-6 py-3.5 rounded-xl self-end transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {t('sendMessage')}
+                      {contactSending && <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />}
+                      {contactSending ? (lang === 'FR' ? 'Envoi…' : 'Ap voye…') : t('sendMessage')}
                     </button>
                   </form>
                 )}
@@ -4879,6 +4963,7 @@ export default function App() {
             lang={lang}
             navigateToPage={navigateToPage}
             formatPrice={formatPrice}
+            onGoToCart={() => { navigateToPage('home'); setCartOpen(true); }}
           />
           </Suspense>
         )}
@@ -4998,7 +5083,7 @@ export default function App() {
                         rel="noopener noreferrer"
                         className="w-full bg-gradient-to-r from-[#a855f7] to-[#7e22ce] hover:from-[#7e22ce] hover:to-[#a855f7] text-[#0c0714] font-black text-xs py-3.5 rounded-2xl text-center flex items-center justify-center gap-2 shadow-lg shadow-[#a855f7]/5 hover:shadow-[#a855f7]/15 hover:-translate-y-0.5 transition-all mb-2.5"
                       >
-                        <Send className="w-4 h-4" />
+                        <img src="/whatsapp-glyph-green.svg" alt="WhatsApp" className="w-4 h-4" />
                         <span>{lang === 'FR' ? "Envoyer le rapport sur WhatsApp" : "Voye rapò a sou WhatsApp"}</span>
                       </a>
                       <button
@@ -5809,7 +5894,7 @@ export default function App() {
           rel="noopener noreferrer"
           className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center group relative"
         >
-          <Send className="w-6 h-6 animate-pulse" />
+          <img src="/whatsapp-glyph.svg" alt="WhatsApp" className="w-7 h-7" />
           <span className="absolute right-16 bg-green-500 text-[var(--tt-text)] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap hidden md:block">
             Besoin d'aide ? WhatsApp
           </span>
@@ -5818,10 +5903,12 @@ export default function App() {
 
       {/* FOOTER SECTION */}
       <footer id="main-footer-section" className="bg-[var(--tt-surface)] border-t border-[var(--tt-border)] pt-16 pb-8 text-xs text-[var(--tt-text-muted)]">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-10">
-          
+        {/* grid-cols-2 dès le mobile : permet au convertisseur et aux moyens de paiement de se
+            placer côte à côte (dernière rangée) sur petit écran ; le logo occupe la largeur. */}
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 lg:grid-cols-6 gap-6 lg:gap-10">
+
           {/* Logo Description */}
-          <div className="flex flex-col gap-4 sm:col-span-2 lg:col-span-1">
+          <div className="flex flex-col gap-4 col-span-2 lg:col-span-1 lg:order-1">
             <div className="flex items-center gap-2.5">
               {/* Le vrai logo, pas les initiales : c'etait le dernier placeholder texte. */}
               <ThieThieLogo variant="icon" size={36} />
@@ -5832,28 +5919,28 @@ export default function App() {
             </p>
           </div>
 
-          {/* Quick Links navigation */}
-          <div>
-            <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-4">Navigation</h4>
-            <ul className="flex flex-col gap-2 font-medium">
-              <li><button onClick={() => navigateToPage('home')} className="hover:text-[var(--tt-accent)] transition-colors">{t('accueil')}</button></li>
-              <li><button onClick={() => navigateToPage('about')} className="hover:text-[var(--tt-accent)] transition-colors">{lang === 'FR' ? 'À Propos' : 'Kiyès nou ye'}</button></li>
-              <li><button onClick={() => navigateToPage('contact')} className="hover:text-[var(--tt-accent)] transition-colors">{t('contact')}</button></li>
-              <li><button onClick={() => navigateToPage('faq')} className="hover:text-[var(--tt-accent)] transition-colors">{t('faqTitle')}</button></li>
-            </ul>
-          </div>
-
-          {/* Policies conditions */}
-          <div>
-            <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-4">Légal</h4>
-            <ul className="flex flex-col gap-2 font-medium">
-              <li><button onClick={() => navigateToPage('privacy')} className="hover:text-[var(--tt-accent)] transition-colors">{t('privacyTitle')}</button></li>
-              <li><button onClick={() => navigateToPage('terms')} className="hover:text-[var(--tt-accent)] transition-colors">{t('termsTitle')}</button></li>
-            </ul>
+          {/* Liens : Navigation + Légal regroupés dans une seule colonne (listes courtes) */}
+          <div className="flex flex-col gap-8 lg:order-3">
+            <div>
+              <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-4">Navigation</h4>
+              <ul className="flex flex-col gap-2 font-medium">
+                <li><button onClick={() => navigateToPage('home')} className="hover:text-[var(--tt-accent)] transition-colors">{t('accueil')}</button></li>
+                <li><button onClick={() => navigateToPage('about')} className="hover:text-[var(--tt-accent)] transition-colors">{lang === 'FR' ? 'À Propos' : 'Kiyès nou ye'}</button></li>
+                <li><button onClick={() => navigateToPage('contact')} className="hover:text-[var(--tt-accent)] transition-colors">{t('contact')}</button></li>
+                <li><button onClick={() => navigateToPage('faq')} className="hover:text-[var(--tt-accent)] transition-colors">{t('faqTitle')}</button></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-4">Légal</h4>
+              <ul className="flex flex-col gap-2 font-medium">
+                <li><button onClick={() => navigateToPage('privacy')} className="hover:text-[var(--tt-accent)] transition-colors">{t('privacyTitle')}</button></li>
+                <li><button onClick={() => navigateToPage('terms')} className="hover:text-[var(--tt-accent)] transition-colors">{t('termsTitle')}</button></li>
+              </ul>
+            </div>
           </div>
 
           {/* Newsletter Section */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 lg:order-4">
             <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-1">Newsletter</h4>
             <p className="text-[11px] text-[var(--tt-text-muted)] leading-relaxed font-medium">
               {lang === 'FR' 
@@ -5906,29 +5993,55 @@ export default function App() {
           </div>
 
           {/* Payments newsletter */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 lg:order-5">
             <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider mb-1">Modes de Paiement</h4>
-            <div className="flex flex-wrap gap-2 items-center text-[var(--tt-text-faint)] text-[10px] font-bold">
-              <span className="bg-[var(--tt-surface-2)] px-2 py-1 rounded">MonCash</span>
-              <span className="bg-[var(--tt-surface-2)] px-2 py-1 rounded">NatCash</span>
-              <span className="bg-[var(--tt-surface-2)] px-2 py-1 rounded">USDT TRC20</span>
-              <span className="bg-[var(--tt-surface-2)] px-2 py-1 rounded">PayPal</span>
+            <div className="flex flex-col items-start gap-2">
+              {[
+                { name: 'MonCash', logo: '/images/payments/moncash.png' },
+                { name: 'NatCash', logo: '/images/payments/natcash.png' },
+                { name: 'USDT TRC20', logo: '/images/payments/tether.svg' },
+                { name: 'PayPal', logo: '/images/payments/paypal.svg' },
+                { name: 'Binance Pay', logo: '/images/payments/binance.svg' },
+              ].map((pm) => (
+                <span
+                  key={pm.name}
+                  title={pm.name}
+                  className="inline-flex items-center gap-2 bg-white border border-[var(--tt-border)] pl-1.5 pr-3 py-1.5 rounded-lg shadow-sm w-full lg:w-[150px]"
+                >
+                  <span className="flex items-center justify-center w-5 h-5 shrink-0">
+                    <img src={pm.logo} alt={pm.name} loading="lazy" className="max-w-full max-h-full object-contain" />
+                  </span>
+                  <span className="text-[10px] font-extrabold text-gray-700 whitespace-nowrap">{pm.name}</span>
+                </span>
+              ))}
             </div>
-            
-            <p className="text-[10px] text-[var(--tt-text-faint)] mt-2 font-bold uppercase tracking-wider">SUPPORT DIRECT</p>
-            <p className="text-[var(--tt-text)] font-extrabold -mt-2">+509 4323 1463</p>
           </div>
 
-          {/* Standalone Currency Converter */}
-          <div className="flex flex-col gap-3 bg-[var(--tt-surface)] border border-[var(--tt-border)] p-4 rounded-2xl shadow-xl">
+          {/* Standalone Currency Converter — mobile : 1 colonne (moitié, côté à côté avec les
+              paiements) ; desktop : 2e position gauche-centre, large 2 colonnes, hors de la
+              zone des boutons flottants. */}
+          <div className="flex flex-col gap-3 bg-[var(--tt-surface)] border border-[var(--tt-border)] p-3 sm:p-4 rounded-2xl shadow-xl lg:col-span-2 lg:order-2">
             <div className="flex items-center justify-between">
-              <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5">
-                <Coins className="w-3.5 h-3.5 text-[var(--tt-accent)]" />
+              <h4 className="text-[var(--tt-text)] font-extrabold text-xs uppercase tracking-wider flex items-center gap-2">
+                {/* Emblème de change : cercle USD + cercle HTG reliés par deux flèches
+                    circulaires (sens horaire), comme les logos de conversion de devises. */}
+                <svg viewBox="0 0 48 40" className="w-8 h-7 shrink-0" aria-hidden="true">
+                  {/* flèches d'échange (derrière les cercles) */}
+                  <g fill="none" stroke="var(--tt-accent)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 9 C20 3, 28 3, 33 9" />
+                    <path d="M33 31 C28 37, 20 37, 15 31" />
+                  </g>
+                  <path d="M33 9 l-0.5 -5 M33 9 l5 -1.5" fill="none" stroke="var(--tt-accent)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M15 31 l0.5 5 M15 31 l-5 1.5" fill="none" stroke="var(--tt-accent)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                  {/* cercle USD */}
+                  <circle cx="13" cy="20" r="8.5" fill="var(--tt-accent)" />
+                  <text x="13" y="20" dominantBaseline="central" textAnchor="middle" fontSize="10" fontWeight="900" fill="#ffffff" fontFamily="system-ui, sans-serif">$</text>
+                  {/* cercle HTG */}
+                  <circle cx="35" cy="20" r="8.5" fill="#10b981" />
+                  <text x="35" y="20" dominantBaseline="central" textAnchor="middle" fontSize="9" fontWeight="900" fill="#ffffff" fontFamily="system-ui, sans-serif">G</text>
+                </svg>
                 <span>{lang === 'FR' ? 'Convertisseur' : 'Konvètisè'}</span>
               </h4>
-              <span className="text-[8px] bg-[var(--tt-surface-2)] border border-[var(--tt-border)] px-2 py-0.5 rounded-full text-[var(--tt-text-muted)] font-black uppercase tracking-wider">
-                Mode: {calcMode}
-              </span>
             </div>
             <p className="text-[10px] text-[var(--tt-text-muted)] leading-normal font-medium">
               {lang === 'FR' 
@@ -5936,58 +6049,64 @@ export default function App() {
                 : 'Chanje pri ou fasil ant USD ak Goud.'}
             </p>
             
-            <div className="space-y-1.5">
-              {/* USD Input */}
-              <div className="relative">
-                <input
-                  type="text"
-                  value={calcUSD}
-                  onChange={(e) => handleUSDCalcChange(e.target.value)}
-                  onFocus={() => setCalcMode('USD')}
-                  placeholder="0"
-                  className={`w-full bg-[var(--tt-bg)] border text-[11px] px-2.5 py-2 pl-12 rounded-xl text-[var(--tt-text)] font-extrabold transition-all duration-300 focus:outline-none ${
-                    calcMode === 'USD' 
-                      ? 'border-[var(--tt-accent)] bg-[var(--tt-accent)]/5 shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
-                      : 'border-[var(--tt-border)] opacity-70 hover:opacity-100'
-                  }`}
-                />
-                <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-[var(--tt-text-faint)]">USD ($)</span>
-                {calcMode === 'USD' && (
-                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[var(--tt-accent)] bg-[var(--tt-accent)]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
-                    {lang === 'FR' ? 'Actif' : 'Aktif'}
-                  </span>
-                )}
-              </div>
-
-              {/* Arrow Indicator */}
-              <div className="flex justify-center -my-1">
-                <div className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] p-0.5 rounded-full text-[var(--tt-text-muted)]">
-                  <ArrowUpDown className="w-3 h-3 text-[var(--tt-accent)]" />
+            {(() => {
+              const usdField = (
+                <div key="usd" className="relative">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={calcUSD}
+                    onChange={(e) => handleUSDCalcChange(e.target.value)}
+                    onFocus={() => setCalcMode('USD')}
+                    placeholder="0"
+                    className={`w-full bg-[var(--tt-bg)] border text-xs sm:text-sm px-2.5 py-2 sm:py-2.5 pl-12 sm:pl-14 pr-3 rounded-xl text-[var(--tt-text)] font-extrabold transition-all duration-300 focus:outline-none ${
+                      calcMode === 'USD'
+                        ? 'border-[var(--tt-accent)] bg-[var(--tt-accent)]/5 shadow-[0_0_12px_rgba(168,85,247,0.15)]'
+                        : 'border-[var(--tt-border)] opacity-70 hover:opacity-100'
+                    }`}
+                  />
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[9px] sm:text-[10px] font-extrabold text-[var(--tt-text-faint)]">USD ($)</span>
                 </div>
-              </div>
+              );
+              const htgField = (
+                <div key="htg" className="relative">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={calcHTG}
+                    onChange={(e) => handleHTGCalcChange(e.target.value)}
+                    onFocus={() => setCalcMode('HTG')}
+                    placeholder="0"
+                    className={`w-full bg-[var(--tt-bg)] border text-xs sm:text-sm px-2.5 py-2 sm:py-2.5 pl-14 sm:pl-16 pr-3 rounded-xl font-extrabold transition-all duration-300 focus:outline-none ${
+                      calcMode === 'HTG'
+                        ? 'border-[var(--tt-accent)] bg-[var(--tt-accent)]/5 text-[var(--tt-accent)] shadow-[0_0_12px_rgba(168,85,247,0.15)]'
+                        : 'border-[var(--tt-border)] text-[var(--tt-accent)]/70 opacity-70 hover:opacity-100'
+                    }`}
+                  />
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[9px] sm:text-[10px] font-extrabold text-[var(--tt-text-faint)]">HTG (G)</span>
+                </div>
+              );
+              return (
+                <div className="space-y-1.5">
+                  {usdOnTop ? usdField : htgField}
 
-              {/* HTG Input */}
-              <div className="relative">
-                <input
-                  type="text"
-                  value={calcHTG}
-                  onChange={(e) => handleHTGCalcChange(e.target.value)}
-                  onFocus={() => setCalcMode('HTG')}
-                  placeholder="0"
-                  className={`w-full bg-[var(--tt-bg)] border text-[11px] px-2.5 py-2 pl-14 rounded-xl font-extrabold transition-all duration-300 focus:outline-none ${
-                    calcMode === 'HTG' 
-                      ? 'border-[var(--tt-accent)] bg-[var(--tt-accent)]/5 text-[var(--tt-accent)] shadow-[0_0_12px_rgba(168,85,247,0.15)]' 
-                      : 'border-[var(--tt-border)] text-[var(--tt-accent)]/70 opacity-70 hover:opacity-100'
-                  }`}
-                />
-                <span className="absolute left-2.5 top-2.5 text-[9px] font-extrabold text-[var(--tt-text-faint)]">HTG (G)</span>
-                {calcMode === 'HTG' && (
-                  <span className="absolute right-2.5 top-2.5 text-[8px] font-black text-[var(--tt-accent)] bg-[var(--tt-accent)]/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
-                    {lang === 'FR' ? 'Actif' : 'Aktif'}
-                  </span>
-                )}
-              </div>
-            </div>
+                  {/* Switch : inverse l'ordre d'affichage USD/HTG */}
+                  <div className="flex justify-center -my-1 relative z-10">
+                    <button
+                      type="button"
+                      onClick={() => setUsdOnTop((v) => !v)}
+                      title={lang === 'FR' ? 'Inverser' : 'Envèse'}
+                      aria-label={lang === 'FR' ? 'Inverser les devises' : 'Envèse lajan yo'}
+                      className="bg-[var(--tt-surface-2)] border border-[var(--tt-border)] p-1.5 rounded-full text-[var(--tt-accent)] hover:bg-[var(--tt-accent)]/10 hover:border-[var(--tt-accent)]/40 active:scale-90 transition-all shadow-sm cursor-pointer"
+                    >
+                      <ArrowUpDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {usdOnTop ? htgField : usdField}
+                </div>
+              );
+            })()}
 
             {/* Quick Presets */}
             <div className="mt-1">

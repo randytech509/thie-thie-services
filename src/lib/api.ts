@@ -46,6 +46,23 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
   return (await fn(input)).data;
 }
 
+/** Message du formulaire de contact → boîte support (fonctionne anonyme ou connecté). */
+export interface ContactMessageInput {
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+  lang?: 'FR' | 'HT';
+}
+export interface ContactMessageResult {
+  ok: boolean;
+  emailSent: boolean;
+}
+export async function submitContactMessage(input: ContactMessageInput): Promise<ContactMessageResult> {
+  const fn = httpsCallable<ContactMessageInput, ContactMessageResult>(functionsClient, 'submitContactMessage');
+  return (await fn(input)).data;
+}
+
 /** Une ligne de panier. Le client envoie produit + quantité + montant choisi ; JAMAIS un prix. */
 export interface CartLineInput {
   productId: string;

@@ -12,17 +12,25 @@ export interface SendResult {
   error?: string;
 }
 
-export async function sendEmail(to: string, subject: string, html: string): Promise<SendResult> {
+export async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  opts?: { replyTo?: string },
+): Promise<SendResult> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM || 'onboarding@resend.dev';
   if (!apiKey) return { sent: false, error: 'RESEND_API_KEY absente' };
   if (!to) return { sent: false, error: 'destinataire vide' };
 
   try {
+    const body: Record<string, unknown> = { from, to, subject, html };
+    // reply_to : permet au support de répondre directement au client depuis sa boîte.
+    if (opts?.replyTo) body.reply_to = opts.replyTo;
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from, to, subject, html }),
+      body: JSON.stringify(body),
     });
     if (!res.ok) {
       const body = await res.text();

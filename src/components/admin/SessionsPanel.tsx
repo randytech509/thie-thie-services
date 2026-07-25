@@ -45,7 +45,7 @@ interface SessionsPanelProps {
   variant?: 'admin' | 'profile';
 }
 
-export function SessionsPanel({ uid }: SessionsPanelProps) {
+export function SessionsPanel({ uid, variant = 'admin' }: SessionsPanelProps) {
   const [sessions, setSessions] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -80,8 +80,16 @@ export function SessionsPanel({ uid }: SessionsPanelProps) {
     }
   };
 
+  // 'admin' : carte pleine autonome dans le back-office.
+  // 'profile' : déjà à l'intérieur de la carte « Réglages du compte » → on évite la boîte
+  // imbriquée (fond + bordure) qui faisait un « gros box » en vue PC ; simple séparateur haut.
+  const containerClass =
+    variant === 'profile'
+      ? 'mt-1 pt-4 border-t border-[var(--tt-border)]'
+      : 'bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4';
+
   return (
-    <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-2xl p-4">
+    <div className={containerClass}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Monitor className="w-4 h-4 text-[var(--tt-accent)]" />
