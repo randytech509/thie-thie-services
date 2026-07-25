@@ -21,16 +21,18 @@ export interface ParsedSms {
   raw: string;
 }
 
-/** Sens : 'in' (reçu), 'out' (transféré/retiré/envoyé), 'other' (promo, OTP, notif). */
+/** Sens : 'in' (reçu), 'out' (transféré/retiré/envoyé), 'other' (promo, OTP, notif).
+ *  « encaisse/encaissé » = dépôt CASH d'un client via un agent/marchand vers le compte marchand
+ *  → c'est de l'argent ENTRANT (au même titre qu'un transfert « reçu »), pas du bruit. */
 export function parseDirection(text: string): SmsDirection {
-  if (/\bre[cç?]{1,2}u\b|received|resev[wè]/i.test(text)) return 'in';
+  if (/\bre[cç?]{1,2}u\b|received|resev[wè]|encaiss[eé]/i.test(text)) return 'in';
   if (/transfer|transf[ée]r|retir[ée]|envoy|\bvoye\b|\bsent\b|d[ée]bit/i.test(text)) return 'out';
   return 'other';
 }
 
 /** Nom de l'expéditeur : après « de … » (FR) ou « nan … » (créole) jusqu'au numéro. */
 export function parseSenderName(text: string): string | null {
-  const m = text.match(/\b(?:de|nan)\s+(\p{Lu}[\p{L}'’.\- ]*?)\s+(?:\+?509[\s-]?)?\d{4,}/u);
+  const m = text.match(/\b(?:de|nan)\s+(\p{Lu}[\p{L}'’.\- ]*?)(?:\s*,|\s+(?:\+?509[\s-]?)?\d{4,})/u);
   return m ? m[1].trim() : null;
 }
 
@@ -76,17 +78,30 @@ export function parseHtgAmountToCents(text: string): number | null {
   return pick ? normalizeAmount(pick.num) : null;
 }
 
-/** Référence de transaction : après "TransCode/Txn ID/transaction/ref/#"… */
+/**
+ * Référence de transaction : après "TransCode/Txn ID/transaction/référence/#"…
+ *
+ * PRIORITÉ AUX RÉFÉRENCES FORTES. Dans un SMS de dépôt agent — « Vous avez encaisse 2 000 HTG …
+ * de X, code 347386. … TransCode: 26072343604240. » — DEUX identifiants coexistent : le « code »
+ * agent (COURT, ~6 chiffres, devinable) et le « TransCode » (long, non devinable). On ne doit
+ * JAMAIS auto-créditer sur le code agent : on prend d'abord le TransCode / Txn ID / transaction /
+ * référence, et le « code » nu ou « # » n'est qu'un dernier recours pour les formats qui n'ont
+ * que ça. (Sécurité : la clé d'auto-crédit doit être imprévisible — cf. deposit-reconcile.ts.)
+ */
 export function parseTxId(text: string): string | null {
-  const m =
-    text.match(/(?:transcode|transaction|tranzaksyon|txn(?:\s*id)?|reference|référence|ref|confirmation|code)\s*(?:no\.?|n[o°]?|#|id|:|=)*\s*([A-Za-z0-9]{5,})/i) ||
-    text.match(/#\s*([A-Za-z0-9]{5,})/);
-  return m ? m[1].toUpperCase() : null;
+  const strong = text.match(/(?:transcode|transaction|tranzaksyon|txn(?:\s*id)?|r[ée]f[ée]rence|\bref\b|confirmation)\s*(?:no\.?|n[o°]?|#|id|:|=)*\s*([A-Za-z0-9]{5,})/i);
+  if (strong) return strong[1].toUpperCase();
+  const weak = text.match(/\bcode\s*(?:no\.?|n[o°]?|#|:|=)*\s*([A-Za-z0-9]{5,})/i) || text.match(/#\s*([A-Za-z0-9]{5,})/);
+  return weak ? weak[1].toUpperCase() : null;
 }
 
-/** Numéro d'expéditeur haïtien (509 + 8 chiffres) ou séquence de 8 chiffres. */
+/** Numéro d'expéditeur haïtien (509 + 8 chiffres) ou séquence de 8 chiffres.
+ *  Bornes `(?<!\d)…(?!\d)` : la tranche de 8 chiffres ne doit PAS être collée à d'autres
+ *  chiffres, sinon un dépôt agent sans numéro (« … TransCode: 26072343604240 ») verrait ses
+ *  8 premiers chiffres de TransCode fabriqués en faux numéro d'expéditeur. Le garde est placé
+ *  avant le préfixe 509 pour accepter aussi un numéro collé « 509XXXXXXXX ». */
 export function parseSender(text: string): string | null {
-  const m = text.match(/(?:\+?509[\s-]?)?(\d{4}[\s-]?\d{4})/);
+  const m = text.match(/(?<!\d)(?:\+?509[\s-]?)?(\d{4}[\s-]?\d{4})(?!\d)/);
   return m ? m[1].replace(/[\s-]/g, '') : null;
 }
 
