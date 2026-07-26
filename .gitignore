@@ -13,3 +13,5 @@ coverage/
 !.env.example
 .secret*
 scripts/deposit-accounts.json
+scripts/giftaccess-catalog.json
+scripts/giftaccess-details.json
