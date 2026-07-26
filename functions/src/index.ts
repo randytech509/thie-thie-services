@@ -35,7 +35,8 @@ export { reloadlyBalance, reloadlyFindProducts, setProductSupplier } from './rel
 // Reloadly n'ont plus de `pricing.faceUsdCents` (dénominations multiples / montant libre) :
 // il les ignorait toutes. La re-tarification correcte se fait via `reloadlyImportCatalog`,
 // qui recalcule tout avec la config courante. Retiré aussi car le quota CPU Cloud Run est saturé.
-export { setPricingConfig, setProductCost, reloadlyImportCatalog, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts } from './pricing-admin';
+export { setPricingConfig, setProductCost, reloadlyImportCatalog, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts, giftaccessImportCatalog, giftaccessBalance } from './pricing-admin';
 export { depositChainHeartbeat } from './heartbeat';
 export { reconcileDepositOnCreate } from './deposit-triggers';
 export { submitContactMessage } from './contact';
+export { giftaccessFulfillmentPoll } from './giftaccess-poll';

@@ -1,14 +1,21 @@
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import * as reloadly from './lib/reloadly';
+import * as giftaccess from './lib/giftaccess';
+import { interpretOrderResponse, finalizeDelivery } from './lib/giftaccess-fulfill';
 import { sendEmail, orderDeliveryHtml } from './lib/email';
 
 /**
- * Auto-fulfilment via le fournisseur API (Reloadly). Déclenché à la CRÉATION d'une commande
- * (donc déjà payée — placeOrder est le seul créateur, cf. orders create:if false).
- * Si le produit est mappé à un produit Reloadly ET `autoFulfill` → commande le code + livre par
- * e-mail automatiquement. SINON (non mappé, non configuré, ou ÉCHEC) → on ne touche pas à la
- * commande : elle reste « à livrer » dans le back-office = FALLBACK MANUEL (bouton existant).
+ * Auto-fulfilment via un fournisseur API. Déclenché à la CRÉATION d'une commande (donc déjà
+ * payée — placeOrder est le seul créateur, cf. orders create:if false).
+ *
+ * Dispatch par fournisseur du produit (`prod.supplier`, avec repli historique : reloadlyProductId
+ * présent = reloadly) :
+ *   - 'giftaccess' → remplace la livraison manuelle (Free Fire top-up direct, PUBG, CoD…).
+ *                    Peut être ASYNCHRONE : create → pending → le poller planifié finalise.
+ *   - 'reloadly'   → cartes cadeaux (code renvoyé immédiatement).
+ *   - sinon        → on ne touche pas la commande = FALLBACK MANUEL (bouton du back-office).
+ * En cas d'ÉCHEC d'un fournisseur, on ne casse rien : la commande reste « à livrer » (manuel).
  */
 export const autoFulfillOrder = onDocumentCreated('orders/{orderId}', async (event) => {
   const snap = event.data;
@@ -18,15 +25,62 @@ export const autoFulfillOrder = onDocumentCreated('orders/{orderId}', async (eve
   const db = getFirestore();
 
   if (order.deliveryCode || order.fulfilledAt) return; // déjà livré (retry) → skip
-  if (!reloadly.isConfigured()) return;                 // pas de fournisseur → manuel
+  if (order.giftAccessOrderId) return;                 // commande GIFT ACCESS déjà créée → le poller la finalise
 
   const prod = (await db.doc(`products/${order.productId}`).get()).data() as Record<string, any> | undefined;
-  if (!prod?.autoFulfill || !prod?.reloadlyProductId) return; // non mappé → manuel
+  if (!prod?.autoFulfill) return; // non configuré pour l'auto → manuel
 
-  // e-mail du client
+  // Fournisseur : champ explicite si présent, sinon déduit de l'historique (reloadlyProductId).
+  const supplier = String(prod.supplier ?? (prod.reloadlyProductId ? 'reloadly' : 'manual'));
+
+  // E-mail du client (commun aux deux branches).
   let email = String(order.email ?? '');
   const uid = String(order.uid ?? order.userId ?? '');
   if (!email && uid) email = String((await db.doc(`users/${uid}`).get()).data()?.email ?? '');
+
+  // --- Branche GIFT ACCESS (remplace le manuel) --------------------------------------------
+  if (supplier === 'giftaccess') {
+    if (!giftaccess.isConfigured() || !prod.giftAccessProductId) return; // non prêt → manuel
+    try {
+      // Top-up direct : identifiant du joueur (Free Fire etc.). Absent pour les cartes/PIN.
+      const playerId = String(order.freeFirePlayerId ?? order.playerId ?? order.playerUID ?? '').trim();
+      const resp = await giftaccess.createOrder({
+        productId: String(prod.giftAccessProductId),
+        variationId: prod.giftAccessVariationId != null ? String(prod.giftAccessVariationId) : undefined,
+        amount: prod.giftAccessAmountUsd != null ? Number(prod.giftAccessAmountUsd) : undefined, // produits 'range'
+        userId: playerId || undefined,
+        idempotencyKey: orderId, // pas de double-débit sur retry
+      });
+      const interp = interpretOrderResponse(resp);
+
+      // On enregistre TOUJOURS l'id fournisseur + le statut → le poller sait quoi finaliser.
+      // giftAccessPending=true tant que non terminal → cible du poller planifié.
+      await snap.ref.update({
+        supplier: 'giftaccess',
+        giftAccessOrderId: interp.providerOrderId,
+        giftAccessStatus: interp.providerStatus,
+        giftAccessPending: !interp.terminal,
+        giftAccessCreatedAt: FieldValue.serverTimestamp(),
+      });
+
+      // Si le fournisseur a livré immédiatement (ou déjà échoué) → on finalise tout de suite ;
+      // sinon la commande reste « pending » et le poller planifié la reprendra.
+      if (interp.terminal) {
+        await finalizeDelivery(db, snap.ref, order, interp, email);
+      }
+    } catch (e) {
+      await snap.ref.update({
+        autoFulfillError: (e as Error).message,
+        autoFulfillFailedAt: FieldValue.serverTimestamp(),
+      });
+    }
+    return;
+  }
+
+  // --- Branche RELOADLY (inchangée) --------------------------------------------------------
+  if (supplier !== 'reloadly') return; // 'manual' ou inconnu → manuel
+  if (!reloadly.isConfigured()) return;
+  if (!prod.reloadlyProductId) return;
 
   try {
     const tx = await reloadly.placeOrder({

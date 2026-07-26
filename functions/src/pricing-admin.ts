@@ -4,6 +4,7 @@ import { requireAdmin, callOpts } from './lib/guards';
 import { requireStepUp } from './lib/stepup';
 import { audit } from './lib/audit';
 import * as reloadly from './lib/reloadly';
+import * as giftaccess from './lib/giftaccess';
 import {
   computePrice,
   estimateFunding as estimateFundingCore,
@@ -331,6 +332,153 @@ function rangeDenoms(min: unknown, max: unknown): number[] {
   const paliers = [5, 10, 25, 50, 100, 200, 500].filter((v) => v >= lo && v <= hi);
   return paliers.length ? paliers : [Math.round(lo)];
 }
+
+// --- 3bis. GIFT ACCESS : import catalogue (remplace la livraison manuelle) ------------------
+
+/** Solde du wallet USD prépayé GIFT ACCESS (alerte solde bas back-office). */
+export const giftaccessBalance = onCall(callOpts, async (req) => {
+  requireAdmin(req);
+  if (!giftaccess.isConfigured()) throw new HttpsError('failed-precondition', 'GIFT ACCESS non configuré');
+  const r = await giftaccess.walletBalance();
+  return { ok: true, balance: r.balance, currency: r.currency ?? 'USD', environment: r.environment ?? null };
+});
+
+/**
+ * Produits GIFT ACCESS mappés aux catégories de marque thie-thie. `playerId` = top-up direct
+ * (userid requis). `image` = logo local déjà bundlé. Voir mémoire giftaccess pour la genèse.
+ */
+const GA_PRODUCTS: Record<string, { slug: string; playerId: boolean; image: string; name: string }> = {
+  '58462': { slug: 'free-fire', playerId: true, image: '/images/logos/free-fire.png', name: 'Free Fire Diamonds' },
+  '97707': { slug: 'pubg', playerId: true, image: '/images/covers/pubg.webp', name: 'PUBG Mobile UC' },
+  '59273': { slug: 'valorant', playerId: false, image: '/images/logos/valorant.svg', name: 'Valorant Points' },
+  '63693': { slug: 'robux', playerId: false, image: '/images/logos/roblox.svg', name: 'Roblox Robux' },
+  '54486': { slug: 'apple', playerId: false, image: '/images/logos/apple.svg', name: 'Apple Gift Card' },
+  '47496': { slug: 'google-play', playerId: false, image: '/images/logos/google-play.svg', name: 'Google Play Gift Card' },
+  '79561': { slug: 'playstation', playerId: false, image: '/images/logos/playstation.svg', name: 'PlayStation Gift Card' },
+  '21875': { slug: 'xbox', playerId: false, image: '/images/logos/xbox.svg', name: 'Xbox Gift Card' },
+  '96956': { slug: 'steam', playerId: false, image: '/images/logos/steam.svg', name: 'Steam Wallet' },
+};
+
+/**
+ * Importe les produits GIFT ACCESS mappés → crée UN doc par dénomination (`ga_{id}__{i}`,
+ * même schéma que les produits manuels : productId partagé + optionLabel + priceCents), portant
+ * `supplier='giftaccess'` + `giftAccessProductId` + `giftAccessVariationId` (le fulfillment lit
+ * ces champs). Puis DÉSACTIVE (available=false) les anciens produits MANUELS de ces catégories
+ * (réversible). N'importe QUE les 9 produits mappés → Meru/CoD/eFootball/MobileLegends/Netflix
+ * intacts.
+ *
+ * Coût : GIFT ACCESS renvoie le COÛT direct (variation.price). On le passe en `faceUsdCents`
+ * avec discountBps=0 → wholesale = coût → marge appliquée sur le vrai coût (gère Steam coût>face).
+ * RANGE (Google Play/Roblox/PlayStation) : pas de coût par palier → on SUPPOSE coût=face
+ * (à vérifier via une commande test) ; la marge thie-thie fournit le tampon.
+ */
+export const giftaccessImportCatalog = onCall({ ...callOpts, timeoutSeconds: 300 }, async (req) => {
+  const admin = requireAdmin(req);
+  if (!giftaccess.isConfigured()) throw new HttpsError('failed-precondition', 'GIFT ACCESS non configuré');
+  const db = getFirestore();
+  await requireStepUp(db, admin.uid);
+
+  const cfg = await getPricingConfig(db);
+  const priceFor = (costUsdCents: number) => computePrice({ faceUsdCents: costUsdCents, discountBps: 0 }, cfg).retailHtgCents;
+
+  let batch = db.batch();
+  let ops = 0;
+  let importedDocs = 0;
+  const touchedSlugs = new Set<string>();
+  const summary: Record<string, number> = {};
+
+  for (const [gaId, m] of Object.entries(GA_PRODUCTS)) {
+    let detail: any;
+    try {
+      detail = await giftaccess.getProduct(gaId);
+    } catch (e) {
+      summary[m.name] = -1; // échec fetch
+      continue;
+    }
+    const p = detail.product ?? detail.data ?? detail;
+    touchedSlugs.add(m.slug);
+
+    // Dénominations : variations explicites (variable) OU paliers générés (range, coût supposé=face).
+    type Denom = { label: string; costUsdCents: number; variationId: string | null; amountUsd: number | null; available: boolean };
+    let denoms: Denom[] = [];
+    const vars: any[] = Array.isArray(p.variations) ? p.variations : [];
+    if (vars.length > 0) {
+      denoms = vars.map((v) => ({
+        label: String(v.label ?? v.name ?? ''),
+        costUsdCents: Math.round(Number(v.price ?? v.amount ?? 0) * 100),
+        variationId: v.id != null ? String(v.id) : null,
+        amountUsd: null,
+        available: v.available !== false,
+      }));
+    } else {
+      // RANGE : paliers propres dans [min,max], coût supposé = valeur faciale.
+      const faces = rangeDenoms(p.min_amount, p.max_amount);
+      denoms = faces.map((usd) => ({
+        label: fmtUsdCents(usd * 100),
+        costUsdCents: usd * 100,
+        variationId: null,
+        amountUsd: usd,
+        available: true,
+      }));
+    }
+    denoms = denoms.filter((d) => d.costUsdCents > 0 && d.available);
+    if (denoms.length === 0) { summary[m.name] = 0; continue; }
+
+    const base = `ga_${gaId}`;
+    let i = 0;
+    for (const d of denoms) {
+      const priceCents = priceFor(d.costUsdCents);
+      batch.set(db.doc(`products/${base}__${i}`), {
+        productId: base,
+        id: `${base}__${i}`,
+        name: m.name,
+        optionLabel: d.label,
+        category: m.slug,
+        categorySlug: m.slug,
+        currency: 'HTG',
+        priceCents,
+        costUsdCents: d.costUsdCents,
+        stock: 999,
+        available: true,
+        image: m.image,
+        regions: ['Global'],
+        requiresPlayerId: m.playerId,
+        deliveryTime: '1-5 Min',
+        sortIndex: i,
+        supplier: 'giftaccess',
+        autoFulfill: true,
+        giftAccessProductId: gaId,
+        giftAccessVariationId: d.variationId,
+        giftAccessAmountUsd: d.amountUsd,
+        pricing: { source: 'giftaccess', faceUsdCents: d.costUsdCents, giftAccessProductId: gaId, giftAccessVariationId: d.variationId },
+        pricedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
+      i++; importedDocs++;
+      if (++ops >= 450) { await batch.commit(); batch = db.batch(); ops = 0; }
+    }
+    summary[m.name] = i;
+  }
+  if (ops > 0) { await batch.commit(); }
+
+  // DÉSACTIVER les anciens produits MANUELS des catégories touchées (supplier != 'giftaccess').
+  let disabled = 0;
+  for (const slug of touchedSlugs) {
+    const snap = await db.collection('products').where('category', '==', slug).get();
+    let b = db.batch(); let o = 0;
+    for (const doc of snap.docs) {
+      if (doc.get('supplier') === 'giftaccess') continue; // ne pas toucher les nouveaux ga_
+      if (doc.get('available') === false) continue;
+      b.update(doc.ref, { available: false, disabledBy: 'giftaccessImport', updatedAt: new Date().toISOString() });
+      disabled++;
+      if (++o >= 450) { await b.commit(); b = db.batch(); o = 0; }
+    }
+    if (o > 0) await b.commit();
+  }
+
+  await audit(db, { action: 'giftaccessImportCatalog', actorUid: admin.uid, meta: { importedDocs, disabled, summary } });
+  return { ok: true, importedDocs, disabledManual: disabled, summary };
+});
 
 // --- 4. Re-tarification en masse (après changement de FX/marge/frais) ---
 
