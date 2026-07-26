@@ -274,6 +274,17 @@ body.light .tt-skeleton::after {
 .card-lift { transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease; }
 .card-lift:hover { transform: translateY(-4px); }
 
+/* Basculement jour/nuit en douceur : la classe `.theme-animating` n'est posée sur <html> que
+   le temps du switch (~0,45 s), donc ce fondu des couleurs NE ralentit PAS les hovers ni les
+   autres interactions. Placé AVANT prefers-reduced-motion pour que celui-ci le neutralise. */
+html.theme-animating,
+html.theme-animating *,
+html.theme-animating *::before,
+html.theme-animating *::after {
+  transition: background-color 0.45s ease, border-color 0.45s ease, color 0.35s ease,
+    fill 0.4s ease, stroke 0.4s ease, box-shadow 0.45s ease !important;
+}
+
 /* Barre de défilement — via les tokens, donc valable dans les deux thèmes.
    Elle n'était stylée qu'en mode clair : le mode sombre héritait de la barre
    par défaut du navigateur. */

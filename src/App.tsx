@@ -1149,7 +1149,12 @@ export default function App() {
   }, [theme]);
 
   const toggleTheme = () => {
+    // Fondu doux des couleurs pendant le basculement : la classe n'est active que ~0,45 s,
+    // le temps de la transition, puis retirée pour ne pas alourdir les interactions suivantes.
+    const root = document.documentElement;
+    root.classList.add('theme-animating');
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    window.setTimeout(() => root.classList.remove('theme-animating'), 480);
   };
 
   // Thie Thie Points Loyalty Program State
