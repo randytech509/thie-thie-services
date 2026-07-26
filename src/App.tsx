@@ -3778,8 +3778,8 @@ export default function App() {
 
               {/* Slider Viewport */}
               <div className="overflow-hidden rounded-3xl border border-[var(--tt-border)] bg-[var(--tt-bg)] relative group">
-                <div 
-                  className="flex transition-transform duration-700 ease-out"
+                <div
+                  className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
                   style={{
                     transform: `translateX(-${categoryCarouselIndex * 100}%)`,
                   }}
@@ -3807,8 +3807,12 @@ export default function App() {
                           <div className={`absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-gradient-to-tr ${cat.gradient} opacity-20 blur-3xl`} />
                         </div>
 
-                        {/* Slide Content */}
-                        <div className="relative z-10 max-w-lg flex flex-col justify-between h-full gap-4">
+                        {/* Slide Content — se révèle (fondu + légère montée) quand la slide devient active */}
+                        <motion.div
+                          className="relative z-10 max-w-lg flex flex-col justify-between h-full gap-4"
+                          animate={idx === categoryCarouselIndex ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
+                          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: idx === categoryCarouselIndex ? 0.18 : 0 }}
+                        >
                           <div>
                             {/* Premium Badge */}
                             <span
@@ -3840,7 +3844,7 @@ export default function App() {
                               <ArrowRight className="w-4 h-4 text-[#0c0714]" />
                             </span>
                           </div>
-                        </div>
+                        </motion.div>
 
                         {/* Top corner slide index indicator for micro visual flair */}
                         <div className="absolute top-6 right-8 text-[11px] font-mono text-[var(--tt-text-faint)] font-bold">
