@@ -1458,6 +1458,8 @@ export default function App() {
   // (il fallait alors trouver le petit X ou cliquer dans le vide pour continuer ses achats) :
   // on confirme par ce bandeau, qui propose d'ouvrir le panier sans l'imposer.
   const [cartToast, setCartToast] = useState<{ name: string } | null>(null);
+  // Confirmation « Ajouté ! » sur le bouton (✓ vert ~1,4 s) après un ajout au panier.
+  const [justAddedToCart, setJustAddedToCart] = useState(false);
   useEffect(() => {
     if (!cartToast) return;
     const timer = setTimeout(() => setCartToast(null), 4000);
@@ -2162,6 +2164,10 @@ export default function App() {
     });
     setSelectedProduct(null);
     setCartToast({ name: p.name });
+    // La modale se ferme : le retour visuel se fait sur le bouton PANIER flottant (pulse + badge
+    // qui rebondit) pour confirmer l'ajout là où l'œil peut le voir.
+    setJustAddedToCart(true);
+    window.setTimeout(() => setJustAddedToCart(false), 1400);
   };
 
   /** Checkout panier : UN SEUL débit, N commandes livrées indépendamment. */
@@ -5891,17 +5897,28 @@ export default function App() {
             recouvert par le bouton « remonter en haut » — même z-index, rendu après, donc c'est
             le scroll-top qui recevait le clic sur la zone commune. */}
         {cartCount > 0 && !cartOpen && (
-          <button
+          <motion.button
             type="button"
             onClick={() => setCartOpen(true)}
             aria-label={lang === 'FR' ? `Ouvrir le panier (${cartCount})` : `Louvri panye a (${cartCount})`}
-            className="relative w-14 h-14 rounded-full bg-[var(--tt-accent)] text-[var(--tt-on-accent)] shadow-lg shadow-[#a855f7]/30 flex items-center justify-center hover:brightness-110 active:scale-95 transition-all"
+            animate={justAddedToCart ? { scale: [1, 1.18, 0.96, 1] } : { scale: 1 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="relative w-14 h-14 rounded-full bg-[var(--tt-accent)] text-[var(--tt-on-accent)] shadow-lg shadow-[#a855f7]/30 flex items-center justify-center hover:brightness-110 active:scale-95"
           >
-            <ShoppingCart className="w-6 h-6" />
-            <span className="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 rounded-full bg-[var(--tt-bg)] text-[var(--tt-text)] text-[11px] font-black flex items-center justify-center border-2 border-[var(--tt-accent)] tabular-nums">
+            {/* Onde qui « ping » à chaque ajout pour attirer l'œil vers le panier */}
+            {justAddedToCart && <span className="absolute inset-0 rounded-full bg-[var(--tt-accent)] animate-ping opacity-60" />}
+            <ShoppingCart className="w-6 h-6 relative z-10" />
+            {/* Badge : rebondit (pop) à chaque changement de quantité */}
+            <motion.span
+              key={cartCount}
+              initial={{ scale: 0.4 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 600, damping: 14 }}
+              className="absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1 rounded-full bg-[var(--tt-bg)] text-[var(--tt-text)] text-[11px] font-black flex items-center justify-center border-2 border-[var(--tt-accent)] tabular-nums z-20"
+            >
               {cartCount}
-            </span>
-          </button>
+            </motion.span>
+          </motion.button>
         )}
 
         {showScrollTop && (
