@@ -3750,30 +3750,8 @@ export default function App() {
                     {lang === 'FR' ? 'Accédez directement à nos univers gaming les plus populaires' : 'Aksè rapid sou pi bon kategori jwèt nou yo'}
                   </p>
                 </div>
-                
-                {/* Carousel Navigation Buttons */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setCategoryCarouselIndex((prev) => 
-                        prev === 0 ? HIGHLIGHTED_CATEGORIES.length - 1 : prev - 1
-                      );
-                    }}
-                    className="w-10 h-10 rounded-xl bg-[var(--tt-surface)] border border-[var(--tt-border)] text-[var(--tt-text-muted)] hover:bg-[var(--tt-accent)] hover:text-[var(--tt-on-accent)] flex items-center justify-center transition-all shadow-md active:scale-95"
-                    aria-label="Previous Highlight"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setCategoryCarouselIndex((prev) => (prev + 1) % HIGHLIGHTED_CATEGORIES.length);
-                    }}
-                    className="w-10 h-10 rounded-xl bg-[var(--tt-surface)] border border-[var(--tt-border)] text-[var(--tt-text-muted)] hover:bg-[var(--tt-accent)] hover:text-[var(--tt-on-accent)] flex items-center justify-center transition-all shadow-md active:scale-95"
-                    aria-label="Next Highlight"
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
+                {/* Flèches manuelles retirées : le carrousel défile automatiquement (pause au survol)
+                    et les points de pagination en bas restent cliquables pour sauter à une slide. */}
               </div>
 
               {/* Slider Viewport */}
