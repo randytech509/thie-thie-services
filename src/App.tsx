@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Gamepad2,
   Diamond,
@@ -5869,37 +5869,50 @@ export default function App() {
       )}
 
       {/* CONFIRMATION D'AJOUT AU PANIER — laisse le client sur la boutique */}
-      {cartToast && (
-        <div
-          role="status"
-          // sous lg, BottomTabBar (fixed bottom-0, ~51 px) occupe le bas de l'écran : ancré à
-          // bottom-6 le bandeau passait dessous, « Voir le panier » à moitié masqué.
-          className="fixed left-1/2 -translate-x-1/2 bottom-16 lg:bottom-6 z-50 flex items-center gap-3 bg-[var(--tt-surface)] border border-[var(--tt-accent)]/40 rounded-2xl shadow-2xl shadow-black/50 px-4 py-3 max-w-[92vw]"
-        >
-          <span className="w-8 h-8 rounded-full bg-[var(--tt-accent)]/15 border border-[var(--tt-accent)]/30 flex items-center justify-center shrink-0">
-            <Check className="w-4 h-4 text-[var(--tt-accent)]" />
-          </span>
-          <p className="text-[12px] font-bold text-[var(--tt-text)] truncate">
-            {lang === 'FR' ? 'Ajouté au panier' : 'Mete nan panye a'}
-            <span className="text-[var(--tt-text-faint)] font-medium"> · {cartToast.name}</span>
-          </p>
-          <button
-            type="button"
-            onClick={() => { setCartToast(null); setCartOpen(true); }}
-            className="shrink-0 text-[11px] font-black uppercase tracking-wider text-[var(--tt-accent)] hover:text-[var(--tt-text)] transition-colors px-2 py-1 rounded-lg hover:bg-[var(--tt-overlay-strong)]"
+      <AnimatePresence>
+        {cartToast && (
+          <motion.div
+            role="status"
+            initial={{ opacity: 0, y: 24, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+            // sous lg, BottomTabBar (fixed bottom-0, ~51 px) occupe le bas de l'écran : ancré à
+            // bottom-6 le bandeau passait dessous, « Voir le panier » à moitié masqué.
+            className="fixed left-1/2 -translate-x-1/2 bottom-16 lg:bottom-6 z-50 flex items-center gap-3 bg-[var(--tt-surface)] border border-[var(--tt-accent)]/40 rounded-2xl shadow-2xl shadow-black/50 px-4 py-3 max-w-[92vw] overflow-hidden"
           >
-            {lang === 'FR' ? 'Voir le panier' : 'Wè panye a'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setCartToast(null)}
-            className="shrink-0 text-[var(--tt-text-faint)] hover:text-[var(--tt-text)] transition-colors p-1"
-            aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
+            <motion.span
+              initial={{ scale: 0, rotate: -30 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 14, delay: 0.08 }}
+              className="w-8 h-8 rounded-full bg-[var(--tt-accent)]/15 border border-[var(--tt-accent)]/30 flex items-center justify-center shrink-0"
+            >
+              <Check className="w-4 h-4 text-[var(--tt-accent)]" />
+            </motion.span>
+            <p className="text-[12px] font-bold text-[var(--tt-text)] truncate">
+              {lang === 'FR' ? 'Ajouté au panier' : 'Mete nan panye a'}
+              <span className="text-[var(--tt-text-faint)] font-medium"> · {cartToast.name}</span>
+            </p>
+            <button
+              type="button"
+              onClick={() => { setCartToast(null); setCartOpen(true); }}
+              className="shrink-0 text-[11px] font-black uppercase tracking-wider text-[var(--tt-accent)] hover:text-[var(--tt-text)] transition-colors px-2 py-1 rounded-lg hover:bg-[var(--tt-overlay-strong)] active:scale-95"
+            >
+              {lang === 'FR' ? 'Voir le panier' : 'Wè panye a'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setCartToast(null)}
+              className="shrink-0 text-[var(--tt-text-faint)] hover:text-[var(--tt-text)] transition-colors p-1"
+              aria-label={lang === 'FR' ? 'Fermer' : 'Fèmen'}
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+            {/* Barre de progression : reflète l'auto-fermeture (4 s) */}
+            <span className="tt-toast-bar absolute left-0 bottom-0 h-[3px] bg-[var(--tt-accent)] rounded-b-2xl" style={{ animationDuration: '4s' }} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* FLOAT ACTIONS (PANIER, SCROLL TO TOP & WHATSAPP) */}
       {/* bottom-32 sous lg : laisse passer la BottomTabBar (~51 px) ET le bandeau d'ajout au
