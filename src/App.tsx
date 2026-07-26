@@ -792,13 +792,16 @@ const HERO_ITEM = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
 };
 
+// Visuels d'ambiance LOCAUX (générés + déposés dans public/images/featured/) : fin des
+// placeholders Unsplash génériques et des URL CDN externes fragiles. 1200×675, affichés en
+// fond à 30 % d'opacité (sujet à droite, gauche sombre pour le texte en surimpression).
 const HIGHLIGHTED_CATEGORIES = [
   {
     slug: 'free-fire',
     name: 'Free Fire',
     taglineFR: 'Recharges Diamants ultra-rapides pour votre ID Garena',
     taglineHT: 'Chajman Dyamant ultra-rapid sou ID Garena ou',
-    image: freeFireCategoryBanner,
+    image: '/images/featured/free-fire.webp',
     badgeFR: 'Meilleure Vente',
     badgeHT: 'Pi gwo lavant',
     color: '#a855f7',
@@ -809,29 +812,30 @@ const HIGHLIGHTED_CATEGORIES = [
     name: 'PUBG UC',
     taglineFR: 'Unknown Cash instantané, livré dans votre compte',
     taglineHT: 'Unknown Cash rapid, livre pa imèl',
-    image: pubgOvergrownHelmet,
+    image: '/images/featured/pubg.webp',
     badgeFR: 'Populaire',
     badgeHT: 'Popilè',
     color: '#8b5cf6',
     gradient: 'from-[#8b5cf6]/20 to-transparent'
   },
   {
-    slug: 'robux',
-    name: 'Robux Roblox',
-    taglineFR: 'Alimentez votre compte Roblox en toute sécurité',
-    taglineHT: 'Rechaje kont Roblox ou an sekirite nèt',
-    image: 'https://images.unsplash.com/photo-1585647347483-22b66260dfff?auto=format&fit=crop&q=80&w=600',
-    badgeFR: 'Sécurisé',
-    badgeHT: 'Sekirite',
-    color: '#7c3aed',
-    gradient: 'from-[#7c3aed]/20 to-transparent'
+    slug: 'mobile-legends',
+    name: 'Mobile Legends',
+    taglineFR: 'Diamants Mobile Legends livrés dans votre compte',
+    taglineHT: 'Dyaman Mobile Legends livre nan kont ou',
+    image: '/images/featured/mobile-legends.webp',
+    badgeFR: 'Nouveau',
+    badgeHT: 'Nouvo',
+    badgeIcon: Gamepad2,
+    color: '#06b6d4',
+    gradient: 'from-[#06b6d4]/20 to-transparent'
   },
   {
     slug: 'netflix',
     name: 'Netflix Premium',
     taglineFR: 'Codes d\'activation et abonnements Ultra HD',
     taglineHT: 'Kòd Netflix ak abònman Ultra HD',
-    image: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?auto=format&fit=crop&q=80&w=600',
+    image: '/images/featured/netflix.webp',
     badgeFR: 'Cinéma',
     badgeHT: 'Sinema',
     badgeIcon: Film,
@@ -839,48 +843,95 @@ const HIGHLIGHTED_CATEGORIES = [
     gradient: 'from-[#ef4444]/20 to-transparent'
   },
   {
-    slug: 'google-play',
-    name: 'Google Play',
-    taglineFR: 'Cartes cadeaux pour applications et jeux Android',
-    taglineHT: 'Kat kado pou aplikasyon ak jwèt Android',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=600',
-    badgeFR: 'Android',
-    badgeHT: 'Android',
-    color: '#10b981',
-    gradient: 'from-[#12b98a]/20 to-transparent'
+    slug: 'valorant',
+    name: 'Valorant Points',
+    taglineFR: 'Valorant Points pour skins et Battle Pass',
+    taglineHT: 'Valorant Points pou skin ak Battle Pass',
+    image: '/images/featured/valorant.webp',
+    badgeFR: 'Tactique',
+    badgeHT: 'Taktik',
+    badgeIcon: ShieldCheck,
+    color: '#f43f5e',
+    gradient: 'from-[#f43f5e]/20 to-transparent'
+  },
+  {
+    slug: 'robux',
+    name: 'Robux Roblox',
+    taglineFR: 'Alimentez votre compte Roblox en toute sécurité',
+    taglineHT: 'Rechaje kont Roblox ou an sekirite nèt',
+    image: '/images/featured/robux.webp',
+    badgeFR: 'Sécurisé',
+    badgeHT: 'Sekirite',
+    color: '#7c3aed',
+    gradient: 'from-[#7c3aed]/20 to-transparent'
   },
   {
     slug: 'playstation',
     name: 'PlayStation Store',
     taglineFR: 'Débloquez vos jeux favoris sur console PS4 et PS5',
     taglineHT: 'Debloke jwèt pi renmen ou yo sou PS4 ak PS5',
-    image: 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&q=80&w=600',
+    image: '/images/featured/playstation.webp',
     badgeFR: 'Console',
     badgeHT: 'Konsòl',
     badgeIcon: Gamepad2,
-    color: '#8b5cf6',
-    gradient: 'from-[#8b5cf6]/20 to-transparent'
+    color: '#3b82f6',
+    gradient: 'from-[#3b82f6]/20 to-transparent'
+  },
+  {
+    slug: 'google-play',
+    name: 'Google Play',
+    taglineFR: 'Cartes cadeaux pour applications et jeux Android',
+    taglineHT: 'Kat kado pou aplikasyon ak jwèt Android',
+    image: '/images/featured/google-play.webp',
+    badgeFR: 'Android',
+    badgeHT: 'Android',
+    color: '#10b981',
+    gradient: 'from-[#12b98a]/20 to-transparent'
+  },
+  {
+    slug: 'xbox',
+    name: 'Xbox Live',
+    taglineFR: 'Crédit Xbox pour jeux et abonnements Game Pass',
+    taglineHT: 'Kredi Xbox pou jwèt ak abònman Game Pass',
+    image: '/images/featured/xbox.webp',
+    badgeFR: 'Console',
+    badgeHT: 'Konsòl',
+    badgeIcon: Gamepad2,
+    color: '#22c55e',
+    gradient: 'from-[#22c55e]/20 to-transparent'
   },
   {
     slug: 'steam',
     name: 'Steam Wallet',
     taglineFR: 'Ajoutez des fonds à votre portefeuille de jeux PC',
     taglineHT: 'Mete kòb sou bous jwèt PC ou fasil',
-    image: 'https://images.unsplash.com/photo-1585647347483-22b66260dfff?auto=format&fit=crop&q=80&w=600',
+    image: '/images/featured/steam.webp',
     badgeFR: 'Gamer PC',
     badgeHT: 'Jwè PC',
     badgeIcon: Monitor,
-    color: '#a855f7',
-    gradient: 'from-[#a855f7]/20 to-transparent'
+    color: '#60a5fa',
+    gradient: 'from-[#60a5fa]/20 to-transparent'
+  },
+  {
+    slug: 'apple',
+    name: 'Apple Gift Card',
+    taglineFR: 'Cartes Apple pour App Store, iCloud et plus',
+    taglineHT: 'Kat Apple pou App Store, iCloud ak plis toujou',
+    image: '/images/featured/apple.webp',
+    badgeFR: 'Premium',
+    badgeHT: 'Premium',
+    badgeIcon: Apple,
+    color: '#d4d4d8',
+    gradient: 'from-[#d4d4d8]/20 to-transparent'
   },
   {
     slug: 'efootball',
     name: 'eFootball',
     taglineFR: 'Pièces eFootball instantanées, livrées dans votre compte',
     taglineHT: 'Kwen eFootball rapid, livre pa imèl',
-    image: 'https://image.api.playstation.com/vulcan/ap/rnd/202308/2513/1908ef918e69d95f87b328a6fdf94291c95f19c29ca52e9f.png',
-    badgeFR: 'Nouveau',
-    badgeHT: 'Nouvo',
+    image: '/images/featured/efootball.webp',
+    badgeFR: 'Sport',
+    badgeHT: 'Espò',
     color: '#0ea5e9',
     gradient: 'from-[#0ea5e9]/20 to-transparent'
   },
@@ -889,11 +940,11 @@ const HIGHLIGHTED_CATEGORIES = [
     name: 'COD Mobile',
     taglineFR: 'Rechargez vos points COD CP de manière ultra-sécurisée',
     taglineHT: 'Rechaje pwen COD CP ou yo an sekirite nèt',
-    image: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&q=80&w=1200',
+    image: '/images/featured/cod-mobile.webp',
     badgeFR: 'Populaire',
     badgeHT: 'Popilè',
-    color: '#78716c',
-    gradient: 'from-[#78716c]/20 to-transparent'
+    color: '#f59e0b',
+    gradient: 'from-[#f59e0b]/20 to-transparent'
   }
 ];
 

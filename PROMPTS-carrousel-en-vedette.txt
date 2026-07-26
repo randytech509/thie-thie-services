@@ -1,0 +1,104 @@
+====================================================================
+  THIE THIE SERVICES — PROMPTS IMAGES « EN VEDETTE » (carrousel)
+====================================================================
+
+OU DEPOSER LES IMAGES GENEREES :
+  public/images/featured/<slug>.webp   (dans le projet thie-thie-services)
+
+SPECS TECHNIQUES (a respecter pour chaque image) :
+  • Ratio 16:9  —  taille cible 1200 x 675 px
+  • Format .webp de preference (ou .jpg), < 120 KB par image
+  • L'image est affichee EN FOND a 30% d'opacite, texte en surimpression a GAUCHE
+    => sujet + lumiere plutot a DROITE, cote GAUCHE plus sombre/vide pour le texte
+  • AUCUN texte, AUCUN logo, AUCUN personnage sous licence dans l'image
+    (Imagen refuse les marques : reste sur une AMBIANCE qui evoque l'univers)
+  • Nom de fichier = le slug exact indique pour chaque slide
+
+--------------------------------------------------------------------
+  PROMPT TEMPLATE (reutilisable — remplace seulement [SUJET])
+--------------------------------------------------------------------
+Dark moody cinematic gaming ambiance background, [SUJET], dramatic neon
+rim lighting, volumetric haze, high detail, subject and brightest light on
+the RIGHT third of the frame, LEFT third dark and empty for text overlay,
+16:9 wide composition, no text, no words, no logo, no watermark, no faces,
+no recognizable brand characters.
+
+Negative prompt : text, letters, watermark, logo, brand name, ui, frame,
+border, low quality, blurry, distorted, cluttered center.
+
+====================================================================
+  PROMPTS PAR SLIDE (13) — copie-colle un par un
+====================================================================
+
+# free-fire.webp  (Free Fire)
+Dark moody cinematic battle-royale ambiance, tropical warzone at dusk with
+purple and orange neon glow, drifting embers and smoke, dramatic rim light,
+subject and brightest light on the RIGHT, LEFT side dark and empty for text,
+16:9, no text, no logo, no faces, no brand characters.
+
+# robux.webp  (Roblox)
+Dark playful ambiance of glowing colorful 3D voxel cubes floating in a deep
+violet space, soft studio neon reflections, subject and light on the RIGHT,
+LEFT side dark and empty for text, 16:9, no text, no logo, no characters.
+
+# netflix.webp  (Netflix)
+Dark cinematic home-theater ambiance, deep red and black gradient, subtle
+film-grain and light streaks like a movie premiere, glow on the RIGHT, LEFT
+side dark and empty for text, 16:9, no text, no logo, no faces.
+
+# google-play.webp  (Google Play)
+Dark modern ambiance of abstract app-store energy, floating rounded neon
+tiles in green and teal, soft depth blur, brightest light on the RIGHT, LEFT
+side dark and empty for text, 16:9, no text, no logo.
+
+# playstation.webp  (PlayStation)
+Dark futuristic console-gaming ambiance, cool blue neon glow, sleek abstract
+geometric shapes and light trails, subject and light on the RIGHT, LEFT side
+dark and empty for text, 16:9, no text, no logo, no controller brand marks.
+
+# steam.webp  (Steam Wallet)
+Dark PC-gaming battlestation ambiance, cool grey-blue tones with subtle warm
+accent, glowing screen light and bokeh, light on the RIGHT, LEFT side dark
+and empty for text, 16:9, no text, no logo, no faces.
+
+# efootball.webp  (eFootball)
+Dark cinematic football-stadium ambiance at night, sky-blue floodlight glow,
+motion streaks over a green pitch texture, brightest light on the RIGHT, LEFT
+side dark and empty for text, 16:9, no text, no logo, no players, no faces.
+
+# valorant.webp  (Valorant)
+Dark tactical shooter ambiance, crimson red and teal neon contrast, sharp
+geometric light shards and haze, subject and light on the RIGHT, LEFT side
+dark and empty for text, 16:9, no text, no logo, no characters, no faces.
+
+# xbox.webp  (Xbox Live)
+Dark next-gen console ambiance, vivid green energy glow over matte black,
+abstract light rings and particles, brightest light on the RIGHT, LEFT side
+dark and empty for text, 16:9, no text, no logo.
+
+# apple.webp  (Apple Gift Card)
+Clean premium dark ambiance, minimalist frosted glass and soft silver-white
+glow with subtle rainbow reflection, elegant depth, light on the RIGHT, LEFT
+side dark and empty for text, 16:9, no text, no logo, no fruit, no brand mark.
+
+# mobile-legends.webp  (Mobile Legends)
+Dark fantasy MOBA arena ambiance, cyan and indigo magical energy, glowing
+runes and mist over a stylized battlefield, subject and light on the RIGHT,
+LEFT side dark and empty for text, 16:9, no text, no logo, no heroes, no faces.
+
+# pubg.webp  (PUBG UC)  — OPTIONNEL (une cover locale existe deja)
+Dark gritty survival-shooter ambiance, dusty desert-military tones with a
+warm rim light and smoke, brightest light on the RIGHT, LEFT side dark and
+empty for text, 16:9, no text, no logo, no faces, no weapons brand.
+
+# cod-mobile.webp  (COD Mobile)  — OPTIONNEL (une cover locale existe deja)
+Dark modern-warfare ambiance, muted tactical greys with an orange muzzle-glow
+accent, haze and light streaks, brightest light on the RIGHT, LEFT side dark
+and empty for text, 16:9, no text, no logo, no faces.
+
+--------------------------------------------------------------------
+  QUAND C'EST FAIT
+--------------------------------------------------------------------
+Depose les .webp dans  public/images/featured/  puis dis a Claude
+« les images sont la » : il repointe toutes les slides en local et ajoute
+les 4 nouveaux items (Valorant, Xbox, Apple, Mobile Legends) en un commit.
