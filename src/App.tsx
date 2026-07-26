@@ -83,6 +83,7 @@ import { touchSession, endSession } from './lib/session';
 import { tagSession } from './lib/analytics';
 import { Sidebar } from './components/Sidebar';
 import { BottomTabBar } from './components/BottomTabBar';
+import { AnimatedThemeIcon } from './components/AnimatedThemeIcon';
 
 // Firebase imports
 import { auth, db, storage, googleProvider, OperationType, handleFirestoreError } from './firebase';
@@ -3602,7 +3603,7 @@ export default function App() {
               title={theme === 'dark' ? (lang === 'FR' ? 'Mode Clair' : 'Mòd Klè') : (lang === 'FR' ? 'Mode Sombre' : 'Mòd Fènwa')}
               aria-label="Toggle Theme"
             >
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
+              <AnimatedThemeIcon theme={theme} />
             </button>
 
             {/* Wallet, fidélité, auth, wishlist : déplacés dans Sidebar (desktop) / BottomTabBar (mobile) */}

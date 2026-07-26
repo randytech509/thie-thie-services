@@ -22,6 +22,7 @@ import {
   LayoutDashboard,
 } from 'lucide-react';
 import { ThieThieLogo } from './ThieThieLogo';
+import { AnimatedThemeIcon } from './AnimatedThemeIcon';
 import type { User as FirebaseUser } from 'firebase/auth';
 
 export type CategoryItem = {
@@ -304,7 +305,7 @@ export function Sidebar(props: SidebarProps) {
             className="p-1.5 bg-[var(--tt-surface-2)] border border-[var(--tt-border)] rounded-lg text-[var(--tt-text-muted)]"
             aria-label={theme === 'dark' ? 'Mode Clair' : 'Mode Sombre'}
           >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
+            <AnimatedThemeIcon theme={theme} />
           </button>
           <div className="ml-auto">
             {user ? (
