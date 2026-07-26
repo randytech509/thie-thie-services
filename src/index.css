@@ -251,6 +251,29 @@ body.light .tt-skeleton::after {
 .tt-toast { animation: tt-toast-in 0.22s ease-out; }
 .tt-toast-bar { animation: tt-toast-bar linear forwards; }
 
+/* ── Animations d'entrée réutilisables ──────────────────────────────────────────
+   `animate-fadeIn` (et cie) étaient utilisés dans ~21 endroits mais JAMAIS définis
+   (Tailwind v4, aucune keyframe) → aucune animation ne se jouait, d'où des apparitions
+   « brutes ». Les définir ici ALLUME toutes les entrées existantes d'un coup, plus
+   celles des modales/menu/cartes ci-dessous. prefers-reduced-motion (plus bas) les
+   neutralise pour l'accessibilité. */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes drawerIn { from { transform: translateX(-100%); } to { transform: none; } }
+.animate-fadeIn { animation: fadeIn 0.4s ease-out both; }
+.animate-fadeInUp { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-scaleIn { animation: scaleIn 0.26s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-drawerIn { animation: drawerIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Micro-interactions (opt-in par classe, pour ne rien casser globalement) :
+   - .press-tap : léger enfoncement au clic (boutons/cartes cliquables)
+   - .card-lift : la carte se soulève au survol */
+.press-tap { transition: transform 0.13s ease; }
+.press-tap:active { transform: scale(0.96); }
+.card-lift { transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease; }
+.card-lift:hover { transform: translateY(-4px); }
+
 /* Barre de défilement — via les tokens, donc valable dans les deux thèmes.
    Elle n'était stylée qu'en mode clair : le mode sombre héritait de la barre
    par défaut du navigateur. */

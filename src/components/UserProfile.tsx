@@ -374,6 +374,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const [depositSenderName, setDepositSenderName] = useState(''); // Nom de l'expéditeur (MonCash/NatCash)
   const [submittingDeposit, setSubmittingDeposit] = useState(false);
   const [depositSuccessMsg, setDepositSuccessMsg] = useState(false);
+  // Retour visuel UNIFIÉ du formulaire de dépôt (remplace les alert() bruts) : erreur (secousse
+  // rouge) ou succès (check qui « pop » en vert). Animé via framer-motion.
+  const [depositFeedback, setDepositFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
 
   // --- New Wallet States ---
   const [depositScreenshot, setDepositScreenshot] = useState<File | null>(null);
@@ -702,16 +705,17 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   // --- Wallet Actions ---
   const handleSubmitDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setDepositFeedback(null);
     const parsedAmount = parseFloat(depositAmount);
     // Bornes : évite un montant aberrant / injection de milliers de chiffres (10 HTG à 1 000 000 HTG).
     if (isNaN(parsedAmount) || !Number.isFinite(parsedAmount) || parsedAmount < 10 || parsedAmount > 1000000) {
-      alert(lang === 'FR' ? 'Montant invalide (entre 10 et 1 000 000 HTG).' : 'Montan pa valab (ant 10 ak 1 000 000 HTG).');
+      setDepositFeedback({ type: 'error', message: lang === 'FR' ? 'Montant invalide (entre 10 et 1 000 000 HTG).' : 'Montan pa valab (ant 10 ak 1 000 000 HTG).' });
       return;
     }
 
     const isMobile = depositPaymentMethod === 'MonCash' || depositPaymentMethod === 'NatCash';
     if (isMobile && (!depositTxId.trim() || !depositSenderName.trim() || !depositPhoneRef.trim())) {
-      alert(lang === 'FR' ? 'Transaction ID, nom et numéro de l\'expéditeur requis.' : 'Transaction ID, non ak nimewo moun ki voye a obligatwa.');
+      setDepositFeedback({ type: 'error', message: lang === 'FR' ? 'Transaction ID, nom et numéro de l\'expéditeur requis.' : 'Transaction ID, non ak nimewo moun ki voye a obligatwa.' });
       return;
     }
 
@@ -758,6 +762,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       });
 
       setDepositSuccessMsg(true);
+      setDepositFeedback({ type: 'success', message: lang === 'FR' ? 'Dépôt soumis avec succès !' : 'Depo voye avèk siksè !' });
       setDepositAmount('1000');
       setPhoneSenderState('');
       setDepositPhoneRef('');
@@ -766,10 +771,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       setDepositScreenshot(null);
       setTimeout(() => {
         setDepositSuccessMsg(false);
+        setDepositFeedback(null);
         setAddFundsOpen(false);
       }, 3500);
     } catch (err) {
       console.error("Failed deposit request:", err);
+      setDepositFeedback({ type: 'error', message: lang === 'FR' ? "L'envoi a échoué. Vérifie ta connexion et réessaie." : 'Voye a echwe. Tcheke koneksyon ou epi eseye ankò.' });
     } finally {
       setSubmittingDeposit(false);
     }
@@ -2210,15 +2217,38 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 Rechargez votre portefeuille Thie Thie Services de manière sécurisée en Haïti.
               </p>
 
-              {depositSuccessMsg && (
-                <div className="mb-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl font-bold flex flex-col gap-1">
-                  <div className="flex items-center gap-2 text-xs">
-                    <Check className="w-4 h-4 stroke-[3]" />
-                    Dépôt soumis avec succès !
-                  </div>
-                  <span className="text-[10px] text-emerald-400/70 font-semibold">{t.depositPendingDesc}</span>
-                </div>
-              )}
+              <AnimatePresence>
+                {depositFeedback && (
+                  <motion.div
+                    key={depositFeedback.type + depositFeedback.message}
+                    initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                    animate={depositFeedback.type === 'error'
+                      ? { opacity: 1, y: 0, scale: 1, x: [0, -9, 9, -6, 6, -3, 0] }
+                      : { opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                    className={`mb-4 p-4 rounded-xl font-bold flex flex-col gap-1 border ${
+                      depositFeedback.type === 'error'
+                        ? 'bg-red-500/10 border-red-500/25 text-red-400'
+                        : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 text-xs">
+                      {depositFeedback.type === 'error' ? (
+                        <AlertTriangle className="w-4 h-4 stroke-[3] shrink-0" />
+                      ) : (
+                        <motion.span initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 15, delay: 0.08 }}>
+                          <Check className="w-4 h-4 stroke-[3] shrink-0" />
+                        </motion.span>
+                      )}
+                      <span>{depositFeedback.message}</span>
+                    </div>
+                    {depositFeedback.type === 'success' && (
+                      <span className="text-[10px] text-emerald-400/70 font-semibold pl-6">{t.depositPendingDesc}</span>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <form onSubmit={handleSubmitDeposit} className="flex flex-col gap-4 font-semibold">
                 
@@ -2551,7 +2581,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   className="mt-2 w-full py-3.5 bg-[var(--tt-accent)] hover:bg-orange-500 text-[var(--tt-on-accent)] font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {submittingDeposit ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{lang === 'FR' ? 'Traitement en cours…' : 'N ap trete…'}</span>
+                    </>
                   ) : (
                     <>
                       <Check className="w-4 h-4 stroke-[3]" />

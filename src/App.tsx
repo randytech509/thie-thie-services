@@ -126,8 +126,10 @@ import freeFireCategoryBanner from './assets/images/free-fire-banner.webp';
 // (détruits par un passage en encodage texte — 212k et 71k octets remplacés par U+FFFD). Ils ne
 // s'affichaient jamais et pesaient 1,2 Mo. Remplacés par des URL valides en attendant de vrais
 // visuels de marque à déposer dans ce dossier.
-const pubgOvergrownHelmet = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=600';
-const meruOgImage = 'https://images.unsplash.com/photo-1580048915913-4f8f5cb481c4?auto=format&fit=crop&q=80&w=600';
+// Visuels de marque LOCAUX (fin des placeholders Unsplash) : rendu carte Meru transparent et
+// cover PUBG bundlés dans public/images.
+const pubgOvergrownHelmet = '/images/covers/pubg.webp';
+const meruOgImage = '/images/products/meru-card.png';
 
 // ==========================================
 // DATA & TYPES
@@ -5007,7 +5009,7 @@ export default function App() {
       {selectedProduct && (
         <div id="product-detail-modal" className="fixed inset-0 z-50 bg-black/80 overflow-y-auto animate-fadeIn backdrop-blur-sm">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl w-full max-w-3xl overflow-hidden relative shadow-2xl my-8 text-left">
+            <div className="bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-3xl w-full max-w-3xl overflow-hidden relative shadow-2xl my-8 text-left animate-scaleIn">
             
             {/* Close modal action */}
             <button
@@ -5693,9 +5695,9 @@ export default function App() {
 
       {/* ---------------- PANIER : bouton flottant + tiroir ---------------- */}
       {cartOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4" onClick={() => setCartOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 animate-fadeIn" onClick={() => setCartOpen(false)}>
           <div
-            className="bg-[var(--tt-surface)] border border-[var(--tt-border)] w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
+            className="bg-[var(--tt-surface)] border border-[var(--tt-border)] w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-5 border-b border-[var(--tt-border)]">
