@@ -5,7 +5,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { FinancesTab } from './admin/FinancesTab';
 import { SessionsPanel } from './admin/SessionsPanel';
-import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts, type PricingConfig } from '../lib/api';
+import { reviewDeposit, reviewKyc, fulfillOrder, setFxRate, setDepositAccounts, sendBroadcastPush, savePromo, deletePromo, reloadlyBalance, reloadlyFindProducts, setProductSupplier, setPricingConfig, setProductCost, reloadlyImportCatalog, estimateFunding, setProductInventory, deleteProduct, clearImportedProducts, giftaccessBalance, giftaccessImportCatalog, type PricingConfig } from '../lib/api';
 import { getPasskeyStatus, enrollPasskey, verifyPasskey } from '../lib/passkey';
 import {
   LayoutDashboard, ShoppingBag, Wallet, ShieldCheck, Bell, Settings, KeyRound,
@@ -1017,6 +1017,20 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
     catch (e) { flash(`Échec : ${(e as Error).message}`); } finally { setClearing(false); }
   };
 
+  // --- GIFT ACCESS : solde + import (remplace la livraison manuelle des jeux) ---
+  const [gaBal, setGaBal] = useState<{ balance?: number; currency?: string } | null>(null);
+  const [gaImporting, setGaImporting] = useState(false);
+  useEffect(() => { giftaccessBalance().then(setGaBal).catch(() => setGaBal(null)); }, []);
+  const doGiftAccessImport = async () => {
+    if (!window.confirm('Importer le catalogue GIFT ACCESS et DÉSACTIVER les produits manuels correspondants (Free Fire, PUBG, Apple, Xbox…) ? Meru/CoD/eFootball/Mobile Legends/Netflix restent manuels. Réversible.')) return;
+    setGaImporting(true);
+    try {
+      const r = await giftaccessImportCatalog();
+      flash(`Import GIFT ACCESS : ${r.importedDocs} variantes créées, ${r.disabledManual} produits manuels désactivés.`);
+      await refresh();
+    } catch (e) { flash(`Import GIFT ACCESS échoué : ${(e as Error).message}`); } finally { setGaImporting(false); }
+  };
+
   const saveManual = async () => {
     if (!mProd.trim() || !mFace) { flash('ID produit et coût requis.'); return; }
     setMBusy(true);
@@ -1107,6 +1121,22 @@ function AdminPricing({ flash }: { flash: (m: string) => void }) {
           <button onClick={doClear} disabled={clearing} className="bg-red-500/15 hover:bg-red-500/25 disabled:opacity-40 text-red-300 font-black text-sm rounded-xl px-4 py-2.5 flex items-center gap-2">{clearing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}Vider Reloadly</button>
         </div>
         {importMsg && <p className="text-[11px] text-[var(--tt-text-muted)] mt-2 tabular-nums">{importMsg}</p>}
+      </div>
+
+      {/* Import GIFT ACCESS (remplace la livraison manuelle des jeux) */}
+      <div className={card}>
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="font-black text-sm">Auto-livraison GIFT ACCESS</h3>
+          <span className={`text-[11px] font-black tabular-nums ${gaBal && (gaBal.balance ?? 0) < 20 ? 'text-red-400' : 'text-[var(--tt-good)]'}`}>
+            {gaBal ? `Solde ${(gaBal.balance ?? 0).toLocaleString()} ${gaBal.currency ?? 'USD'}` : 'Solde —'}
+          </span>
+        </div>
+        <p className="text-[11px] text-[var(--tt-text-faint)] mb-3">
+          Crée les produits GIFT ACCESS (Free Fire, PUBG, Valorant, Apple, Google Play, PlayStation, Xbox, Steam, Roblox) et DÉSACTIVE les produits manuels correspondants. Meru / CoD / eFootball / Mobile Legends / Netflix restent manuels.
+        </p>
+        <button onClick={doGiftAccessImport} disabled={gaImporting} className={btn}>
+          {gaImporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <DownloadCloud className="w-4 h-4" />}Importer GIFT ACCESS
+        </button>
       </div>
 
       {/* Coût manuel (non-Reloadly / cartes non-USD comme Netflix) */}

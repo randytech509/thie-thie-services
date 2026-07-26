@@ -237,6 +237,16 @@ export async function reloadlyImportCatalog(input: { page?: number; size?: numbe
   return (await httpsCallable<typeof input, any>(functionsClient, 'reloadlyImportCatalog')(input)).data;
 }
 
+/** Solde du wallet USD prépayé GIFT ACCESS. */
+export async function giftaccessBalance(): Promise<{ ok: boolean; balance?: number; currency?: string; environment?: string | null }> {
+  return (await httpsCallable<Record<string, never>, any>(functionsClient, 'giftaccessBalance')({})).data;
+}
+
+/** Importe les produits GIFT ACCESS mappés (crée les ga_* + désactive les manuels). */
+export async function giftaccessImportCatalog(): Promise<{ ok: boolean; importedDocs: number; disabledManual: number; summary: Record<string, number> }> {
+  return (await httpsCallable<Record<string, never>, any>(functionsClient, 'giftaccessImportCatalog')({})).data;
+}
+
 // `repriceAll` retiré : depuis la restructuration du catalogue, les cartes Reloadly n'ont plus
 // de `pricing.faceUsdCents` (dénominations multiples / montant libre) et étaient toutes ignorées.
 // La re-tarification correcte = relancer « Importer Reloadly » (recalcule avec la config courante).

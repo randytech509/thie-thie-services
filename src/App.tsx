@@ -2610,6 +2610,9 @@ export default function App() {
       .then((snap) => {
         const map: Record<string, { priceCents: number; available: boolean; stock: number }> = {};
         const cards: Product[] = [];
+        // Produits GIFT ACCESS : 1 doc PAR dénomination (`ga_{id}__{i}`), à REGROUPER par productId
+        // en une carte (comme les produits codés en dur), rangée sous sa catégorie de marque.
+        const gaGroups: Record<string, any[]> = {};
         snap.forEach((d) => {
           const v = d.data() as any;
           if (typeof v.priceCents === 'number') {
@@ -2651,7 +2654,35 @@ export default function App() {
               } : undefined,
             });
           }
+          // Produit auto-livré GIFT ACCESS (Free Fire, PUBG, Apple…) → regrouper par productId.
+          if (v.supplier === 'giftaccess' && v.available !== false && typeof v.priceCents === 'number') {
+            const pid = String(v.productId ?? d.id.split('__')[0]);
+            (gaGroups[pid] ||= []).push({ ...v, __docId: d.id });
+          }
         });
+
+        // Une carte par produit GIFT ACCESS ; options triées par sortIndex (= index du docId
+        // `{productId}__{i}`) pour que `_variant`/checkout (`${p.id}__${optIndex}`) tombent juste.
+        for (const [pid, docs] of Object.entries(gaGroups)) {
+          docs.sort((a, b) => (a.sortIndex ?? 0) - (b.sortIndex ?? 0));
+          const first = docs[0];
+          const slug = String(first.categorySlug ?? brandSlugFromName(String(first.name ?? '')));
+          cards.push({
+            id: pid, // ex. 'ga_58462' → options => 'ga_58462__{optIndex}'
+            name: String(first.name ?? 'Produit'),
+            categorySlug: slug,
+            image: String(first.image ?? ''),
+            rating: 5,
+            deliveryTime: String(first.deliveryTime ?? '1-5 Min'),
+            regions: Array.isArray(first.regions) && first.regions.length ? first.regions : ['Global'],
+            options: docs.map((dd) => ({ amount: String(dd.optionLabel ?? ''), priceUSD: (dd.priceCents ?? 0) / 14500 })),
+            descriptionFR: `${first.name ?? ''} — livraison automatique et instantanée.`,
+            descriptionHT: `${first.name ?? ''} — livrezon otomatik e rapid.`,
+            stockStatus: 'instock',
+            // PAS de fsProductId : le checkout utilise `${id}__${optIndex}` → le bon doc-dénomination.
+          });
+        }
+
         cards.sort((a, b) => (a.fsPriceCents ?? 0) - (b.fsPriceCents ?? 0));
         setFsCatalog(map);
         setGiftCardProducts(cards);
@@ -5366,19 +5397,9 @@ export default function App() {
                             </span>
                           </div>
 
-                          {isGameCategoryRequiringPlayerId(selectedProduct.categorySlug) && (
-                            <div>
-                              <label className="block text-[10px] uppercase tracking-wider font-extrabold text-[var(--tt-text-faint)] mb-1.5">
-                                {lang === 'FR' ? 'ID de joueur' : 'ID jwè'}
-                              </label>
-                              <input
-                                value={freeFirePlayerId}
-                                onChange={(e) => setFreeFirePlayerId(e.target.value)}
-                                placeholder={getPlayerIdHelperText(selectedProduct.categorySlug, lang)}
-                                className="w-full p-3 rounded-2xl bg-[var(--tt-bg)] border border-[var(--tt-border)] text-[var(--tt-text)] text-sm outline-none focus:border-[var(--tt-accent)]"
-                              />
-                            </div>
-                          )}
+                          {/* Champ « ID de joueur » en doublon RETIRÉ : il était déjà rendu en
+                              haut du modal (bloc « Game Player ID Input », même état
+                              freeFirePlayerId). Deux champs pour la même valeur = confusion. */}
 
                           {(() => {
                             const range = selectedProduct.fsRange;
