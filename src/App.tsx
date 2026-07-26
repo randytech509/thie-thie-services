@@ -992,18 +992,25 @@ function ProductImageWithSkeleton({
 
   return (
     <div className={`relative overflow-hidden w-full h-full ${isLogo ? 'bg-white' : 'bg-[var(--tt-surface-2)]'} ${className}`}>
-      {/* Skeleton overlay */}
-      {!loaded && (
-        <div className="absolute inset-0 z-10 bg-[var(--tt-bg)] flex flex-col items-center justify-center">
-          {/* Shimmer sweep */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--tt-overlay-strong)] to-transparent -translate-x-full animate-shimmer" />
-          
-          {/* Pulsing indicator icon */}
-          <div className="w-8 h-8 rounded-full bg-[var(--tt-overlay)] border border-[var(--tt-border)] flex items-center justify-center animate-pulse">
-            <Gamepad2 className="w-4 h-4 text-[var(--tt-text-faint)]" />
-          </div>
-        </div>
-      )}
+      {/* Skeleton overlay — fond en fondu quand l'image est prête (au lieu de disparaître sec) */}
+      <AnimatePresence>
+        {!loaded && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="absolute inset-0 z-10 bg-[var(--tt-bg)] flex flex-col items-center justify-center"
+          >
+            {/* Shimmer sweep */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--tt-overlay-strong)] to-transparent -translate-x-full animate-shimmer" />
+
+            {/* Pulsing indicator icon */}
+            <div className="w-8 h-8 rounded-full bg-[var(--tt-overlay)] border border-[var(--tt-border)] flex items-center justify-center animate-pulse">
+              <Gamepad2 className="w-4 h-4 text-[var(--tt-text-faint)]" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <img
         src={src}

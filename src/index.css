@@ -217,7 +217,14 @@ body.light {
 }
 
 .animate-shimmer {
-  animation: shimmer 1.8s infinite linear;
+  /* eased (au lieu de linear) : le balayage accélère/décélère → moins mécanique */
+  animation: shimmer 1.9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Respiration douce du fond des squelettes (opacité) — évite le gris plat statique. */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.68; }
 }
 
 /* Squelette de chargement réutilisable (listes/grilles). */
@@ -226,17 +233,19 @@ body.light {
   overflow: hidden;
   background: var(--tt-surface-3);
   border-radius: 8px;
+  animation: skeletonPulse 2.4s ease-in-out infinite;
 }
 .tt-skeleton::after {
   content: "";
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
-  animation: shimmer 1.6s infinite;
+  /* gradient plus large + reflet légèrement plus marqué → balayage plus visible mais doux */
+  background: linear-gradient(90deg, transparent 15%, rgba(255, 255, 255, 0.08) 50%, transparent 85%);
+  animation: shimmer 1.9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 body.light .tt-skeleton::after {
-  background: linear-gradient(90deg, transparent, rgba(16, 19, 26, 0.06), transparent);
+  background: linear-gradient(90deg, transparent 15%, rgba(16, 19, 26, 0.07) 50%, transparent 85%);
 }
 
 /* Toast — animation d'entrée + barre de progression avant disparition. */
