@@ -785,6 +785,13 @@ const HERO_SLIDES = [
   }
 ];
 
+// Entrée en cascade du contenu du slide actif (badge → titre → texte → bouton), + zoom lent.
+const HERO_STAGGER = { hide: {}, show: { transition: { staggerChildren: 0.09, delayChildren: 0.12 } } };
+const HERO_ITEM = {
+  hide: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
+};
+
 const HIGHLIGHTED_CATEGORIES = [
   {
     slug: 'free-fire',
@@ -3644,27 +3651,32 @@ export default function App() {
                       <div className={`absolute inset-0 bg-gradient-to-tr ${slide.gradient} opacity-90 z-0`} />
                       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-0" />
 
-                      <div className="relative z-20 flex-1 h-full flex flex-col justify-center px-6 md:px-16 lg:px-24 text-left max-w-2xl">
-                        <span className="inline-flex items-center gap-1.5 bg-[var(--tt-accent)] text-[var(--tt-on-accent)] font-extrabold text-[10px] md:text-xs uppercase tracking-widest px-3 py-1 rounded-full mb-4 w-max">
+                      <motion.div
+                        className="relative z-20 flex-1 h-full flex flex-col justify-center px-6 md:px-16 lg:px-24 text-left max-w-2xl"
+                        variants={HERO_STAGGER}
+                        initial="hide"
+                        animate={isActive ? 'show' : 'hide'}
+                      >
+                        <motion.span variants={HERO_ITEM} className="inline-flex items-center gap-1.5 bg-[var(--tt-accent)] text-[var(--tt-on-accent)] font-extrabold text-[10px] md:text-xs uppercase tracking-widest px-3 py-1 rounded-full mb-4 w-max">
                           <slide.subtitleIcon className="w-3 h-3 md:w-3.5 md:h-3.5" />
                           {slide.subtitle}
-                        </span>
-                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-[var(--tt-text)] tracking-tight mb-4 drop-shadow-md">
+                        </motion.span>
+                        <motion.h2 variants={HERO_ITEM} className="text-3xl md:text-5xl lg:text-6xl font-black text-[var(--tt-text)] tracking-tight mb-4 drop-shadow-md">
                           {slide.title}
-                        </h2>
-                        <p className="text-sm md:text-base text-[var(--tt-text-muted)] max-w-lg mb-8 leading-relaxed font-medium">
+                        </motion.h2>
+                        <motion.p variants={HERO_ITEM} className="text-sm md:text-base text-[var(--tt-text-muted)] max-w-lg mb-8 leading-relaxed font-medium">
                           {lang === 'FR' ? slide.desc : slide.descHT}
-                        </p>
-                        
-                        <div className="flex items-center gap-4">
+                        </motion.p>
+
+                        <motion.div variants={HERO_ITEM} className="flex items-center gap-4">
                           <button
                             onClick={() => navigateToCategory(slide.slug)}
-                            className="bg-[var(--tt-accent)] hover:bg-[var(--tt-accent)]/90 text-[var(--tt-on-accent)] font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-xl hover:shadow-[#a855f7]/20 transition-all hover:-translate-y-0.5"
+                            className="bg-[var(--tt-accent)] hover:bg-[var(--tt-accent)]/90 text-[var(--tt-on-accent)] font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-xl hover:shadow-[#a855f7]/20 transition-all hover:-translate-y-0.5 active:scale-95"
                           >
                             {slide.cta} {lang === 'FR' ? 'Maintenant' : 'Kounye a'}
                           </button>
-                        </div>
-                      </div>
+                        </motion.div>
+                      </motion.div>
 
                       {/* Right artwork image (adapted dynamically for mobile as an ambient background) */}
                       <div className="absolute inset-0 md:left-auto md:right-0 md:w-1/2 z-10 pointer-events-none overflow-hidden">
@@ -3675,7 +3687,7 @@ export default function App() {
                         <img
                           src={slide.image}
                           alt={slide.title}
-                          className="w-full h-full object-cover opacity-35 md:opacity-65 transition-opacity duration-700"
+                          className="w-full h-full object-cover opacity-35 md:opacity-65 hero-kenburns"
                           referrerPolicy="no-referrer"
                         />
                       </div>

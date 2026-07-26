@@ -274,6 +274,11 @@ body.light .tt-skeleton::after {
 .card-lift { transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease; }
 .card-lift:hover { transform: translateY(-4px); }
 
+/* Ken Burns : zoom lent et continu des images du carrousel hero (donne de la vie sans
+   distraire). Alterne pour ne jamais « sauter ». Neutralisé par prefers-reduced-motion. */
+@keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.09); } }
+.hero-kenburns { animation: kenburns 14s ease-in-out infinite alternate; will-change: transform; }
+
 /* Basculement jour/nuit en douceur : la classe `.theme-animating` n'est posée sur <html> que
    le temps du switch (~0,45 s), donc ce fondu des couleurs NE ralentit PAS les hovers ni les
    autres interactions. Placé AVANT prefers-reduced-motion pour que celui-ci le neutralise. */
