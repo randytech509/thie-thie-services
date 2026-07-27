@@ -3756,18 +3756,19 @@ export default function App() {
                   );
                 })}
 
-                {/* Left/Right Manual Navigation Controls */}
+                {/* Left/Right Manual Navigation Controls — masqués sur mobile (ils recouvraient le
+                    texte du hero) ; sur mobile : auto-défilement + points de pagination + swipe. */}
                 <button
                   onClick={() =>
                     setCurrentHeroSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)
                   }
-                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-accent)] text-[var(--tt-text)] hover:text-[var(--tt-on-accent)] flex items-center justify-center backdrop-blur-sm border border-[var(--tt-border)] hover:border-transparent transition-all"
+                  className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-accent)] text-[var(--tt-text)] hover:text-[var(--tt-on-accent)] items-center justify-center backdrop-blur-sm border border-[var(--tt-border)] hover:border-transparent transition-all"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setCurrentHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-accent)] text-[var(--tt-text)] hover:text-[var(--tt-on-accent)] flex items-center justify-center backdrop-blur-sm border border-[var(--tt-border)] hover:border-transparent transition-all"
+                  className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-accent)] text-[var(--tt-text)] hover:text-[var(--tt-on-accent)] items-center justify-center backdrop-blur-sm border border-[var(--tt-border)] hover:border-transparent transition-all"
                 >
                   <ArrowRight className="w-5 h-5" />
                 </button>
@@ -3877,11 +3878,6 @@ export default function App() {
                             </span>
                           </div>
                         </motion.div>
-
-                        {/* Top corner slide index indicator for micro visual flair */}
-                        <div className="absolute top-6 right-8 text-[11px] font-mono text-[var(--tt-text-faint)] font-bold">
-                          {String(idx + 1).padStart(2, '0')} / {String(HIGHLIGHTED_CATEGORIES.length).padStart(2, '0')}
-                        </div>
                       </div>
                     );
                   })}
