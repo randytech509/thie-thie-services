@@ -2165,6 +2165,16 @@ export default function App() {
       setSelectedProduct(null);
     } catch (err: any) {
       const msg = String(err?.message || err || '');
+      // KYC requis (cumul commandes > 5000 HTG) — À TESTER AVANT `insufficient` : les deux
+      // remontent en 'failed-precondition'. On oriente le client vers Profil & KYC.
+      if (/KYC|identité|idantite/i.test(msg)) {
+        alert(lang === 'FR'
+          ? "Vérification d'identité (KYC) requise au-delà de 5000 HTG cumulés de commandes. Ouvrez « Profil & KYC » pour vous vérifier."
+          : "Verifikasyon idantite (KYC) obligatwa depase 5000 HTG kimile nan kòmand. Ale nan « Pwofil & KYC ».");
+        setSelectedProduct(null);
+        setCurrentPage('profile');
+        return;
+      }
       const insufficient = String(err?.code || '').includes('failed-precondition') || /insuffisant|insufficient/i.test(msg);
       if (insufficient) {
         alert(lang === 'FR'
@@ -2268,6 +2278,15 @@ export default function App() {
       setCartOpen(false);
     } catch (err: any) {
       const msg = String(err?.message || err || '');
+      // KYC requis (cumul commandes > 5000 HTG) — testé AVANT `insufficient` (même code d'erreur).
+      if (/KYC|identité|idantite/i.test(msg)) {
+        alert(lang === 'FR'
+          ? "Vérification d'identité (KYC) requise au-delà de 5000 HTG cumulés de commandes. Ouvrez « Profil & KYC » pour vous vérifier."
+          : "Verifikasyon idantite (KYC) obligatwa depase 5000 HTG kimile nan kòmand. Ale nan « Pwofil & KYC ».");
+        setCartOpen(false);
+        setCurrentPage('profile');
+        return;
+      }
       const insufficient = String(err?.code || '').includes('failed-precondition') || /insuffisant|insufficient/i.test(msg);
       alert(insufficient
         ? (lang === 'FR' ? "Solde wallet insuffisant. Rechargez votre wallet (dépôt), puis réessayez." : "Balans wallet ou pa ase. Rechaje wallet ou (depo), epi eseye ankò.")

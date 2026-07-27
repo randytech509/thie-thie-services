@@ -39,6 +39,14 @@ export class DomainError extends Error {
 
 export type CreditType = 'deposit' | 'refund' | 'adjustment';
 
+/**
+ * Seuil KYC cumulé (centimes HTG) sur les COMMANDES : au-delà de 5000 HTG dépensés au total
+ * (cumul `totalSpentCents` + la commande courante), le KYC devient obligatoire pour commander.
+ * Pendant du seuil dépôts locaux (voir kyc-deposit-guard.ts) ; ici c'est `totalSpentCents`, déjà
+ * maintenu par CE module, qui sert de cumul (pas de lecture supplémentaire).
+ */
+export const KYC_ORDER_THRESHOLD_CENTS = 500000;
+
 export interface CreditParams {
   uid: string;
   amountCents: Cents;        // > 0
@@ -241,6 +249,13 @@ export async function placeOrder(db: Firestore, p: PlaceOrderParams): Promise<Pl
     const totalCents = unit * qty;
     assertCents(totalCents, 'totalCents');
 
+    // Seuil KYC cumulé (5000 HTG) sur les commandes : au-delà du cumul dépensé + cette commande,
+    // KYC obligatoire (userSnap déjà lu → aucune lecture supplémentaire).
+    const priorSpent = (userSnap.get('totalSpentCents') as number) ?? 0;
+    if (priorSpent + totalCents > KYC_ORDER_THRESHOLD_CENTS && userSnap.get('kycStatus') !== 'approved') {
+      throw new DomainError('kyc-required', 'Vérification d\'identité (KYC) requise au-delà de 5000 HTG cumulés de commandes.');
+    }
+
     const before: Cents = (userSnap.get('walletBalanceCents') as number) ?? 0;
     assertCents(before, 'walletBalanceCents existant');
     if (before < totalCents) throw new DomainError('insufficient-funds', 'solde insuffisant');
@@ -408,6 +423,12 @@ export async function placeCartOrder(db: Firestore, p: PlaceCartOrderParams): Pr
     });
     const totalCents = lineTotals.reduce((a, b) => a + b, 0);
     assertCents(totalCents, 'totalCents');
+
+    // Seuil KYC cumulé (5000 HTG) sur les commandes — même règle que placeOrder (userSnap déjà lu).
+    const priorSpent = (userSnap.get('totalSpentCents') as number) ?? 0;
+    if (priorSpent + totalCents > KYC_ORDER_THRESHOLD_CENTS && userSnap.get('kycStatus') !== 'approved') {
+      throw new DomainError('kyc-required', 'Vérification d\'identité (KYC) requise au-delà de 5000 HTG cumulés de commandes.');
+    }
 
     const before: Cents = (userSnap.get('walletBalanceCents') as number) ?? 0;
     assertCents(before, 'walletBalanceCents existant');

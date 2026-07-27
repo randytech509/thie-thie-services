@@ -43,6 +43,7 @@ export function mapDomainError(e: unknown): HttpsError {
       'product-not-found': 'not-found',
       'reward-not-found': 'not-found',
       'insufficient-points': 'failed-precondition',
+      'kyc-required': 'failed-precondition',
     };
     return new HttpsError(map[e.code] ?? 'internal', e.message);
   }
