@@ -20,6 +20,7 @@ import {
   Mail,
   ChevronDown,
   LayoutDashboard,
+  LogIn,
 } from 'lucide-react';
 import { ThieThieLogo } from './ThieThieLogo';
 import { AnimatedThemeIcon } from './AnimatedThemeIcon';
@@ -159,6 +160,16 @@ export function Sidebar(props: SidebarProps) {
         <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--tt-text-faint)] px-2.5 mb-0.5">
           {lang === 'FR' ? 'Compte' : 'Kont'}
         </p>
+        {/* CTA de connexion bien visible pour les invités (le checkout exige aussi la connexion). */}
+        {!user && (
+          <button
+            onClick={onLogin}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 mb-1 rounded-xl bg-[var(--tt-accent)] hover:bg-[#c084fc] text-[var(--tt-on-accent)] font-extrabold text-[12px] shadow-lg shadow-[#a855f7]/10 hover:-translate-y-0.5 transition-all"
+          >
+            <LogIn className="w-4 h-4 shrink-0" />
+            <span>{lang === 'FR' ? 'Se connecter / S’inscrire' : 'Konekte / Enskri'}</span>
+          </button>
+        )}
         {navItem(currentPage === 'profile', () => navigateToPage('profile'), <User className="w-4 h-4 shrink-0" />, lang === 'FR' ? 'Profil & KYC' : 'Pwofil & KYC')}
         {navItem(currentPage === 'contact', () => navigateToPage('contact'), <Mail className="w-4 h-4 shrink-0" />, lang === 'FR' ? 'Contact' : 'Kontak')}
         {isAdmin && navItem(currentPage === 'admin', () => navigateToPage('admin'), <LayoutDashboard className="w-4 h-4 shrink-0" />, 'Back-office')}

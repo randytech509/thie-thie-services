@@ -1373,7 +1373,10 @@ export default function App() {
   };
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState<'welcome' | 'login-screen' | 'register-screen' | 'forgot-password-screen' | 'home' | 'category' | 'about' | 'contact' | 'faq' | 'privacy' | 'terms' | 'wishlist' | 'profile' | 'admin'>('welcome');
+  // Le client atterrit DIRECTEMENT sur la boutique (plus de porte « welcome » forcée à
+  // l'arrivée). La connexion se fait via un bouton visible (sidebar) et est EXIGÉE au moment
+  // de passer commande (handleWalletPay / handleCartCheckout ouvrent la modale d'auth).
+  const [currentPage, setCurrentPage] = useState<'welcome' | 'login-screen' | 'register-screen' | 'forgot-password-screen' | 'home' | 'category' | 'about' | 'contact' | 'faq' | 'privacy' | 'terms' | 'wishlist' | 'profile' | 'admin'>('home');
   const [selectedCategorySlug, setSelectedCategorySlug] = useState<string | null>(null);
   const [quickFilter, setQuickFilter] = useState<'ALL' | 'PROMO' | 'POPULAR' | 'UNDER_10' | 'LATEST'>('ALL');
 
