@@ -2295,8 +2295,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     })}
                   </div>
                   {kycStatus !== 'approved' && (
-                    <p className="text-[9px] text-[var(--tt-text-faint)] font-semibold mt-1.5">
-                      🔒 Crypto (USDT) nécessite une vérification d'identité (KYC).
+                    <p className="flex items-center gap-1.5 text-[9px] text-[var(--tt-text-faint)] font-semibold mt-1.5">
+                      <Lock className="w-3 h-3 shrink-0" />
+                      <span>Crypto (USDT) nécessite une vérification d'identité (KYC).</span>
                     </p>
                   )}
                 </div>
