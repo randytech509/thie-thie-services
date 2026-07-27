@@ -59,6 +59,15 @@ service cloud.firestore {
       return s is string && (s == 'none' || s == 'pending' || s == 'approved' || s == 'rejected');
     }
 
+    // KYC approuvé pour l'utilisateur courant (lecture du doc user). Utilisé pour EXIGER le KYC
+    // sur certaines méthodes de dépôt (PayPal/Binance/Crypto). `.get('kycStatus','none')` évite
+    // l'échec si le champ est absent. Coûte une lecture de doc à l'évaluation (acceptable ici).
+    function isKycApproved() {
+      return isSignedIn() &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('kycStatus', 'none') == 'approved';
+    }
+
     // --- ENTITY VALIDATORS ---
 
     // 1. User Entity Validator (forme générale, hors politique de mutation)
@@ -329,6 +338,10 @@ service cloud.firestore {
                        // Nom / numéro de l'expéditeur (vérification MonCash/NatCash) — bornés si présents.
                        (!incoming().keys().hasAny(['senderName']) || (incoming().senderName is string && incoming().senderName.size() <= 80)) &&
                        (!incoming().keys().hasAny(['senderPhone']) || (incoming().senderPhone is string && incoming().senderPhone.size() <= 15)) &&
+                       // KYC OBLIGATOIRE pour PayPal / Binance / Crypto (comme le crypto l'exigeait déjà
+                       // via createCryptoInvoice). Les méthodes locales MonCash/NatCash passent ici sans
+                       // KYC ; leur seuil cumulé 5000 HTG est appliqué côté serveur au crédit.
+                       (!(incoming().paymentMethod in ['PayPal', 'Binance Pay', 'Crypto']) || isKycApproved()) &&
                        incoming().keys().hasAll(['requestId', 'uid', 'amount', 'paymentMethod', 'transactionReference', 'screenshotURL', 'status', 'createdAt']);
 
       allow update, delete: if false;

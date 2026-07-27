@@ -2259,7 +2259,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   </label>
                   <div className="grid grid-cols-5 gap-1.5">
                     {(['MonCash', 'NatCash', 'Binance Pay', 'PayPal', 'Crypto'] as const).map((method) => {
-                      const locked = method === 'Crypto' && kycStatus !== 'approved';
+                      // KYC obligatoire pour Crypto, PayPal et Binance (verrouillés tant que non approuvé).
+                      const locked = (method === 'Crypto' || method === 'PayPal' || method === 'Binance Pay') && kycStatus !== 'approved';
                       return (
                         <button
                           key={method}
@@ -2297,7 +2298,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                   {kycStatus !== 'approved' && (
                     <p className="flex items-center gap-1.5 text-[9px] text-[var(--tt-text-faint)] font-semibold mt-1.5">
                       <Lock className="w-3 h-3 shrink-0" />
-                      <span>Crypto (USDT) nécessite une vérification d'identité (KYC).</span>
+                      <span>{lang === 'FR'
+                        ? 'PayPal, Binance et Crypto (USDT) nécessitent une vérification d\'identité (KYC).'
+                        : 'PayPal, Binance ak Crypto (USDT) mande yon verifikasyon idantite (KYC).'}</span>
                     </p>
                   )}
                 </div>
