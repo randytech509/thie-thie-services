@@ -5,6 +5,7 @@ import { audit } from './lib/audit';
 import { htgToCents } from './lib/money';
 import { requireAdmin, mapDomainError, callOpts } from './lib/guards';
 import { requireStepUp } from './lib/stepup';
+import { localDepositBlockedByKyc } from './lib/kyc-deposit-guard';
 
 /**
  * Validation manuelle des dépôts (flux baseline, invariant 3).
@@ -47,6 +48,12 @@ export const reviewDeposit = onCall(callOpts, async (req) => {
       });
       await audit(db, { action: 'reviewDeposit:reject', actorUid: admin.uid, targetUid, amountCents, meta: { requestId } });
       return { ok: true, status: 'Rejected' };
+    }
+
+    // Seuil KYC cumulé (5000 HTG) sur les dépôts locaux : l'admin ne peut pas créditer au-delà
+    // sans KYC approuvé. Une fois le KYC validé, la même approbation crédite normalement.
+    if (await localDepositBlockedByKyc(db, targetUid, data.paymentMethod, amountCents)) {
+      throw new HttpsError('failed-precondition', 'KYC requis : le cumul des dépôts locaux de cet utilisateur dépasse 5000 HTG.');
     }
 
     const result = await creditWallet(db, {

@@ -2,6 +2,7 @@ import { Firestore, FieldValue } from 'firebase-admin/firestore';
 import { creditWallet } from './transactions';
 import { htgToCents } from './money';
 import { ParsedSms } from './sms';
+import { localDepositBlockedByKyc } from './kyc-deposit-guard';
 
 /**
  * Rapproche un SMS de paiement d'une demande de dépôt en attente et auto-crédite (invariant 3).
@@ -133,6 +134,25 @@ export async function reconcileSms(db: Firestore, parsed: ParsedSms): Promise<Re
       needsReview: true,
       requestId,
       reason: 'rapprochement par numéro expéditeur — confirmation admin requise',
+    };
+  }
+
+  // Seuil KYC cumulé (5000 HTG) sur les dépôts locaux : au-delà, on ne crédite pas sans KYC
+  // approuvé. On marque la demande 'KYC Required' (l'admin la créditera via reviewDeposit une
+  // fois le KYC validé) et on n'échoue pas — le crédit ne bouge simplement pas.
+  if (await localDepositBlockedByKyc(db, uid, parsed.provider, parsed.amountCents)) {
+    await doc.ref.update({
+      status: 'KYC Required',
+      kycRequired: true,
+      reviewedBy: 'sms-hook',
+      reviewedAt: FieldValue.serverTimestamp(),
+    });
+    return {
+      matched: true,
+      credited: false,
+      needsReview: true,
+      requestId,
+      reason: 'KYC requis : cumul des dépôts locaux > 5000 HTG',
     };
   }
 

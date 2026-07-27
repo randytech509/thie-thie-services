@@ -719,6 +719,23 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       return;
     }
 
+    // Garde-fou KYC cumulé (dépôts locaux MonCash/NatCash > 5000 HTG) : on bloque AVANT d'envoyer
+    // l'argent (le serveur ré-impose la règle au crédit). Somme depuis l'historique déjà chargé.
+    if (isMobile && kycStatus !== 'approved') {
+      const LOCAL = ['MonCash', 'NatCash'];
+      const priorLocalCents = transactions
+        .filter((t: any) => t.type === 'deposit' && LOCAL.includes(t.meta?.method ?? t.meta?.provider ?? t.paymentMethod))
+        .reduce((s: number, t: any) => s + Number(t.amountCents || 0), 0);
+      if (priorLocalCents + Math.round(parsedAmount * 100) > 500000) {
+        setDepositFeedback({ type: 'error', message: lang === 'FR'
+          ? 'Vérification d\'identité (KYC) requise au-delà de 5000 HTG cumulés en dépôts MonCash/NatCash.'
+          : 'Verifikasyon idantite (KYC) obligatwa depase 5000 HTG kimile nan depo MonCash/NatCash.' });
+        setAddFundsOpen(false);
+        setKycModalOpen(true);
+        return;
+      }
+    }
+
     setSubmittingDeposit(true);
     try {
       const requestId = 'WREQ-' + Math.floor(100000 + Math.random() * 900000);
