@@ -42,6 +42,9 @@ export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const functionsClient = getFunctions(app, region);
 export const googleProvider = new GoogleAuthProvider();
+// Force le SÉLECTEUR DE COMPTE Google à chaque connexion (au lieu de reconnecter le dernier compte
+// en silence). L'utilisateur choisit toujours explicitement son compte.
+googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 if (useEmulators) {
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
