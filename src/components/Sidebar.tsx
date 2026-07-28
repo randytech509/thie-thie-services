@@ -107,7 +107,7 @@ export function Sidebar(props: SidebarProps) {
   return (
     <aside
       id="app-sidebar"
-      className="hidden lg:flex w-[248px] shrink-0 flex-col gap-4 border-r border-[var(--tt-border)] bg-[var(--tt-surface)] h-screen sticky top-0 overflow-y-auto p-3.5"
+      className="max-lg:hidden lg:flex w-[248px] shrink-0 flex-col gap-4 border-r border-[var(--tt-border)] bg-[var(--tt-surface)] h-screen sticky top-0 overflow-y-auto p-3.5"
     >
       {/* Brand */}
       <button

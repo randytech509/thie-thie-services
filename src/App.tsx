@@ -3488,8 +3488,8 @@ export default function App() {
           <span className="w-2 h-2 rounded-full bg-[var(--tt-accent)] animate-pulse"></span>
           Taux du Jour: <strong className="text-[var(--tt-text)]">1 USD = {exchangeRate} HTG</strong>
         </span>
-        <span className="hidden md:inline text-[var(--tt-text-faint)]">|</span>
-        <span className="hidden md:inline flex items-center gap-1 text-[var(--tt-text)]">
+        <span className="max-md:hidden md:inline text-[var(--tt-text-faint)]">|</span>
+        <span className="max-md:hidden md:inline flex items-center gap-1 text-[var(--tt-text)]">
           <Zap className="w-3.5 h-3.5" /> Livraison garantie en moins de 5 min dans votre compte
         </span>
       </div>
@@ -3530,7 +3530,7 @@ export default function App() {
           <div id="right-side-actions" className="flex items-center gap-2 md:gap-3">
             
             {/* Search Input Button */}
-            <div className="relative hidden md:block">
+            <div className="relative max-md:hidden md:block">
               <input
                 type="text"
                 placeholder={t('searchPlaceholder')}
@@ -3763,7 +3763,7 @@ export default function App() {
                         {/* Shading filters to maximize text contrast */}
                         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent md:hidden" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 md:hidden" />
-                        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black/30 to-transparent hidden md:block" />
+                        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black/30 to-transparent max-md:hidden md:block" />
                         <img
                           src={slide.image}
                           alt={slide.title}
@@ -3781,13 +3781,13 @@ export default function App() {
                   onClick={() =>
                     setCurrentHeroSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)
                   }
-                  className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-accent)] text-[var(--tt-text)] hover:text-[var(--tt-on-accent)] items-center justify-center backdrop-blur-sm border border-[var(--tt-border)] hover:border-transparent transition-all"
+                  className="max-md:hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-accent)] text-[var(--tt-text)] hover:text-[var(--tt-on-accent)] items-center justify-center backdrop-blur-sm border border-[var(--tt-border)] hover:border-transparent transition-all"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setCurrentHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length)}
-                  className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-accent)] text-[var(--tt-text)] hover:text-[var(--tt-on-accent)] items-center justify-center backdrop-blur-sm border border-[var(--tt-border)] hover:border-transparent transition-all"
+                  className="max-md:hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-[var(--tt-surface-2)] hover:bg-[var(--tt-accent)] text-[var(--tt-text)] hover:text-[var(--tt-on-accent)] items-center justify-center backdrop-blur-sm border border-[var(--tt-border)] hover:border-transparent transition-all"
                 >
                   <ArrowRight className="w-5 h-5" />
                 </button>
@@ -4466,7 +4466,7 @@ export default function App() {
                   Livraison ultra-rapide dans votre compte. Tarifs transparents, sans frais cachés.
                 </p>
               </div>
-              <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-15 pointer-events-none hidden md:block">
+              <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-15 pointer-events-none max-md:hidden md:block">
                 <Gamepad2 className="w-full h-full text-[var(--tt-text)] p-6" />
               </div>
             </div>
@@ -6024,7 +6024,7 @@ export default function App() {
           className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center group relative"
         >
           <img src="/whatsapp-glyph.svg" alt="WhatsApp" className="w-7 h-7" />
-          <span className="absolute right-16 bg-green-500 text-[var(--tt-text)] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap hidden md:block">
+          <span className="absolute right-16 bg-green-500 text-[var(--tt-text)] text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap max-md:hidden md:block">
             Besoin d'aide ? WhatsApp
           </span>
         </a>
