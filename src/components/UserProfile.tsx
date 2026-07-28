@@ -22,7 +22,19 @@ import { createCryptoInvoice } from '../lib/api';
 import { enablePushNotifications } from '../lib/push';
 import { SkeletonList } from './Skeleton';
 import { AdminShieldIcon, VerifiedSealIcon, PendingClockIcon, RejectedIcon, UnverifiedIcon } from './BadgeIcons';
+import { CameraCapture } from './CameraCapture';
 import { db, auth, storage } from '../firebase';
+
+/** Liste de pays pour le KYC (Haïti en tête, puis diaspora + principaux pays). Extensible. */
+const KYC_COUNTRIES = [
+  'Haïti', 'États-Unis', 'Canada', 'France', 'République dominicaine', 'Chili', 'Brésil',
+  'Mexique', 'Bahamas', 'Turks-et-Caïcos', 'Guadeloupe', 'Martinique', 'Guyane française',
+  'Belgique', 'Suisse', 'Royaume-Uni', 'Espagne', 'Allemagne', 'Italie', 'Portugal',
+  'Argentine', 'Panama', 'Colombie', 'Pérou', 'Équateur', 'Venezuela', 'Jamaïque',
+  'Trinité-et-Tobago', 'Cuba', 'Guyana', 'Suriname', 'Sénégal', 'Côte d\'Ivoire', 'Bénin',
+  'Congo (RDC)', 'Cameroun', 'Nigéria', 'Ghana', 'Afrique du Sud', 'Émirats arabes unis',
+  'Autre',
+];
 import { DeliveryPanel } from './DeliveryPanel';
 import { SessionsPanel } from './admin/SessionsPanel';
 import { ThieThieLogo } from './ThieThieLogo';
@@ -392,8 +404,11 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   // --- KYC States (gate de la recharge crypto) ---
   const [kycModalOpen, setKycModalOpen] = useState(false);
   const [kycFullName, setKycFullName] = useState('');
+  const [kycCountry, setKycCountry] = useState('Haïti');
   const [kycIdFile, setKycIdFile] = useState<File | null>(null);
   const [kycSelfieFile, setKycSelfieFile] = useState<File | null>(null);
+  // Caméra in-app : quel cliché on capture (pièce d'identité arrière, selfie frontal), ou fermé.
+  const [cameraFor, setCameraFor] = useState<'id' | 'selfie' | null>(null);
   const [submittingKyc, setSubmittingKyc] = useState(false);
   const [kycSuccessMsg, setKycSuccessMsg] = useState(false);
   const [myKycRequests, setMyKycRequests] = useState<any[]>([]);
@@ -817,7 +832,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
   const handleSubmitKyc = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!kycIdFile || !kycSelfieFile || !kycFullName.trim()) return;
+    if (!kycIdFile || !kycSelfieFile || !kycFullName.trim() || !kycCountry) return;
     setSubmittingKyc(true);
     try {
       const requestId = 'KYC-' + Math.floor(100000 + Math.random() * 900000);
@@ -834,6 +849,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         requestId,
         uid: user.uid,
         fullName: kycFullName.trim(),
+        country: kycCountry,
         idPhotoURL,
         selfiePhotoURL,
         status: 'pending',
@@ -2967,24 +2983,33 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
                 <div>
                   <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-widest mb-1.5 font-black">
+                    Pays
+                  </label>
+                  <select
+                    value={kycCountry}
+                    onChange={(e) => setKycCountry(e.target.value)}
+                    required
+                    className="w-full bg-[var(--tt-bg)] border border-[var(--tt-border)] focus:border-[var(--tt-accent)] text-sm text-[var(--tt-text)] px-4 py-3 rounded-xl focus:outline-none transition-all appearance-none"
+                  >
+                    {KYC_COUNTRIES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-widest mb-1.5 font-black">
                     Photo de pièce d'identité (CIN, passeport, permis)
                   </label>
                   <div
-                    onClick={() => document.getElementById('kycIdInput')?.click()}
+                    onClick={() => setCameraFor('id')}
                     className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-1.5 ${
                       kycIdFile ? 'border-emerald-500 bg-emerald-500/[0.02] text-emerald-400' : 'border-[var(--tt-border)] text-[var(--tt-text-faint)] hover:border-[var(--tt-border)]'
                     }`}
                   >
-                    <Camera className="w-5 h-5" />
-                    <span className="text-[10px] font-bold">{kycIdFile ? kycIdFile.name : 'Cliquez pour choisir une image'}</span>
+                    {kycIdFile ? <Check className="w-5 h-5" /> : <Camera className="w-5 h-5" />}
+                    <span className="text-[10px] font-bold">{kycIdFile ? (lang === 'FR' ? 'Photo prise — retoucher' : 'Foto pran — refè') : (lang === 'FR' ? 'Ouvrir la caméra' : 'Louvri kamera')}</span>
                   </div>
-                  <input
-                    id="kycIdInput"
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg,image/webp"
-                    className="hidden"
-                    onChange={(e) => setKycIdFile(e.target.files?.[0] ?? null)}
-                  />
                 </div>
 
                 <div>
@@ -2992,21 +3017,14 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                     Selfie (visage visible, tenant la pièce d'identité si possible)
                   </label>
                   <div
-                    onClick={() => document.getElementById('kycSelfieInput')?.click()}
+                    onClick={() => setCameraFor('selfie')}
                     className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-1.5 ${
                       kycSelfieFile ? 'border-emerald-500 bg-emerald-500/[0.02] text-emerald-400' : 'border-[var(--tt-border)] text-[var(--tt-text-faint)] hover:border-[var(--tt-border)]'
                     }`}
                   >
-                    <Camera className="w-5 h-5" />
-                    <span className="text-[10px] font-bold">{kycSelfieFile ? kycSelfieFile.name : 'Cliquez pour choisir une image'}</span>
+                    {kycSelfieFile ? <Check className="w-5 h-5" /> : <Camera className="w-5 h-5" />}
+                    <span className="text-[10px] font-bold">{kycSelfieFile ? (lang === 'FR' ? 'Selfie pris — retoucher' : 'Selfie pran — refè') : (lang === 'FR' ? 'Ouvrir la caméra (selfie)' : 'Louvri kamera (selfie)')}</span>
                   </div>
-                  <input
-                    id="kycSelfieInput"
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg,image/webp"
-                    className="hidden"
-                    onChange={(e) => setKycSelfieFile(e.target.files?.[0] ?? null)}
-                  />
                 </div>
 
                 <button
@@ -3022,6 +3040,19 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           </div>
         )}
       </AnimatePresence>
+
+      {/* Caméra in-app pour la capture des pièces KYC (pièce d'identité / selfie) */}
+      {cameraFor && (
+        <CameraCapture
+          lang={lang}
+          facingMode={cameraFor === 'selfie' ? 'user' : 'environment'}
+          title={cameraFor === 'selfie'
+            ? (lang === 'FR' ? 'Selfie' : 'Selfie')
+            : (lang === 'FR' ? 'Pièce d\'identité' : 'Pyès idantite')}
+          onCapture={(file) => (cameraFor === 'selfie' ? setKycSelfieFile(file) : setKycIdFile(file))}
+          onClose={() => setCameraFor(null)}
+        />
+      )}
 
       {/* ==========================================
           MODAL: PIÈCES KYC (admin)
