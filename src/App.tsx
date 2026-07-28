@@ -42,6 +42,7 @@ import {
   Truck,
   Copy,
   LogOut,
+  LogIn,
   Camera,
   Phone,
   UserCheck,
@@ -3668,6 +3669,18 @@ export default function App() {
                 HTG
               </button>
             </div>
+
+            {/* CONNEXION — toujours visible pour les invités (desktop + mobile), en plus de la Sidebar */}
+            {!user && (
+              <button
+                onClick={() => { setAuthMode('login'); setAuthModalOpen(true); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--tt-accent)] hover:bg-[#c084fc] text-[var(--tt-on-accent)] font-extrabold text-[11px] shadow-md hover:-translate-y-0.5 transition-all whitespace-nowrap press-tap"
+                aria-label={lang === 'FR' ? 'Se connecter' : 'Konekte'}
+              >
+                <LogIn className="w-3.5 h-3.5 shrink-0" />
+                <span className="max-sm:hidden">{lang === 'FR' ? 'Se connecter' : 'Konekte'}</span>
+              </button>
+            )}
 
             {/* LANGUAGE SELECTOR (mobile — desktop l'a dans la Sidebar) */}
             <div id="language-toggle-wrapper" className="lg:hidden flex bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-xl p-[3px] select-none">
