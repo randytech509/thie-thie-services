@@ -22,6 +22,7 @@ export { recordSession, endSession, revokeOtherSessions } from './sessions';
 // Le code reste dans ./products si un re-seed devenait nécessaire.
 export { ingestSms, ingestOxapayCallback } from './webhooks';
 export { redeemReward } from './points';
+export { startIdVerification, refreshKycStatus } from './randytech-id';
 export { reviewKyc } from './kyc';
 export { createCryptoInvoice } from './crypto-deposits';
 export { notifyDepositCredited, notifyOrderCompleted, notifyKycReviewed, notifyNewDeviceSession } from './notifications';

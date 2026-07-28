@@ -18,7 +18,7 @@ import {
   deleteDoc
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { createCryptoInvoice } from '../lib/api';
+import { createCryptoInvoice, startIdVerification, refreshKycStatus } from '../lib/api';
 import { enablePushNotifications } from '../lib/push';
 import { SkeletonList } from './Skeleton';
 import { AdminShieldIcon, VerifiedSealIcon, PendingClockIcon, RejectedIcon, UnverifiedIcon } from './BadgeIcons';
@@ -2951,22 +2951,62 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 Vérification d'identité
               </h3>
               <p className="text-[11px] text-[var(--tt-text-muted)] mb-4 font-semibold">
-                Requise pour débloquer la recharge par crypto (USDT). Vos documents ne sont visibles que par notre équipe.
+                Requise pour débloquer la recharge par crypto/PayPal/Binance et au-delà de 5000 HTG cumulés. Vérification sécurisée par <strong className="text-[var(--tt-text)]">RandyTech ID</strong>.
               </p>
 
-              {kycSuccessMsg && (
-                <div className="mb-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl font-bold flex flex-col gap-1">
-                  <div className="flex items-center gap-2 text-xs">
-                    <Check className="w-4 h-4 stroke-[3]" />
-                    Demande envoyée !
+              {/* Vérification déléguée au portail RandyTech ID : redirection signée + retour + poll du statut. */}
+              {kycStatus === 'pending' ? (
+                <div className="flex flex-col gap-3">
+                  <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-4 rounded-xl font-bold text-[11px]">
+                    Vérification soumise — en attente de validation.
                   </div>
-                  <span className="text-[10px] text-emerald-400/70 font-semibold">
-                    Notre équipe vérifie votre identité — vous serez notifié dès l'approbation.
-                  </span>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setSubmittingKyc(true);
+                      try { const { status } = await refreshKycStatus(); if (status === 'approved') setKycModalOpen(false); }
+                      catch { /* injoignable */ }
+                      finally { setSubmittingKyc(false); }
+                    }}
+                    disabled={submittingKyc}
+                    className="w-full py-3 border border-[var(--tt-border)] text-[var(--tt-text)] font-black text-xs rounded-2xl flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {submittingKyc ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                    Actualiser mon statut
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <div className="rounded-2xl border border-[var(--tt-border)] bg-[var(--tt-bg)] p-4 text-[11px] text-[var(--tt-text-muted)] leading-relaxed">
+                    Vous allez être redirigé vers notre portail sécurisé <strong className="text-[var(--tt-text)]">RandyTech ID</strong> : photo de votre pièce + selfie, vérification automatique, puis retour ici.
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setSubmittingKyc(true);
+                      try { const { url } = await startIdVerification(); window.location.href = url; }
+                      catch { alert(lang === 'FR' ? 'Portail de vérification indisponible. Réessayez.' : 'Pòtay verifikasyon endisponib. Eseye ankò.'); setSubmittingKyc(false); }
+                    }}
+                    disabled={submittingKyc}
+                    className="w-full py-3.5 bg-[var(--tt-accent)] hover:bg-[#c084fc] disabled:opacity-40 text-[var(--tt-on-accent)] font-black text-xs rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {submittingKyc ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
+                    <span>{lang === 'FR' ? 'Vérifier mon identité' : 'Verifye idantite mwen'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try { const { status } = await refreshKycStatus(); if (status === 'approved') setKycModalOpen(false); }
+                      catch { /* injoignable */ }
+                    }}
+                    className="w-full py-2 text-[10px] text-[var(--tt-text-faint)] hover:text-[var(--tt-text)] font-bold"
+                  >
+                    {lang === 'FR' ? "J'ai déjà fait la vérification — actualiser" : 'Mwen deja fè l — aktyalize'}
+                  </button>
                 </div>
               )}
 
-              <form onSubmit={handleSubmitKyc} className="flex flex-col gap-4 font-semibold">
+              <form onSubmit={handleSubmitKyc} className="hidden flex-col gap-4 font-semibold">
                 <div>
                   <label className="block text-[10px] text-[var(--tt-text-faint)] uppercase tracking-widest mb-1.5 font-black">
                     Nom complet (comme sur la pièce d'identité)

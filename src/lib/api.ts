@@ -136,6 +136,18 @@ export async function createCryptoInvoice(input: CreateCryptoInvoiceInput): Prom
   return (await fn(input)).data;
 }
 
+// --- RandyTech ID (portail KYC centralisé) ---
+/** Construit l'URL de redirection signée vers le portail RandyTech ID. */
+export async function startIdVerification(): Promise<{ url: string }> {
+  const fn = httpsCallable<Record<string, never>, { url: string }>(functionsClient, 'startIdVerification');
+  return (await fn({})).data;
+}
+/** Interroge le portail et synchronise kycStatus. Renvoie le statut courant. */
+export async function refreshKycStatus(): Promise<{ status: string }> {
+  const fn = httpsCallable<Record<string, never>, { status: string }>(functionsClient, 'refreshKycStatus');
+  return (await fn({})).data;
+}
+
 export interface SetAdminRoleInput {
   uid: string;
   admin: boolean;
