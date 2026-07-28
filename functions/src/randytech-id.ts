@@ -1,4 +1,4 @@
-import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { onCall, onRequest, HttpsError } from 'firebase-functions/v2/https';
 import { getFirestore } from 'firebase-admin/firestore';
 import * as crypto from 'crypto';
 import { requireAuth, callOpts } from './lib/guards';
@@ -54,4 +54,38 @@ export const refreshKycStatus = onCall(callOpts, async (req) => {
     await getFirestore().doc(`users/${uid}`).set({ kycStatus: status }, { merge: true });
   }
   return { status };
+});
+
+/**
+ * WEBHOOK (push) appelé par RandyTech ID DÈS qu'un admin valide/rejette un dossier → met à jour
+ * `users/{subject}.kycStatus` IMMÉDIATEMENT (l'app écoute ce doc en temps réel via onSnapshot,
+ * donc le statut change « aussitôt » côté client, sans refresh manuel).
+ * Sécurité : signature HMAC partagée (RTID_SECRET), fraîcheur ±10 min, client = thiethie.
+ */
+export const rtidKycWebhook = onRequest({ cors: false }, async (req, res) => {
+  if (req.method !== 'POST') { res.status(405).json({ error: 'méthode non autorisée' }); return; }
+  const secret = process.env.RTID_SECRET || '';
+  if (!secret) { res.status(500).json({ error: 'non configuré' }); return; }
+
+  const b = req.body ?? {};
+  const clientId = String(b.clientId ?? '');
+  const subject = String(b.subject ?? '');
+  const status = String(b.status ?? '');
+  const ts = Number(b.ts);
+  const sig = String(b.sig ?? '');
+
+  if (clientId !== CLIENT || !subject || !status || !sig || !Number.isFinite(ts)) {
+    res.status(400).json({ error: 'requête invalide' }); return;
+  }
+  if (Math.abs(Math.floor(Date.now() / 1000) - ts) > 600) { res.status(400).json({ error: 'expiré' }); return; }
+
+  const expected = crypto.createHmac('sha256', secret).update(`${clientId}.${subject}.${status}.${ts}`).digest('hex');
+  const ok = expected.length === sig.length &&
+    crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(sig, 'hex'));
+  if (!ok) { res.status(403).json({ error: 'signature invalide' }); return; }
+
+  if (status === 'approved' || status === 'rejected' || status === 'pending') {
+    await getFirestore().doc(`users/${subject}`).set({ kycStatus: status }, { merge: true });
+  }
+  res.status(200).json({ ok: true });
 });
