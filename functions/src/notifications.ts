@@ -17,7 +17,7 @@ interface NotificationContent {
 }
 
 /** Écrit l'entrée dans `notifications` (lue par le centre d'activités du profil) + pousse en FCM. */
-async function notifyUser(uid: string, content: NotificationContent, data?: Record<string, string>) {
+export async function notifyUser(uid: string, content: NotificationContent, data?: Record<string, string>) {
   const db = getFirestore();
 
   // 1) Centre d'activités in-app (même forme que l'écriture cliente existante).

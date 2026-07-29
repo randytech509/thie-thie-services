@@ -2,6 +2,7 @@ import { onCall, onRequest, HttpsError } from 'firebase-functions/v2/https';
 import { getFirestore } from 'firebase-admin/firestore';
 import * as crypto from 'crypto';
 import { requireAuth, callOpts } from './lib/guards';
+import { notifyUser } from './notifications';
 
 /**
  * Intégration RandyTech ID (portail KYC centralisé, id.randytech-agency.com).
@@ -86,6 +87,13 @@ export const rtidKycWebhook = onRequest({ cors: false }, async (req, res) => {
 
   if (status === 'approved' || status === 'rejected' || status === 'pending') {
     await getFirestore().doc(`users/${subject}`).set({ kycStatus: status }, { merge: true });
+    // Notification (in-app + push) sur la DÉCISION — le trigger kyc_requests ne se déclenche plus
+    // depuis que le KYC est délégué à RandyTech ID.
+    if (status === 'approved') {
+      await notifyUser(subject, { title: 'Identité vérifiée', body: 'Votre vérification d\'identité a été approuvée. Les paiements avancés (crypto, PayPal, Binance) sont débloqués.' }, { type: 'kyc', status });
+    } else if (status === 'rejected') {
+      await notifyUser(subject, { title: 'Vérification d\'identité', body: 'Votre dossier de vérification n\'a pas été validé. Ouvrez votre profil pour en savoir plus.' }, { type: 'kyc', status });
+    }
   }
   res.status(200).json({ ok: true });
 });

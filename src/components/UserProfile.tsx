@@ -463,6 +463,17 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   const [filterStatusSelected, setFilterStatusSelected] = useState<string>('all');
 
   // --- REAL-TIME FIRESTORE SYNCHRONIZATION ---
+  // Reflète l'état RÉEL des notifications au montage : si la permission navigateur est déjà
+  // accordée, on ré-enregistre silencieusement le jeton FCM (idempotent, aucun prompt) et on
+  // marque « activé » → le bouton « Activer les notifications » ne réapparaît plus après autorisation,
+  // et le jeton reste bien enregistré côté serveur (garantit la réception des alertes).
+  useEffect(() => {
+    if (!user?.uid || typeof Notification === 'undefined') return;
+    if (Notification.permission === 'granted') {
+      enablePushNotifications(user.uid).then((res) => { if (res.ok) setPushStatus('enabled'); }).catch(() => {});
+    }
+  }, [user?.uid]);
+
   useEffect(() => {
     if (!user) return;
     // Chaque (ré)abonnement doit traiter SON premier snapshot notifications comme l'historique

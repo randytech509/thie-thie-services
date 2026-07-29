@@ -170,7 +170,7 @@ export function Sidebar(props: SidebarProps) {
             <span>{lang === 'FR' ? 'Se connecter / S’inscrire' : 'Konekte / Enskri'}</span>
           </button>
         )}
-        {navItem(currentPage === 'profile', () => navigateToPage('profile'), <User className="w-4 h-4 shrink-0" />, lang === 'FR' ? 'Profil & KYC' : 'Pwofil & KYC')}
+        {navItem(currentPage === 'profile', () => navigateToPage('profile'), <User className="w-4 h-4 shrink-0" />, lang === 'FR' ? 'Profil' : 'Pwofil')}
         {navItem(currentPage === 'contact', () => navigateToPage('contact'), <Mail className="w-4 h-4 shrink-0" />, lang === 'FR' ? 'Contact' : 'Kontak')}
         {isAdmin && navItem(currentPage === 'admin', () => navigateToPage('admin'), <LayoutDashboard className="w-4 h-4 shrink-0" />, 'Back-office')}
       </div>
