@@ -37,10 +37,16 @@ export function CameraCapture({ facingMode = 'environment', title, lang, onCaptu
     setReady(false);
     try {
       if (!navigator.mediaDevices?.getUserMedia) throw new Error('unsupported');
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
-        audio: false,
-      });
+      const res = { width: { ideal: 1920 }, height: { ideal: 1080 } };
+      let stream: MediaStream;
+      try {
+        // `exact` FORCE la caméra demandée (frontale pour le selfie). Sans ça, la contrainte souple
+        // est seulement « advisory » et Chrome/Pixel retombe souvent sur la caméra arrière.
+        stream = await navigator.mediaDevices.getUserMedia({ video: { ...res, facingMode: { exact: facingMode } }, audio: false });
+      } catch {
+        // Aucune caméra ne correspond EXACTEMENT (ex. appareil sans caméra frontale) → repli souple.
+        stream = await navigator.mediaDevices.getUserMedia({ video: { ...res, facingMode }, audio: false });
+      }
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
