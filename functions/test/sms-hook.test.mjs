@@ -292,8 +292,13 @@ describe('reconcileSms — auto-crédit conservateur', () => {
 });
 
 describe('reconcileRequestFromInbox — rapprochement à la création de la demande (sens inverse)', () => {
-  async function seedUser() {
-    await db.doc(`users/${UID}`).set({ uid: UID, walletBalanceCents: 0, totalAddedCents: 0 });
+  // Les montants de ce bloc (47 250 HTG, ceux du vrai dépôt du 24/07) dépassent le seuil KYC
+  // cumulé des dépôts locaux (5000 HTG, `lib/kyc-deposit-guard.ts`, ajouté APRÈS ces tests).
+  // Sans KYC approuvé, `reconcileSms` répond « KYC Required » et ne crédite pas — le sens
+  // inverse n'y est pour rien. On seede donc l'utilisateur en `approved` pour tester CE que ce
+  // bloc teste (le rapprochement), et l'interaction avec le seuil a son test dédié plus bas.
+  async function seedUser({ kycStatus = 'approved' } = {}) {
+    await db.doc(`users/${UID}`).set({ uid: UID, walletBalanceCents: 0, totalAddedCents: 0, kycStatus });
   }
   async function seedInbox({ provider = 'NatCash', direction = 'in', amountCents, txId, status = 'unmatched' }) {
     await db.doc(`sms_inbox/${provider}_${txId}`).set({
@@ -333,6 +338,30 @@ describe('reconcileRequestFromInbox — rapprochement à la création de la dema
     assert.equal(r2.deduped, true);
     const u = await db.doc(`users/${UID}`).get();
     assert.equal(u.get('walletBalanceCents'), 4725000); // pas 9450000
+  });
+
+  test('seuil KYC : dépôt > 5000 HTG sans KYC approuvé → PAS crédité, demande « KYC Required »', async () => {
+    // Le sens inverse ne doit pas être une porte dérobée au gate KYC : le crédit passe par
+    // `reconcileSms`, donc la même règle s'applique qu'à l'arrivée du SMS.
+    await seedUser({ kycStatus: 'pending' });
+    await seedInbox({ amountCents: 4725000, txId: 'KYC001' });
+    await seedReq({ amount: 47250, ref: 'KYC001' });
+    const r = await reconcileRequestFromInbox(db, 'WREQ_T');
+    assert.equal(r.credited, false);
+    assert.equal(r.needsReview, true);
+    assert.equal((await db.doc(`users/${UID}`).get()).get('walletBalanceCents'), 0);
+    assert.equal((await db.doc('wallet_requests/WREQ_T').get()).get('status'), 'KYC Required');
+    // Le journal SMS doit le signaler à l'admin, pas le laisser passer pour un SMS orphelin.
+    assert.equal((await db.doc('sms_inbox/NatCash_KYC001').get()).get('status'), 'needs-review');
+  });
+
+  test('sous le seuil KYC (2000 HTG) sans KYC → crédité normalement', async () => {
+    await seedUser({ kycStatus: 'none' });
+    await seedInbox({ amountCents: 200000, txId: 'SOUS001' });
+    await seedReq({ amount: 2000, ref: 'SOUS001' });
+    const r = await reconcileRequestFromInbox(db, 'WREQ_T');
+    assert.equal(r.credited, true);
+    assert.equal((await db.doc(`users/${UID}`).get()).get('walletBalanceCents'), 200000);
   });
 
   test('aucun SMS pour ce txId → non crédité', async () => {
