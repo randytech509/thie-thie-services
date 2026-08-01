@@ -5,6 +5,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { parseSms, SmsProvider } from './lib/sms';
 import { reconcileSms } from './lib/deposit-reconcile';
 import { parseCallback, verifyCallbackSignature } from './lib/oxapay';
+import { verifyRandytechSignature } from './lib/randytech-webhook';
 import { reconcileOxapayCallback } from './lib/oxapay-reconcile';
 import { DomainError } from './lib/transactions';
 import { audit } from './lib/audit';
@@ -17,9 +18,12 @@ import {
  * entrant et le POST ici. On parse → journalise (`sms_inbox`) → tente un rapprochement auto
  * (crédit idempotent via `creditWallet`) ; sinon on laisse en attente de rapprochement manuel.
  *
- * SÉCURITÉ : endpoint public → deux moyens d'authentification acceptés pendant la migration :
- *   1. `Authorization: Bearer <idToken Firebase>` avec le claim `smsForwarder` — PRÉFÉRÉ ;
- *   2. secret partagé `SMS_HOOK_SECRET` dans le corps — HÉRITÉ, à retirer une fois les
+ * SÉCURITÉ : endpoint public → trois moyens d'authentification acceptés pendant la migration :
+ *   1. `Authorization: Bearer <idToken Firebase>` avec le claim `smsForwarder` — HÉRITÉ (ancienne
+ *      app `com.thiethieservices.smsforwarder`) ;
+ *   2. signature HMAC `X-RandyTech-Signature` / `X-RandyTech-Timestamp` — PRÉFÉRÉ, c'est le
+ *      contrat de l'app produit « RandyTech SMS Webhook » (cf. `lib/randytech-webhook.ts`) ;
+ *   3. secret partagé `SMS_HOOK_SECRET` dans le corps — HÉRITÉ, à retirer une fois les
  *      appareils migrés.
  * L'authentification dit QUI peut soumettre, jamais si le SMS est VRAI : c'est le
  * rapprochement strict (txId + montant + sens `in`) qui protège l'argent. Ne JAMAIS créditer
@@ -28,7 +32,9 @@ import {
  * `lib/rate-limit.ts`. Le limiteur est fail-open : il ne doit jamais bloquer un vrai dépôt.
  *
  * Corps attendu (JSON) : { provider: 'MonCash'|'NatCash', text: '<SMS brut>', from?: '<n°>',
- *                          secret? } — `secret` inutile si un jeton Bearer est fourni.
+ *                          messageId?, timestamp?, deviceId?, secret? } — `secret` inutile si
+ * un jeton Bearer ou une signature RandyTech est fourni. `messageId` sert de clé d'idempotence
+ * quand le SMS ne porte pas de txId exploitable.
  */
 export const ingestSms = onRequest({ cors: false }, async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ ok: false, error: 'POST requis' }); return; }
@@ -65,10 +71,38 @@ export const ingestSms = onRequest({ cors: false }, async (req, res) => {
     }
   }
 
+  // Signature HMAC de l'app produit « RandyTech SMS Webhook ». Vérifiée sur le CORPS BRUT
+  // (`req.rawBody`, fourni par Cloud Functions) : c'est sur ces octets exacts que l'app a
+  // signé, un `JSON.stringify(req.body)` reconstruit ne correspondrait pas.
+  const signingSecret = process.env.RANDYTECH_SIGNING_SECRET;
+  if (!authOk && signingSecret) {
+    const verdict = verifyRandytechSignature(
+      req.rawBody ?? '',
+      req.header('x-randytech-timestamp'),
+      req.header('x-randytech-signature'),
+      signingSecret,
+    );
+    if (verdict.ok) {
+      authOk = true;
+      // Traçabilité par appareil — ce que le secret partagé, anonyme par nature, ne permet pas.
+      const deviceId = typeof body.deviceId === 'string' ? body.deviceId : 'inconnu';
+      submitter = `device:${deviceId}`;
+    } else if (verdict.reason !== 'absent') {
+      // En-têtes présents mais invalides : l'émetteur PRÉTEND être l'app. Inutile de retomber
+      // sur les autres chemins, et le refus est explicite pour que le journal de l'app affiche
+      // la vraie cause (403 horodatage vs 401 signature) plutôt qu'un « auth refusée » opaque.
+      if (await rejectIfRateLimited(db, res, `sms:authfail:${ip}`, WEBHOOK_AUTH_FAIL_RULE)) return;
+      if (verdict.reason === 'horodatage') {
+        res.status(403).json({ ok: false, error: 'timestamp hors fenêtre' }); return;
+      }
+      res.status(401).json({ ok: false, error: 'signature invalide' }); return;
+    }
+  }
+
   const secret = process.env.SMS_HOOK_SECRET;
   if (!authOk) {
-    if (!secret) { res.status(503).json({ ok: false, error: 'aucun moyen d’authentification configuré' }); return; }
-    if (typeof body.secret === 'string' && safeEqualSecret(body.secret, secret)) {
+    if (!secret && !signingSecret) { res.status(503).json({ ok: false, error: 'aucun moyen d’authentification configuré' }); return; }
+    if (secret && typeof body.secret === 'string' && safeEqualSecret(body.secret, secret)) {
       authOk = true;
       submitter = 'secret-partage';
     }
@@ -89,8 +123,17 @@ export const ingestSms = onRequest({ cors: false }, async (req, res) => {
 
   const parsed = parseSms(provider, rawText);
 
-  // Journal / idempotence du SMS : clé = txId si dispo, sinon horodatage.
-  const inboxId = parsed.txId ? `${provider}_${parsed.txId}` : `${provider}_${Date.now()}`;
+  // Journal / idempotence du SMS : clé = txId si dispo, sinon `messageId` de l'app.
+  // Sans txId, une clé horodatée créait un document NEUF à chaque tentative — or l'app réessaie
+  // jusqu'à six fois avec le même `messageId` : le même SMS se retrouvait journalisé six fois.
+  // `messageId` est stable d'une reprise à l'autre, c'est la clé d'idempotence prévue par le
+  // contrat. Repli sur l'horodatage pour les émetteurs qui ne l'envoient pas (ancienne app).
+  const messageId = typeof body.messageId === 'string' && body.messageId.trim()
+    ? body.messageId.trim().replace(/\//g, '_') // un '/' couperait le chemin du document
+    : null;
+  const inboxId = parsed.txId
+    ? `${provider}_${parsed.txId}`
+    : messageId ? `${provider}_msg_${messageId}` : `${provider}_${Date.now()}`;
   const inboxRef = db.doc(`sms_inbox/${inboxId}`);
   const existing = await inboxRef.get();
   if (existing.exists && existing.get('status') === 'credited') {
@@ -127,6 +170,8 @@ export const ingestSms = onRequest({ cors: false }, async (req, res) => {
     from: body.from ?? null,
     // Qui a soumis : le registre disait quoi, jamais qui.
     submittedBy: submitter,
+    messageId,
+    deviceId: typeof body.deviceId === 'string' ? body.deviceId : null,
     status,
     requestId: result.requestId ?? null,
     reason: result.reason ?? null,

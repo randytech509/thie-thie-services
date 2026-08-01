@@ -4,8 +4,10 @@ import { test, describe, beforeEach, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { createHmac } from 'node:crypto';
 import { parseSms, parseHtgAmountToCents } from '../lib/lib/sms.js';
 import { reconcileSms, reconcileRequestFromInbox } from '../lib/lib/deposit-reconcile.js';
+import { verifyRandytechSignature, MAX_SKEW_SECONDS } from '../lib/lib/randytech-webhook.js';
 
 process.env.FIRESTORE_EMULATOR_HOST = process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8080';
 const app = initializeApp({ projectId: 'thie-thie-sms-test' }, 'sms');
@@ -100,6 +102,75 @@ describe('sens de transaction & bruit (format NatCash réel, données anonymisé
     // (notification d'enregistrement, pas un dépôt) ne doit pas produire de clé exploitable.
     const p = parseSms('NatCash', 'Le 33146025 a enregistre PAP699 avec succes pour vous via NatCash a 08:18 24/07/2026.');
     assert.equal(p.txId, null);
+  });
+});
+
+describe('signature RandyTech (app « RandyTech SMS Webhook »)', () => {
+  const SECRET = 'secret-de-signature-de-test';
+  const NOW = 1_800_000_000;
+  const BODY = JSON.stringify({
+    provider: 'MonCash', text: 'Ou resevwa 1,500.00 HTG. Tranzaksyon: AB12CD34',
+    from: 'Mon Cash', messageId: 'a1b2', timestamp: NOW, deviceId: 'device-test',
+  });
+  const sign = (ts, body, secret = SECRET) =>
+    'sha256=' + createHmac('sha256', secret).update(`${ts}.${body}`).digest('hex');
+
+  test('signature valide → acceptée', () => {
+    const v = verifyRandytechSignature(BODY, String(NOW), sign(NOW, BODY), SECRET, NOW);
+    assert.equal(v.ok, true);
+  });
+
+  test('même signature calculée sur un Buffer (corps brut Cloud Functions) → acceptée', () => {
+    const v = verifyRandytechSignature(Buffer.from(BODY, 'utf8'), String(NOW), sign(NOW, BODY), SECRET, NOW);
+    assert.equal(v.ok, true);
+  });
+
+  test('mauvais secret → refus « signature »', () => {
+    const v = verifyRandytechSignature(BODY, String(NOW), sign(NOW, BODY, 'autre-secret'), SECRET, NOW);
+    assert.deepEqual(v, { ok: false, reason: 'signature' });
+  });
+
+  test('corps modifié après signature → refus', () => {
+    const sig = sign(NOW, BODY);
+    const falsifie = BODY.replace('1,500.00', '9,500.00');
+    assert.deepEqual(verifyRandytechSignature(falsifie, String(NOW), sig, SECRET, NOW),
+      { ok: false, reason: 'signature' });
+  });
+
+  test('horodatage périmé → refus « horodatage » (anti-rejeu)', () => {
+    const vieux = NOW - MAX_SKEW_SECONDS - 1;
+    const v = verifyRandytechSignature(BODY, String(vieux), sign(vieux, BODY), SECRET, NOW);
+    assert.deepEqual(v, { ok: false, reason: 'horodatage' });
+  });
+
+  test('horodatage dans le futur au-delà de la fenêtre → refus', () => {
+    const futur = NOW + MAX_SKEW_SECONDS + 1;
+    const v = verifyRandytechSignature(BODY, String(futur), sign(futur, BODY), SECRET, NOW);
+    assert.deepEqual(v, { ok: false, reason: 'horodatage' });
+  });
+
+  test('rejeu du même corps DANS la fenêtre → accepté ici (l’idempotence est côté messageId)', () => {
+    // La signature ne protège pas du rejeu à l'intérieur des 5 minutes : c'est la clé
+    // `sms_inbox/{provider}_msg_{messageId}` + `creditWallet(requestId)` qui empêchent le
+    // double-crédit. Ce test fige la répartition des responsabilités.
+    const sig = sign(NOW, BODY);
+    assert.equal(verifyRandytechSignature(BODY, String(NOW), sig, SECRET, NOW).ok, true);
+    assert.equal(verifyRandytechSignature(BODY, String(NOW), sig, SECRET, NOW + 60).ok, true);
+  });
+
+  test('aucun en-tête → « absent » (l’appelant essaie un autre moyen d’auth, sans pénalité)', () => {
+    assert.deepEqual(verifyRandytechSignature(BODY, undefined, undefined, SECRET, NOW),
+      { ok: false, reason: 'absent' });
+  });
+
+  test('en-tête timestamp seul (signature manquante) → refus, PAS « absent »', () => {
+    assert.deepEqual(verifyRandytechSignature(BODY, String(NOW), undefined, SECRET, NOW),
+      { ok: false, reason: 'signature' });
+  });
+
+  test('horodatage non numérique → refus', () => {
+    assert.deepEqual(verifyRandytechSignature(BODY, 'bientot', sign(NOW, BODY), SECRET, NOW),
+      { ok: false, reason: 'horodatage' });
   });
 });
 
