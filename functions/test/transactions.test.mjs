@@ -26,10 +26,13 @@ async function clearAll() {
   await db.recursiveDelete(db.collection('config'));
 }
 
-async function seedUser(balanceCents) {
+// `kycStatus` : au-delà de 5000 HTG cumulés de commandes, `placeOrder` exige un KYC approuvé
+// (KYC_ORDER_THRESHOLD_CENTS). Les tests qui dépassent ce seuil doivent seeder 'approved',
+// sinon ils mesurent le gate KYC au lieu de ce qu'ils prétendent tester.
+async function seedUser(balanceCents, kycStatus = 'none') {
   await db.doc(`users/${UID}`).set({
     uid: UID, role: 'customer', walletBalanceCents: balanceCents,
-    totalAddedCents: 0, totalSpentCents: 0,
+    totalAddedCents: 0, totalSpentCents: 0, kycStatus,
   });
 }
 
@@ -207,7 +210,9 @@ describe('placeOrder — débit transactionnel, stock atomique, solde ≥ 0', ()
   });
 
   test('dénominations fixes (Netflix) : le client choisit $50 dans une carte multi-montants → prix serveur', async () => {
-    await seedUser(5000000);
+    // 18 230 HTG au total : au-dessus du seuil KYC des commandes → KYC approuvé requis, sinon
+    // c'est `kyc-required` qui remonte et le calcul de prix n'est jamais atteint.
+    await seedUser(5000000, 'approved');
     await db.doc('products/nfx').set({
       name: 'Netflix US', priceCents: 100, stock: 5, available: true, currency: 'HTG',
       pricing: { type: 'fixed', denominations: [2000, 2500, 5000, 10000], discountBps: 0, fixedFeeUsdCents: 0, feeBps: 800 },
