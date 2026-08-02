@@ -97,6 +97,48 @@ describe('sens de transaction & bruit (format NatCash réel, données anonymisé
     assert.equal(parseSms('NatCash', 'Vous avez encaissé 500 HTG de SPECIMEN TEST, code 111111. TransCode: 99999999999999. Merci').direction, 'in');
   });
 
+  // Le téléphone marchand nous livre le même « reçu » avec le « ç » abîmé de plusieurs façons
+  // selon l'encodage (constaté en prod : « re??u » et « reC§u »). Un dépôt réel s'est ainsi
+  // retrouvé classé 'other' → « ignoré », et a dû être validé à la main (2026-07-29).
+  test('« reçu » aux accents abîmés → in quand même', () => {
+    for (const mot of ['recu', 'reçu', 're??u', 'reC§u']) {
+      const p = parseSms('NatCash', `Vous avez ${mot} 10 HTG de SPECIMEN TEST 00000000 a 23:54 29/07/2026, contenu: ok. Votre solde: 103.62 HTG. TransCode: 00000000000010. Merci`);
+      assert.equal(p.direction, 'in', mot);
+      assert.equal(p.amountCents, 1000, mot);
+      assert.equal(p.txId, '00000000000010', mot);
+    }
+  });
+
+  test('un mot en « re…u » sans contexte de réception ne passe PAS pour un encaissement', () => {
+    assert.equal(parseSms('NatCash', 'Compte rendu mensuel disponible. Fe *202#').direction, 'other');
+  });
+
+  test('OTP citant l’opération → other, et AUCUN montant retenu', () => {
+    // Piège réel : « Renvoyer otp » contient « envoy » et l'OTP de confirmation cite le montant
+    // du transfert — les deux atterrissaient en 'out', avec 40 000 HTG fantômes au journal.
+    const otp = parseSms('NatCash', 'OTP is 000000. Saisissez OTP pour confirmer le transfert de 40,000.00 HTG pour 000-0000-00000000 (SPECIMEN TEST), Bank: UNIBANK. Veuillez NE PAS fournir d OTP a qui que ce soit.');
+    assert.equal(otp.direction, 'other');
+    assert.equal(parseSms('NatCash', 'OTP is 000000. Renvoyer otp.').direction, 'other');
+  });
+
+  test('achat de crédit / recharge → out (le compte marchand est bien débité)', () => {
+    assert.equal(parseSms('NatCash', 'Transaction ID: 00000000000011. Vous avez recharge le 00000000 de 37 HTG a 23:20 31/07/2026. Votre solde est de 0.22 HTG').direction, 'out');
+    assert.equal(parseSms('NatCash', 'Vous avez dja achete avec succes PAP699 pour 00000000 20:59 01/08/2026. Votre natcash a ete deduit 768.9 HTG, et le solde actuel de Natcash est de 4,548.82 HTG. Merci!').direction, 'out');
+  });
+
+  test('gabarit INCONNU avec txId fort + montant → signalé (suspectUnclassified), jamais crédité', async () => {
+    const p = parseSms('NatCash', 'Operation XYZ de 2,000 HTG effectuee a 12:45 23/07/2026. TransCode: 00000000000012. Merci');
+    assert.equal(p.direction, 'other');
+    assert.equal(p.suspectUnclassified, true);
+    const r = await reconcileSms(db, p);
+    assert.equal(r.credited, false); // le signalement n'ouvre AUCUN chemin de crédit
+  });
+
+  test('un simple relevé de solde ne déclenche pas l’alerte', () => {
+    const p = parseSms('NatCash', 'Votre solde: 2,369.12 HTG a 20:00 20/07/2026. TransCode: 00000000000013. Merci');
+    assert.equal(p.suspectUnclassified, false); // montant = solde, pas un mouvement
+  });
+
   test('SÉCURITÉ : un SMS n’ayant QU’un code agent court ne fournit pas de txId fort → pas d’auto-crédit', () => {
     // Pas de TransCode/transaction/référence : « code » nu reste un dernier recours, mais ce SMS
     // (notification d'enregistrement, pas un dépôt) ne doit pas produire de clé exploitable.
@@ -325,6 +367,22 @@ describe('reconcileRequestFromInbox — rapprochement à la création de la dema
     assert.equal(req.get('status'), 'Completed');
     const sms = await db.doc('sms_inbox/NatCash_26072343360583').get();
     assert.equal(sms.get('status'), 'credited'); // le journal reflète le crédit
+  });
+
+  test('entrée mal classée par un ANCIEN parseur : le texte brut est re-parsé, la demande est créditée', async () => {
+    await seedUser();
+    // Ce qu'aurait écrit le parseur d'avant : sens 'other' sur un « reçu » aux accents abîmés.
+    // Recopier ces champs condamnait la demande à ne jamais être rapprochée.
+    await db.doc('sms_inbox/NatCash_00000000000014').set({
+      provider: 'NatCash', direction: 'other', amountCents: null, txId: '00000000000014',
+      sender: '42065212', senderName: null, status: 'ignored-other', receivedAt: new Date(),
+      raw: 'Vous avez reC§u 2,000 HTG de SPECIMEN TEST 42065212 a 23:54 29/07/2026, contenu: ok. Votre solde: 103.62 HTG. TransCode: 00000000000014. Merci',
+    });
+    await seedReq({ amount: 2000, ref: '00000000000014' });
+    const r = await reconcileRequestFromInbox(db, 'WREQ_T');
+    assert.equal(r.credited, true);
+    const sms = await db.doc('sms_inbox/NatCash_00000000000014').get();
+    assert.equal(sms.get('status'), 'credited');
   });
 
   test('idempotent : re-rapprocher ne double-crédite pas', async () => {

@@ -151,6 +151,10 @@ export const ingestSms = onRequest({ cors: false }, async (req, res) => {
   // manuel et suivi des balances. Seuls les 'in' concordants sont auto-crédités.
   const status = result.credited
     ? 'credited'
+    // Sens non reconnu MAIS txId fort + montant : c'est une transaction, pas du bruit. On la
+    // remonte « à rapprocher » — rangée dans les ignorés, elle se noyait parmi les OTP et un
+    // vrai dépôt a dû être validé à la main (cas constaté le 2026-07-29, « reC§u » abîmé).
+    : parsed.suspectUnclassified ? 'needs-review'
     : parsed.direction !== 'in' ? `ignored-${parsed.direction}`
     // Rapproché par numéro expéditeur : une demande concorde, mais le numéro est déclaré par
     // le client et ne prouve rien — l'admin confirme. À distinguer de 'unmatched', sinon la
@@ -173,8 +177,11 @@ export const ingestSms = onRequest({ cors: false }, async (req, res) => {
     messageId,
     deviceId: typeof body.deviceId === 'string' ? body.deviceId : null,
     status,
+    suspectUnclassified: parsed.suspectUnclassified ?? false,
     requestId: result.requestId ?? null,
-    reason: result.reason ?? null,
+    reason: parsed.suspectUnclassified
+      ? 'sens non reconnu — dépôt possible'
+      : result.reason ?? null,
     receivedAt: FieldValue.serverTimestamp(),
   }, { merge: true });
 

@@ -1,7 +1,7 @@
 import { Firestore, FieldValue } from 'firebase-admin/firestore';
 import { creditWallet } from './transactions';
 import { htgToCents } from './money';
-import { ParsedSms } from './sms';
+import { ParsedSms, parseSms } from './sms';
 import { localDepositBlockedByKyc } from './kyc-deposit-guard';
 
 /**
@@ -219,16 +219,23 @@ export async function reconcileRequestFromInbox(db: Firestore, requestId: string
   // la demande fraîchement créée par txId et créditera (idempotent sur requestId). Toute la
   // logique de sécurité (sens 'in', montant concordant, ambiguïté) est celle, déjà testée, de
   // reconcileSms — on ne fait que la RE-DÉCLENCHER depuis l'autre bout.
-  const parsed: ParsedSms = {
-    provider,
-    direction: sms.direction ?? 'other',
-    amountCents: typeof sms.amountCents === 'number' ? sms.amountCents : null,
-    txId: sms.txId ?? null,
-    sender: sms.sender ?? null,
-    senderName: sms.senderName ?? null,
-    balanceCents: typeof sms.merchantBalanceCents === 'number' ? sms.merchantBalanceCents : null,
-    raw: sms.raw ?? '',
-  };
+  // On RE-PARSE le texte brut plutôt que de recopier les champs du journal : une entrée écrite
+  // par une version antérieure du parseur (sens mal reconnu sur un SMS aux accents abîmés) resterait
+  // sinon mal classée à vie, et ce sens inverse la refuserait éternellement. Repli sur les champs
+  // stockés quand `raw` manque (entrées anciennes).
+  const raw = typeof sms.raw === 'string' ? sms.raw : '';
+  const parsed: ParsedSms = raw
+    ? parseSms(provider, raw)
+    : {
+        provider,
+        direction: sms.direction ?? 'other',
+        amountCents: typeof sms.amountCents === 'number' ? sms.amountCents : null,
+        txId: sms.txId ?? null,
+        sender: sms.sender ?? null,
+        senderName: sms.senderName ?? null,
+        balanceCents: typeof sms.merchantBalanceCents === 'number' ? sms.merchantBalanceCents : null,
+        raw: '',
+      };
   const result = await reconcileSms(db, parsed);
 
   // reconcileSms ne touche pas `sms_inbox` (d'ordinaire c'est le webhook appelant qui le fait).

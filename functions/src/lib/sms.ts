@@ -19,14 +19,52 @@ export interface ParsedSms {
   senderName: string | null;   // nom de l'expéditeur (si présent)
   balanceCents: number | null; // solde du compte marchand après opération (contexte)
   raw: string;
+  /** Sens NON reconnu alors que le SMS porte un txId FORT et un montant : gabarit inconnu ou
+   *  texte abîmé. Ne crédite rien (la direction reste 'other') mais doit remonter à l'admin
+   *  au lieu d'être rangé avec le bruit — cf. `webhooks.ts`. */
+  suspectUnclassified?: boolean;
 }
+
+/**
+ * Texte comparable : accents décomposés puis retirés (« reçu » → « recu », « transféré » →
+ * « transfere »). Le téléphone marchand renvoie le même SMS avec des accents plus ou moins
+ * abîmés selon l'encodage — travailler sans accent supprime cette variable des regex de sens.
+ * `ParsedSms.raw` conserve TOUJOURS le texte d'origine (c'est lui qu'affiche le journal).
+ */
+function normalizeSmsText(text: string): string {
+  return String(text || '').normalize('NFKD').replace(/\p{M}+/gu, '');
+}
+
+/** Bruit à écarter AVANT toute autre règle : un OTP cite volontiers l'opération qu'il confirme
+ *  (« Saisissez OTP pour confirmer le transfert de 40,000.00 HTG ») et se retrouvait classé
+ *  'out' AVEC le montant — une fausse ligne de sortie dans le journal. « Renvoyer otp » tombait
+ *  dans le même piège via le fragment « envoy ». */
+const NOISE_RE = /\botp\b|ne pas fournir|do not provide/i;
+
+/** Argent ENTRANT. Le « ç » de « reçu » nous parvient corrompu de façons variées selon le SMS
+ *  (« re??u », « reC§u »…) : on tolère jusqu'à 2 caractères quelconques à sa place, mais
+ *  UNIQUEMENT précédé de « vous avez / you / ou / nou » ou suivi d'un montant en gourdes —
+ *  sans ce garde-fou, « rendu » ou « revenu » passeraient pour un encaissement. */
+const IN_RE = new RegExp([
+  '\\b(?:vous\\s+avez|you|nou|ou|w)\\s+re\\S{0,2}u\\b',
+  '\\bre\\S{0,2}u\\s+[\\d][\\d.,\\s]*\\s*(?:HTG|Gourdes?|Goud|G)\\b',
+  '\\breceived\\b',
+  '\\bresev[we]',
+  '\\bencaisse',
+].join('|'), 'i');
+
+/** Argent SORTANT. Bornes `\b` obligatoires sur « envoy » (sinon « R-envoy-er ») ; « recharg »
+ *  et « deduit » couvrent les achats de crédit/forfait, qui débitent bien le compte marchand. */
+const OUT_RE = /\btransfer|\bretire|\benvoy|\bvoye\b|\bsent\b|\bdebit|\brecharg|\bdeduit\b/i;
 
 /** Sens : 'in' (reçu), 'out' (transféré/retiré/envoyé), 'other' (promo, OTP, notif).
  *  « encaisse/encaissé » = dépôt CASH d'un client via un agent/marchand vers le compte marchand
  *  → c'est de l'argent ENTRANT (au même titre qu'un transfert « reçu »), pas du bruit. */
 export function parseDirection(text: string): SmsDirection {
-  if (/\bre[cç?]{1,2}u\b|received|resev[wè]|encaiss[eé]/i.test(text)) return 'in';
-  if (/transfer|transf[ée]r|retir[ée]|envoy|\bvoye\b|\bsent\b|d[ée]bit/i.test(text)) return 'out';
+  const t = normalizeSmsText(text);
+  if (NOISE_RE.test(t)) return 'other';
+  if (IN_RE.test(t)) return 'in';
+  if (OUT_RE.test(t)) return 'out';
   return 'other';
 }
 
@@ -62,6 +100,13 @@ function normalizeAmount(raw: string): number | null {
 }
 
 export function parseHtgAmountToCents(text: string): number | null {
+  return parseAmount(text).cents;
+}
+
+/** `fromBalance` : aucun montant de TRANSACTION trouvé, on a dû se rabattre sur le solde du
+ *  compte (« Votre solde: 2,369.12 HTG »). Le montant reste exploité pour l'affichage, mais il
+ *  ne prouve pas qu'il s'agit d'un mouvement — cf. `suspectUnclassified` dans `parseSms`. */
+function parseAmount(text: string): { cents: number | null; fromBalance: boolean } {
   // Tous les montants avec devise (devant OU derrière le nombre)
   const re = /(?:HTG|Gourdes?|Goud|G)\s*([\d][\d.,\s]*\d|\d)|([\d][\d.,\s]*\d|\d)\s*(?:HTG|Gourdes?|Goud|\bG\b)/gi;
   // On IGNORE tout montant précédé de « solde / balance » (= le solde du compte, pas la transaction)
@@ -75,7 +120,7 @@ export function parseHtgAmountToCents(text: string): number | null {
     found.push({ num, balance: isBalanceBefore.test(before) });
   }
   const pick = found.find((f) => !f.balance) ?? found[0];
-  return pick ? normalizeAmount(pick.num) : null;
+  return { cents: pick ? normalizeAmount(pick.num) : null, fromBalance: pick ? pick.balance : false };
 }
 
 /**
@@ -88,9 +133,14 @@ export function parseHtgAmountToCents(text: string): number | null {
  * référence, et le « code » nu ou « # » n'est qu'un dernier recours pour les formats qui n'ont
  * que ça. (Sécurité : la clé d'auto-crédit doit être imprévisible — cf. deposit-reconcile.ts.)
  */
+function parseStrongTxId(text: string): string | null {
+  const m = text.match(/(?:transcode|transaction|tranzaksyon|txn(?:\s*id)?|r[ée]f[ée]rence|\bref\b|confirmation)\s*(?:no\.?|n[o°]?|#|id|:|=)*\s*([A-Za-z0-9]{5,})/i);
+  return m ? m[1].toUpperCase() : null;
+}
+
 export function parseTxId(text: string): string | null {
-  const strong = text.match(/(?:transcode|transaction|tranzaksyon|txn(?:\s*id)?|r[ée]f[ée]rence|\bref\b|confirmation)\s*(?:no\.?|n[o°]?|#|id|:|=)*\s*([A-Za-z0-9]{5,})/i);
-  if (strong) return strong[1].toUpperCase();
+  const strong = parseStrongTxId(text);
+  if (strong) return strong;
   const weak = text.match(/\bcode\s*(?:no\.?|n[o°]?|#|:|=)*\s*([A-Za-z0-9]{5,})/i) || text.match(/#\s*([A-Za-z0-9]{5,})/);
   return weak ? weak[1].toUpperCase() : null;
 }
@@ -107,14 +157,23 @@ export function parseSender(text: string): string | null {
 
 export function parseSms(provider: SmsProvider, raw: string): ParsedSms {
   const text = String(raw || '');
+  const direction = parseDirection(text);
+  const amount = parseAmount(text);
+  // Filet indépendant des regex de sens : un SMS porteur d'un txId FORT et d'un montant de
+  // TRANSACTION est un mouvement, jamais du bruit. Si son sens n'est pas reconnu, c'est un gabarit
+  // nouveau (ou un texte abîmé) — on le signale au lieu de le laisser disparaître dans les
+  // « ignorés ». Un simple relevé de solde (`fromBalance`) ne déclenche pas l'alerte.
+  const suspectUnclassified =
+    direction === 'other' && amount.cents != null && !amount.fromBalance && parseStrongTxId(text) != null;
   return {
     provider,
-    direction: parseDirection(text),
-    amountCents: parseHtgAmountToCents(text),
+    direction,
+    amountCents: amount.cents,
     txId: parseTxId(text),
     sender: parseSender(text),
     senderName: parseSenderName(text),
     balanceCents: parseBalanceCents(text),
     raw: text,
+    suspectUnclassified,
   };
 }

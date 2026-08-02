@@ -64,6 +64,9 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
   const [users, setUsers] = useState<any[]>([]);
   const [audit, setAudit] = useState<any[]>([]);
   const [userSearch, setUserSearch] = useState('');
+  const [smsSearch, setSmsSearch] = useState('');
+  const [smsFilter, setSmsFilter] = useState<'all' | 'review' | 'unmatched' | 'in' | 'ignored'>('all');
+  const [smsLimit, setSmsLimit] = useState(100);
   const [busy, setBusy] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -107,10 +110,10 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
       onSnapshot(query(collection(db, 'kyc_requests'), orderBy('createdAt', 'desc')),
         (s) => setKyc(s.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {}),
       // Journal SMS : TOUS les SMS lus par le webhook (rapprochés ou non). Trié par réception,
-      // borné à 100 — un journal grossit sans fin et l'admin regarde les récents. Le champ de tri
-      // `receivedAt` est écrit par le webhook sur chaque entrée (webhooks.ts), donc aucune
-      // exclusion silencieuse comme sur `users`.
-      onSnapshot(query(collection(db, 'sms_inbox'), orderBy('receivedAt', 'desc'), limit(100)),
+      // borné à `smsLimit` (100 par défaut, extensible par le bouton « Charger plus » — sinon un
+      // dépôt de la veille sort de l'écran). Le champ de tri `receivedAt` est écrit par le webhook
+      // sur chaque entrée (webhooks.ts), donc aucune exclusion silencieuse comme sur `users`.
+      onSnapshot(query(collection(db, 'sms_inbox'), orderBy('receivedAt', 'desc'), limit(smsLimit)),
         (s) => setSmsInbox(s.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {}),
       // Messages du formulaire de contact — écrits serveur-only par submitContactMessage.
       // Bornés à 100, triés par date. `createdAt` est posé sur chaque doc (contact-core.ts).
@@ -127,7 +130,7 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         (s) => setAudit(s.docs.map((d) => ({ id: d.id, ...d.data() }))), () => {}),
     ];
     return () => subs.forEach((u) => u());
-  }, [user]);
+  }, [user, smsLimit]);
 
   const flash = (m: string) => { setToast(m); setTimeout(() => setToast(null), 3000); };
 
@@ -166,6 +169,15 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
     })
     .sort((a, b) => toMillis(b.reviewedAt || b.createdAt) - toMillis(a.reviewedAt || a.createdAt))
     .slice(0, 20);
+  // Ni en attente, ni tranché : le trou noir de cet écran. Un dépôt passé en « KYC Required » par
+  // le hook SMS (deposit-reconcile.ts) n'entrait dans AUCUN des deux seaux — dépôt réel, rapproché,
+  // et invisible pour l'admin. Ce seau attrape ce statut et tout statut futur non prévu ici.
+  const depositsBlocked = deposits
+    .filter((d) => {
+      const s = (d.status || '').toLowerCase();
+      return !(s.includes('pending') || s.includes('await') || s === 'completed' || s === 'rejected');
+    })
+    .sort((a, b) => toMillis(b.reviewedAt || b.createdAt) - toMillis(a.reviewedAt || a.createdAt));
   const kycPending = kyc.filter((k) => (k.status || '').toLowerCase() === 'pending');
   const kycResolved = kyc
     .filter((k) => {
@@ -183,16 +195,36 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
   };
 
   // Traduit le statut technique d'un SMS journalisé en libellé + couleur lisibles.
-  // credited=crédité · needs-review=à rapprocher · unmatched=sans correspondance · ignored-*=ignoré.
+  // « Ignoré » couvrait aussi bien un virement sortant qu'un OTP : impossible de repérer un dépôt
+  // mal classé au milieu de dizaines d'OTP. On distingue donc les deux.
   const smsStatusView = (s: string): { label: string; cls: string } => {
     const v = (s || '').toLowerCase();
     if (v === 'credited') return { label: 'Crédité', cls: 'bg-emerald-500/15 text-emerald-400' };
     if (v === 'needs-review') return { label: 'À rapprocher', cls: 'bg-[var(--tt-warn)]/15 text-[var(--tt-warn)]' };
     if (v === 'unmatched') return { label: 'Sans correspondance', cls: 'bg-red-500/15 text-red-400' };
-    if (v.startsWith('ignored')) return { label: 'Ignoré', cls: 'bg-[var(--tt-text-faint)]/15 text-[var(--tt-text-faint)]' };
+    if (v === 'ignored-out') return { label: 'Sortant', cls: 'bg-[var(--tt-text-muted)]/15 text-[var(--tt-text-muted)]' };
+    if (v.startsWith('ignored')) return { label: 'Bruit', cls: 'bg-[var(--tt-text-faint)]/15 text-[var(--tt-text-faint)]' };
     return { label: s || '—', cls: 'bg-[var(--tt-text-faint)]/15 text-[var(--tt-text-faint)]' };
   };
   const smsToReview = smsInbox.filter((s) => (s.status || '').toLowerCase() === 'needs-review').length;
+
+  // Journal SMS : filtre par nature + recherche plein texte, tous deux CLIENT (la souscription
+  // reste inchangée). Sans ça, un dépôt mal classé se cherche à l'œil dans 100 lignes d'OTP.
+  const smsFiltered = (() => {
+    const q = smsSearch.trim().toLowerCase();
+    return smsInbox.filter((s) => {
+      const st = (s.status || '').toLowerCase();
+      const okFilter =
+        smsFilter === 'all' ? true
+        : smsFilter === 'review' ? st === 'needs-review'
+        : smsFilter === 'unmatched' ? st === 'unmatched'
+        : smsFilter === 'in' ? (s.direction || '').toLowerCase() === 'in'
+        : st.startsWith('ignored');
+      if (!okFilter) return false;
+      if (!q) return true;
+      return [s.raw, s.txId, s.sender, s.senderName, s.provider].some((f) => String(f || '').toLowerCase().includes(q));
+    });
+  })();
   const contactNew = contactMsgs.filter((m) => (m.status || '').toLowerCase() === 'new').length;
 
   const doReviewDeposit = async (requestId: string, decision: 'approve' | 'reject') => {
@@ -250,7 +282,9 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         <nav className="flex lg:flex-col gap-1 overflow-x-auto">
           {TABS.map((t) => {
             const Icon = t.icon;
-            const badge = t.id === 'orders' ? ordersToFulfill.length : t.id === 'deposits' ? depositsPending.length : t.id === 'kyc' ? kycPending.length : t.id === 'sms' ? smsToReview : t.id === 'contact' ? contactNew : 0;
+            // Un dépôt bloqué (KYC) attend une action admin au même titre qu'un dépôt en attente :
+            // il compte dans le badge, sinon rien ne signale qu'il existe.
+            const badge = t.id === 'orders' ? ordersToFulfill.length : t.id === 'deposits' ? depositsPending.length + depositsBlocked.length : t.id === 'kyc' ? kycPending.length : t.id === 'sms' ? smsToReview : t.id === 'contact' ? contactNew : 0;
             return (
               <button key={t.id} onClick={() => setTab(t.id)}
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-bold whitespace-nowrap transition-colors ${tab === t.id ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)]' : 'text-[var(--tt-text-muted)] hover:bg-[var(--tt-overlay)]'}`}>
@@ -368,6 +402,31 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
               ))}
             </div>
 
+            {/* Bloqués : rapprochés par le SMS mais non crédités (seuil KYC dépassé, cf.
+                lib/kyc-deposit-guard.ts). Ni « en attente » ni « traité » — sans cette section,
+                ils n'apparaissaient nulle part et personne ne les relançait. */}
+            {depositsBlocked.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-sm font-black uppercase tracking-wider text-[var(--tt-warn)] mb-1">Bloqués — action requise ({depositsBlocked.length})</h3>
+                <p className="text-xs text-[var(--tt-text-faint)] mb-3">
+                  Argent bien reçu et rapproché, mais non crédité. « KYC Required » = le client doit
+                  faire vérifier son identité (onglet KYC) avant que le dépôt puisse être approuvé.
+                </p>
+                <div className="flex flex-col gap-2">
+                  {depositsBlocked.map((d) => (
+                    <div key={d.id} className="bg-[var(--tt-surface)] border border-[var(--tt-warn)]/40 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm">{d.amountCents ? htg(d.amountCents) : (d.amount != null ? `${Number(d.amount).toLocaleString()} HTG` : '—')} · {d.paymentMethod || d.provider || '—'}</p>
+                        <p className="text-[11px] text-[var(--tt-text-faint)] font-mono truncate">{d.id}{(d.matchedTxId || d.transactionReference) ? ` · Tx ${d.matchedTxId || d.transactionReference}` : ''} · {fmtAuditDate(d.reviewedAt || d.createdAt)}</p>
+                        <p className="text-[11px] text-[var(--tt-text-muted)] truncate">{d.senderName || '—'}{d.senderPhone ? ` · ${d.senderPhone}` : ''}</p>
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-wider rounded-full px-2.5 py-1 shrink-0 bg-[var(--tt-warn)]/15 text-[var(--tt-warn)]">{d.status || '—'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Dépôts déjà tranchés — confirme visuellement qu'un SMS a bien crédité (ou été rejeté). */}
             {depositsResolved.length > 0 && (
               <div className="mt-8">
@@ -442,16 +501,31 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
         {tab === 'sms' && (
           <div>
             <h2 className="text-2xl font-black mb-1">Journal SMS
-              <span className="text-sm text-[var(--tt-text-faint)] font-medium"> ({smsInbox.length} lus{smsToReview > 0 ? `, ${smsToReview} à rapprocher` : ''})</span>
+              <span className="text-sm text-[var(--tt-text-faint)] font-medium"> ({smsFiltered.length === smsInbox.length ? `${smsInbox.length} lus` : `${smsFiltered.length} / ${smsInbox.length}`}{smsToReview > 0 ? `, ${smsToReview} à rapprocher` : ''})</span>
             </h2>
-            <p className="text-xs text-[var(--tt-text-faint)] mb-5">
+            <p className="text-xs text-[var(--tt-text-faint)] mb-4">
               Tous les SMS MonCash / NatCash lus par le téléphone marchand, rapprochés ou non.
               Un SMS « sans correspondance » n’a crédité personne — vérifier qu’une demande de
               dépôt existe bien côté client (montant + TransCode).
             </p>
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              {([
+                ['all', 'Tous'], ['review', 'À rapprocher'], ['unmatched', 'Sans correspondance'],
+                ['in', 'Entrants'], ['ignored', 'Ignorés'],
+              ] as const).map(([id, label]) => (
+                <button key={id} onClick={() => setSmsFilter(id)}
+                  className={`text-[11px] font-black uppercase tracking-wider rounded-full px-3 py-1.5 transition-colors ${smsFilter === id ? 'bg-[var(--tt-accent)] text-[var(--tt-on-accent)]' : 'bg-[var(--tt-overlay)] text-[var(--tt-text-muted)] hover:text-[var(--tt-text)]'}`}>
+                  {label}
+                </button>
+              ))}
+              <input value={smsSearch} onChange={(e) => setSmsSearch(e.target.value)}
+                placeholder="Rechercher (texte, TransCode, numéro, nom)…"
+                className="flex-1 min-w-[200px] bg-[var(--tt-surface)] border border-[var(--tt-border)] rounded-full px-3.5 py-1.5 text-xs outline-none focus:border-[var(--tt-accent)]" />
+            </div>
             <div className="flex flex-col gap-2">
               {smsInbox.length === 0 && <p className="text-[var(--tt-text-faint)] text-sm">Aucun SMS reçu pour l’instant.</p>}
-              {smsInbox.map((s) => {
+              {smsInbox.length > 0 && smsFiltered.length === 0 && <p className="text-[var(--tt-text-faint)] text-sm">Aucun SMS ne correspond à ce filtre.</p>}
+              {smsFiltered.map((s) => {
                 const sv = smsStatusView(s.status);
                 const dir = (s.direction || '').toLowerCase();
                 const dirLabel = dir === 'in' ? 'Reçu' : dir === 'out' ? 'Envoyé' : 'Autre';
@@ -470,6 +544,15 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                       </div>
                       <span className={`text-[10px] font-black uppercase tracking-wider rounded-full px-2.5 py-1 shrink-0 ${sv.cls}`}>{sv.label}</span>
                     </div>
+                    {/* Sens non reconnu alors que le SMS porte un TransCode et un montant : gabarit
+                        inconnu ou texte abîmé par l'encodage. C'est peut-être un dépôt — l'admin
+                        tranche à la main plutôt que de le laisser filer avec le bruit. */}
+                    {s.suspectUnclassified && (
+                      <p className="mt-2 text-[11px] bg-[var(--tt-warn)]/10 border border-[var(--tt-warn)]/30 rounded-lg px-2.5 py-1.5 text-[var(--tt-text-muted)]">
+                        <span className="font-black text-[var(--tt-warn)] uppercase tracking-wider text-[9px]">Sens non reconnu</span>
+                        {' — montant et TransCode présents : vérifier s’il s’agit d’un dépôt à créditer.'}
+                      </p>
+                    )}
                     {s.raw && (
                       <p className="mt-2 text-[11px] text-[var(--tt-text-muted)] bg-[var(--tt-overlay)] border border-[var(--tt-border)] rounded-lg px-2.5 py-1.5 font-mono break-words line-clamp-3">{s.raw}</p>
                     )}
@@ -477,6 +560,14 @@ export function AdminPanel({ user, navigateToPage }: AdminPanelProps) {
                 );
               })}
             </div>
+            {/* Le journal est borné côté serveur : sans ce bouton, un SMS plus ancien que la
+                centième entrée est simplement introuvable depuis le panel. */}
+            {smsInbox.length >= smsLimit && (
+              <button onClick={() => setSmsLimit((n) => n + 100)}
+                className="mt-4 w-full bg-[var(--tt-overlay)] hover:bg-[var(--tt-surface-2)] text-[var(--tt-text-muted)] text-xs font-black rounded-xl py-2.5">
+                Charger 100 SMS de plus
+              </button>
+            )}
           </div>
         )}
 
