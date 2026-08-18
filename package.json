@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit",
+    "lint": "tsc --noEmit && tsc -p functions/tsconfig.json --noEmit",
     "test:rules": "firebase emulators:exec --only firestore \"node --test tests/rules/*.test.mjs\"",
     "test:functions": "npm --prefix functions run build && firebase emulators:exec --only firestore \"node --test functions/test/*.test.mjs\"",
     "test": "npm run test:rules && npm run test:functions"
