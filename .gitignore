@@ -15,3 +15,6 @@ coverage/
 scripts/deposit-accounts.json
 scripts/giftaccess-catalog.json
 scripts/giftaccess-details.json
+
+# Cache de déploiement Firebase Hosting — regénéré à chaque deploy, ne rien en tirer
+.firebase/
